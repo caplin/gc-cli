@@ -8,6 +8,7 @@
     "build": "traceur --dir src/ out/ --modules=commonjs --sourcemap"
   },
   "dependencies": {
+    "recast": "^0.5.26",
     "traceur": "0.0.49"
   },
   "devDependencies": {
