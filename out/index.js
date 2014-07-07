@@ -19,8 +19,17 @@ function compileFile($__5) {
   for (var $__3 = programStatements[Symbol.iterator](),
       $__4; !($__4 = $__3.next()).done; ) {
     var programStatement = $__4.value;
-    {}
+    {
+      t(programStatement);
+    }
   }
-  console.log(print(ast).code);
 }
-function t(astNode) {}
+function t(astNode) {
+  if (astNode.type === 'ExpressionStatement') {
+    var topLevelExpression = astNode.expression;
+    if (topLevelExpression.type === 'AssignmentExpression') {
+      var memberExpression = topLevelExpression.left;
+      console.log(memberExpression);
+    }
+  }
+}

@@ -13,11 +13,21 @@ export function compileFile([fileLocation]) {
 	var programStatements = ast.program.body;
 
 	for (var programStatement of programStatements) {
+		t(programStatement);
 //		console.log(programStatement);
 	}
 
-	console.log(print(ast).code);
+//	console.log(print(ast).code);
 }
 
 function t(astNode) {
+	if (astNode.type === 'ExpressionStatement') {
+		var topLevelExpression = astNode.expression;
+
+		if (topLevelExpression.type === 'AssignmentExpression') {
+			var memberExpression = topLevelExpression.left;
+
+			console.log(memberExpression);
+		}
+	}
 }
