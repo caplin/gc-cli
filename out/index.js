@@ -10,26 +10,28 @@ var readFileSync = require('fs').readFileSync;
 var $__2 = require('recast'),
     parse = $__2.parse,
     print = $__2.print;
-function compileFile($__5) {
-  var fileLocation = $traceurRuntime.assertObject($__5)[0];
+var builders = require('ast-types').builders;
+function compileFile($__6) {
+  var fileLocation = $traceurRuntime.assertObject($__6)[0];
   var filePath = join(process.cwd(), fileLocation);
   var fileContents = readFileSync(filePath);
   var ast = parse(fileContents);
   var programStatements = ast.program.body;
-  for (var $__3 = programStatements[Symbol.iterator](),
-      $__4; !($__4 = $__3.next()).done; ) {
-    var programStatement = $__4.value;
+  for (var $__4 = programStatements[Symbol.iterator](),
+      $__5; !($__5 = $__4.next()).done; ) {
+    var programStatement = $__5.value;
     {
-      t(programStatement);
+      flattenNamespacedJsClass(programStatement);
     }
   }
+  console.log(print(ast).code);
 }
-function t(astNode) {
+function flattenNamespacedJsClass(astNode) {
   if (astNode.type === 'ExpressionStatement') {
     var topLevelExpression = astNode.expression;
     if (topLevelExpression.type === 'AssignmentExpression') {
-      var memberExpression = topLevelExpression.left;
-      console.log(memberExpression);
+      topLevelExpression.left = builders.identifier("SimpleClass");
     }
   }
 }
+function flattenClassConstructor() {}
