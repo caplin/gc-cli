@@ -2,6 +2,7 @@
   "name": "global-compiler",
   "version": "0.0.0",
   "scripts": {
+    "test": "mocha",
     "prepublish": "npm run build",
     "start": "npm run build && node index.js",
     "watch": "watchy -sw src -- npm run build",
@@ -12,6 +13,7 @@
     "traceur": "0.0.49"
   },
   "devDependencies": {
+    "mocha": "^1.20.1",
     "watchy": "~0.4.4"
   },
   "bin": "./bin/global-compiler-cli.js"
