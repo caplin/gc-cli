@@ -10,37 +10,14 @@ var readFileSync = require('fs').readFileSync;
 var $__2 = require('recast'),
     parse = $__2.parse,
     print = $__2.print;
-var builders = require('ast-types').builders;
-function compileFile($__6) {
-  var fileLocation = $traceurRuntime.assertObject($__6)[0];
+var flattenNamespace = require('./transforms/flatten').flattenNamespace;
+function compileFile($__4) {
+  var $__5 = $traceurRuntime.assertObject($__4),
+      fileLocation = $__5[0],
+      fullyQualifiedName = $__5[1];
   var filePath = join(process.cwd(), fileLocation);
   var fileContents = readFileSync(filePath);
   var ast = parse(fileContents);
-  var programStatements = ast.program.body;
-  var namespace = ['my', 'long', 'name', 'space', 'SimpleClass'];
-  for (var $__4 = programStatements[Symbol.iterator](),
-      $__5; !($__5 = $__4.next()).done; ) {
-    var programStatement = $__5.value;
-    {
-      flattenNamespacedJsClass(programStatement, namespace);
-    }
-  }
+  flattenNamespace(ast.program);
   console.log(print(ast).code);
-}
-function flattenNamespacedJsClass($__6, namespace) {
-  var $__7 = $traceurRuntime.assertObject($__6),
-      type = $__7.type,
-      expression = $__7.expression;
-  if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-    if (isNamespacedConstructorMemberExpression(expression.left, namespace)) {
-      flattenClassConstructor(expression, namespace);
-    }
-  }
-}
-function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
-  return true;
-}
-function flattenClassConstructor(assignmentExpression, fullyQualifiedName) {
-  var className = fullyQualifiedName[fullyQualifiedName.length - 1];
-  assignmentExpression.left = builders.identifier(className);
 }
