@@ -17,21 +17,30 @@ function compileFile($__6) {
   var fileContents = readFileSync(filePath);
   var ast = parse(fileContents);
   var programStatements = ast.program.body;
+  var namespace = ['my', 'long', 'name', 'space', 'SimpleClass'];
   for (var $__4 = programStatements[Symbol.iterator](),
       $__5; !($__5 = $__4.next()).done; ) {
     var programStatement = $__5.value;
     {
-      flattenNamespacedJsClass(programStatement);
+      flattenNamespacedJsClass(programStatement, namespace);
     }
   }
   console.log(print(ast).code);
 }
-function flattenNamespacedJsClass(astNode) {
-  if (astNode.type === 'ExpressionStatement') {
-    var topLevelExpression = astNode.expression;
-    if (topLevelExpression.type === 'AssignmentExpression') {
-      topLevelExpression.left = builders.identifier("SimpleClass");
+function flattenNamespacedJsClass($__6, namespace) {
+  var $__7 = $traceurRuntime.assertObject($__6),
+      type = $__7.type,
+      expression = $__7.expression;
+  if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
+    if (isNamespacedConstructorMemberExpression(expression.left, namespace)) {
+      flattenClassConstructor(expression, namespace);
     }
   }
 }
-function flattenClassConstructor() {}
+function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
+  return true;
+}
+function flattenClassConstructor(assignmentExpression, fullyQualifiedName) {
+  var className = fullyQualifiedName[fullyQualifiedName.length - 1];
+  assignmentExpression.left = builders.identifier(className);
+}

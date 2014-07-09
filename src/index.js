@@ -8,7 +8,7 @@ import {
 import {builders} from 'ast-types';
 
 /**
- * @param {Array} - List of options for compiler.
+ * @param {Array} options - List of options for compiler.
  */
 export function compileFile([fileLocation]) {
 	var filePath = join(process.cwd(), fileLocation);
@@ -16,8 +16,11 @@ export function compileFile([fileLocation]) {
 	var ast = parse(fileContents);
 	var programStatements = ast.program.body;
 
+	//TODO: Pass this in as argument.
+	var namespace = ['my', 'long', 'name', 'space', 'SimpleClass'];
+
 	for (var programStatement of programStatements) {
-		flattenNamespacedJsClass(programStatement);
+		flattenNamespacedJsClass(programStatement, namespace);
 	}
 
 	console.log(print(ast).code);
@@ -35,20 +38,36 @@ export function compileFile([fileLocation]) {
  * Modify the provided AstNode if it's a namespaced Js node.
  * The namespaced node will simply have it's namespace removed.
  *
- * @param {AstNode} - Program body AstNode.
+ * @param {AstNode} astNode - Program body AstNode.
+ * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
  */
-function flattenNamespacedJsClass(astNode) {
-	if (astNode.type === 'ExpressionStatement') {
-		var topLevelExpression = astNode.expression;
-
-		if (topLevelExpression.type === 'AssignmentExpression') {
-			topLevelExpression.left = builders.identifier("SimpleClass");
+function flattenNamespacedJsClass({type, expression}, namespace) {
+	if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
+		if (isNamespacedConstructorMemberExpression(expression.left, namespace)) {
+			flattenClassConstructor(expression, namespace);
 		}
 	}
 }
 
 /**
+ * Returns true if provided node is a namespaced class constructor.
+ *
+ * @param {AstNode} assignmentLeftExpression - Node to test.
+ * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
+ * @returns {boolean} is node a class constructor node.
  */
-function flattenClassConstructor() {
-	
+function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
+	//SimpleClass space name long my
+	return true;
+}
+
+/**
+ * Remove the namespace identifiers in a namespaced class constructor.
+ *
+ * @param {AstNode} assignmentExpression - Node to flatten.
+ * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
+ */
+function flattenClassConstructor(assignmentExpression, fullyQualifiedName) {
+	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
+	assignmentExpression.left = builders.identifier(className);
 }
