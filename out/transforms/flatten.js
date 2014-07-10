@@ -8,22 +8,22 @@ Object.defineProperties(exports, {
 var builders = require('ast-types').builders;
 function flattenNamespace($__3, fullyQualifiedName) {
   var programStatements = $traceurRuntime.assertObject($__3).body;
-  var namespace = ['my', 'long', 'name', 'space', 'SimpleClass'];
+  fullyQualifiedName = fullyQualifiedName.split('.');
   for (var $__1 = programStatements[Symbol.iterator](),
       $__2; !($__2 = $__1.next()).done; ) {
     var programStatement = $__2.value;
     {
-      flattenNamespacedJsClass(programStatement, namespace);
+      flattenNamespacedJsClass(programStatement, fullyQualifiedName);
     }
   }
 }
-function flattenNamespacedJsClass($__3, namespace) {
+function flattenNamespacedJsClass($__3, fullyQualifiedName) {
   var $__4 = $traceurRuntime.assertObject($__3),
       type = $__4.type,
       expression = $__4.expression;
   if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-    if (isNamespacedConstructorMemberExpression(expression.left, namespace)) {
-      flattenClassConstructor(expression, namespace);
+    if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
+      flattenClassConstructor(expression, fullyQualifiedName);
     }
   }
 }

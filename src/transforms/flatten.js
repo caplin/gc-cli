@@ -2,13 +2,13 @@ import {builders} from 'ast-types';
 
 /**
  * @param {AstNode} programNode - Program AstNode.
+ * @param {string} fullyQualifiedName - The fully qualified name as an array.
  */
 export function flattenNamespace({body: programStatements}, fullyQualifiedName) {
-	//TODO: Pass this in as argument.
-	var namespace = ['my', 'long', 'name', 'space', 'SimpleClass'];
+	fullyQualifiedName = fullyQualifiedName.split('.');
 
 	for (var programStatement of programStatements) {
-		flattenNamespacedJsClass(programStatement, namespace);
+		flattenNamespacedJsClass(programStatement, fullyQualifiedName);
 	}
 }
 
@@ -27,10 +27,10 @@ export function flattenNamespace({body: programStatements}, fullyQualifiedName) 
  * @param {AstNode} astNode - Program body AstNode.
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
  */
-function flattenNamespacedJsClass({type, expression}, namespace) {
+function flattenNamespacedJsClass({type, expression}, fullyQualifiedName) {
 	if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-		if (isNamespacedConstructorMemberExpression(expression.left, namespace)) {
-			flattenClassConstructor(expression, namespace);
+		if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
+			flattenClassConstructor(expression, fullyQualifiedName);
 		}
 	}
 }
