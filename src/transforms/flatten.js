@@ -29,8 +29,12 @@ export function flattenNamespace({body: programStatements}, fullyQualifiedName) 
  */
 function flattenNamespacedJsClass({type, expression}, fullyQualifiedName) {
 	if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
+		var className = fullyQualifiedName[fullyQualifiedName.length - 1];
+
 		if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
-			flattenClassConstructor(expression, fullyQualifiedName);
+			expression.left = builders.identifier(className);
+		} else if (true) {
+			flattenClassMethod(expression, className, 'myMethod');
 		}
 	}
 }
@@ -64,13 +68,13 @@ function isNamespacedClassConstructor(expression, namespacePart) {
 }
 
 /**
- * Remove the namespace identifiers in a namespaced class constructor.
+ * Remove the namespace identifiers in a namespaced class method.
  *
  * @param {AstNode} assignmentExpression - Node to flatten.
- * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
+ * @param {string} className - The class name.
  */
-function flattenClassConstructor(assignmentExpression, fullyQualifiedName) {
-	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
+function flattenClassMethod(assignmentExpression, className, methodName) {
+	var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
 
-	assignmentExpression.left = builders.identifier(className);
+	assignmentExpression.left = builders.memberExpression(classProto, builders.identifier(methodName), false);
 }

@@ -22,8 +22,11 @@ function flattenNamespacedJsClass($__3, fullyQualifiedName) {
       type = $__4.type,
       expression = $__4.expression;
   if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
+    var className = fullyQualifiedName[fullyQualifiedName.length - 1];
     if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
-      flattenClassConstructor(expression, fullyQualifiedName);
+      expression.left = builders.identifier(className);
+    } else if (true) {
+      flattenClassMethod(expression, className, 'myMethod');
     }
   }
 }
@@ -40,7 +43,7 @@ function isNamespacedClassConstructor(expression, namespacePart) {
   }
   return false;
 }
-function flattenClassConstructor(assignmentExpression, fullyQualifiedName) {
-  var className = fullyQualifiedName[fullyQualifiedName.length - 1];
-  assignmentExpression.left = builders.identifier(className);
+function flattenClassMethod(assignmentExpression, className, methodName) {
+  var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
+  assignmentExpression.left = builders.memberExpression(classProto, builders.identifier(methodName), false);
 }
