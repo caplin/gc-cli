@@ -28,11 +28,19 @@ function flattenNamespacedJsClass($__3, fullyQualifiedName) {
   }
 }
 function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
-  fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
-  return true;
+  return fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
+}
+function isNamespacedClassConstructor(expression, namespacePart) {
+  if (typeof expression === 'boolean') {
+    return false;
+  } else if (expression.type === 'Identifier' && expression.name === namespacePart) {
+    return true;
+  } else if (expression.type === 'MemberExpression' && expression.property.name === namespacePart) {
+    return expression.object;
+  }
+  return false;
 }
 function flattenClassConstructor(assignmentExpression, fullyQualifiedName) {
   var className = fullyQualifiedName[fullyQualifiedName.length - 1];
   assignmentExpression.left = builders.identifier(className);
 }
-function isNamespacedClassConstructor() {}

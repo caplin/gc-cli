@@ -43,9 +43,24 @@ function flattenNamespacedJsClass({type, expression}, fullyQualifiedName) {
  * @returns {boolean} is node a class constructor node.
  */
 function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
-	//SimpleClass space name long my
-	fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
-	return true;
+	return fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
+}
+
+/**
+ * @param {(AstNode|boolean)} expression - An Expression Node or a boolean.
+ * @param {string} namespacePart - The part of the namespace to test.
+ * @returns {boolean} is node a class constructor node.
+ */
+function isNamespacedClassConstructor(expression, namespacePart) {
+	if (typeof expression === 'boolean') {
+		return false;
+	} else if (expression.type === 'Identifier' && expression.name === namespacePart) {
+		return true;
+	} else if (expression.type === 'MemberExpression' && expression.property.name === namespacePart) {
+		return expression.object;
+	}
+
+	return false;
 }
 
 /**
@@ -58,15 +73,4 @@ function flattenClassConstructor(assignmentExpression, fullyQualifiedName) {
 	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
 	assignmentExpression.left = builders.identifier(className);
-}
-
-function isNamespacedClassConstructor() {
-//"type": "MemberExpression",
-//	
-//	"object": is the child
-//	
-//	"property": {
-//                        "type": "Identifier",
-//                        "name": "SimpleClass"
-//                    }
 }
