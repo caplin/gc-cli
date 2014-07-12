@@ -107,11 +107,9 @@ function flattenClassMethod(assignmentExpression, className, methodName) {
  */
 function replaceConstructorExpressionWithDeclaration(programStatements) {
 	var {programStatement, classConstructorDeclaration} = classConstructor;
-	console.log(programStatement);
 	var classConstructorExpression = programStatements.indexOf(programStatement);
 
 	if (classConstructorExpression > -1) {
-		
+		programStatements.splice(classConstructorExpression, 1, classConstructorDeclaration);
 	}
-//	classConstructor = {programStatement, classConstructorDeclaration}
 }

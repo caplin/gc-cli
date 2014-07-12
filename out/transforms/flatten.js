@@ -62,7 +62,8 @@ function replaceConstructorExpressionWithDeclaration(programStatements) {
   var $__3 = $traceurRuntime.assertObject(classConstructor),
       programStatement = $__3.programStatement,
       classConstructorDeclaration = $__3.classConstructorDeclaration;
-  console.log(programStatement);
   var classConstructorExpression = programStatements.indexOf(programStatement);
-  if (classConstructorExpression > -1) {}
+  if (classConstructorExpression > -1) {
+    programStatements.splice(classConstructorExpression, 1, classConstructorDeclaration);
+  }
 }
