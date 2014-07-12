@@ -1,5 +1,7 @@
 import {builders} from 'ast-types';
 
+var classConstructor = null;
+
 /**
  * @param {AstNode} programNode - Program AstNode.
  * @param {string} fullyQualifiedName - The fully qualified name as an array.
@@ -8,8 +10,14 @@ export function flattenNamespace({body: programStatements}, fullyQualifiedName) 
 	fullyQualifiedName = fullyQualifiedName.split('.');
 
 	for (var programStatement of programStatements) {
-		flattenNamespacedJsClass(programStatement, fullyQualifiedName);
+		var {type, expression} = programStatement;
+
+		if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
+			flattenIfNamespacedExpressionStatement(programStatement, fullyQualifiedName);
+		}
 	}
+
+	replaceConstructorExpressionWithDeclaration(programStatements);
 }
 
 /**
@@ -27,15 +35,14 @@ export function flattenNamespace({body: programStatements}, fullyQualifiedName) 
  * @param {AstNode} astNode - Program body AstNode.
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
  */
-function flattenNamespacedJsClass({type, expression}, fullyQualifiedName) {
-	if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-		var className = fullyQualifiedName[fullyQualifiedName.length - 1];
+function flattenIfNamespacedExpressionStatement(programStatement, fullyQualifiedName) {
+	var {expression} = programStatement;
+	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
-		if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
-			expression.left = builders.identifier(className);
-		} else if (true) {
-			flattenClassMethod(expression, className, 'myMethod');
-		}
+	if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
+		createConstructorFunctionDeclaration(programStatement, className);
+	} else if (true) {
+		flattenClassMethod(expression, className, 'myMethod');
 	}
 }
 
@@ -68,13 +75,43 @@ function isNamespacedClassConstructor(expression, namespacePart) {
 }
 
 /**
+ */
+function createConstructorFunctionDeclaration(programStatement, className) {
+//	var functionExpression = expression.right;
+	var {expression: {right: functionExpression}} = programStatement;
+//	classConstructor
+
+	var classConstructorDeclaration = builders.functionDeclaration(
+		builders.identifier(className),
+		functionExpression.params,
+		functionExpression.body
+	);
+
+	classConstructor = {programStatement, classConstructorDeclaration};
+}
+
+/**
  * Remove the namespace identifiers in a namespaced class method.
  *
  * @param {AstNode} assignmentExpression - Node to flatten.
  * @param {string} className - The class name.
+ * @param {string} methodName - The method name.
  */
 function flattenClassMethod(assignmentExpression, className, methodName) {
 	var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
 
 	assignmentExpression.left = builders.memberExpression(classProto, builders.identifier(methodName), false);
+}
+
+/**
+ */
+function replaceConstructorExpressionWithDeclaration(programStatements) {
+	var {programStatement, classConstructorDeclaration} = classConstructor;
+	console.log(programStatement);
+	var classConstructorExpression = programStatements.indexOf(programStatement);
+
+	if (classConstructorExpression > -1) {
+		
+	}
+//	classConstructor = {programStatement, classConstructorDeclaration}
 }
