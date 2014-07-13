@@ -18,17 +18,17 @@ function flattenNamespace($__3, fullyQualifiedName) {
           type = $__4.type,
           expression = $__4.expression;
       if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-        flattenIfNamespacedExpressionStatement(programStatement, fullyQualifiedName);
+        flattenIfNamespaced(programStatement, fullyQualifiedName);
       }
     }
   }
   replaceConstructorExpressionWithDeclaration(programStatements);
 }
-function flattenIfNamespacedExpressionStatement(programStatement, fullyQualifiedName) {
-  var expression = $traceurRuntime.assertObject(programStatement).expression;
+function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
+  var expression = $traceurRuntime.assertObject(expressionStatement).expression;
   var className = fullyQualifiedName[fullyQualifiedName.length - 1];
   if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
-    createConstructorFunctionDeclaration(programStatement, className);
+    createConstructorFunctionDeclaration(expressionStatement, className);
   } else if (true) {
     flattenClassMethod(expression, className, 'myMethod');
   }
@@ -46,23 +46,24 @@ function isNamespacedClassConstructor(expression, namespacePart) {
   }
   return false;
 }
-function createConstructorFunctionDeclaration(programStatement, className) {
-  var functionExpression = $traceurRuntime.assertObject($traceurRuntime.assertObject(programStatement).expression).right;
+function createConstructorFunctionDeclaration(expressionStatement, className) {
+  var functionExpression = $traceurRuntime.assertObject($traceurRuntime.assertObject(expressionStatement).expression).right;
   var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
   classConstructor = {
-    programStatement: programStatement,
+    expressionStatement: expressionStatement,
     classConstructorDeclaration: classConstructorDeclaration
   };
 }
 function flattenClassMethod(assignmentExpression, className, methodName) {
   var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
-  assignmentExpression.left = builders.memberExpression(classProto, builders.identifier(methodName), false);
+  var classMethod = builders.memberExpression(classProto, builders.identifier(methodName), false);
+  assignmentExpression.left = classMethod;
 }
 function replaceConstructorExpressionWithDeclaration(programStatements) {
   var $__3 = $traceurRuntime.assertObject(classConstructor),
-      programStatement = $__3.programStatement,
+      expressionStatement = $__3.expressionStatement,
       classConstructorDeclaration = $__3.classConstructorDeclaration;
-  var classConstructorExpression = programStatements.indexOf(programStatement);
+  var classConstructorExpression = programStatements.indexOf(expressionStatement);
   if (classConstructorExpression > -1) {
     programStatements.splice(classConstructorExpression, 1, classConstructorDeclaration);
   }

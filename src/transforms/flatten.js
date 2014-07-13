@@ -4,7 +4,7 @@ var classConstructor = null;
 
 /**
  * @param {AstNode} programNode - Program AstNode.
- * @param {string} fullyQualifiedName - The fully qualified name as an array.
+ * @param {string} fullyQualifiedName - The fully qualified class name.
  */
 export function flattenNamespace({body: programStatements}, fullyQualifiedName) {
 	fullyQualifiedName = fullyQualifiedName.split('.');
@@ -13,7 +13,7 @@ export function flattenNamespace({body: programStatements}, fullyQualifiedName) 
 		var {type, expression} = programStatement;
 
 		if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-			flattenIfNamespacedExpressionStatement(programStatement, fullyQualifiedName);
+			flattenIfNamespaced(programStatement, fullyQualifiedName);
 		}
 	}
 
@@ -29,18 +29,18 @@ export function flattenNamespace({body: programStatements}, fullyQualifiedName) 
  */
 
 /**
- * Modify the provided AstNode if it's a namespaced Js node.
- * The namespaced node will simply have it's namespace removed.
+ * Modify the provided ExpressionStatement AstNode if it's a namespaced node.
+ * The node will have it's namespace removed.
  *
- * @param {AstNode} astNode - Program body AstNode.
+ * @param {AstNode} expressionStatement - ExpressionStatement AstNode.
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
  */
-function flattenIfNamespacedExpressionStatement(programStatement, fullyQualifiedName) {
-	var {expression} = programStatement;
+function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
+	var {expression} = expressionStatement;
 	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
 	if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
-		createConstructorFunctionDeclaration(programStatement, className);
+		createConstructorFunctionDeclaration(expressionStatement, className);
 	} else if (true) {
 		flattenClassMethod(expression, className, 'myMethod');
 	}
@@ -60,7 +60,7 @@ function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fully
 /**
  * @param {(AstNode|boolean)} expression - An Expression Node or a boolean.
  * @param {string} namespacePart - The part of the namespace to test.
- * @returns {boolean} is node a class constructor node.
+ * @returns {(AstNode|boolean)} is node a class constructor node or next Expression AstNode to test.
  */
 function isNamespacedClassConstructor(expression, namespacePart) {
 	if (typeof expression === 'boolean') {
@@ -75,19 +75,20 @@ function isNamespacedClassConstructor(expression, namespacePart) {
 }
 
 /**
+ * Given a class constructor ExpressionStatement AstNode create a FunctionDeclaration class constructor.
+ *
+ * @param {AstNode} expressionStatement - ExpressionStatement AstNode.
+ * @param {string} className - The class name.
  */
-function createConstructorFunctionDeclaration(programStatement, className) {
-//	var functionExpression = expression.right;
-	var {expression: {right: functionExpression}} = programStatement;
-//	classConstructor
-
+function createConstructorFunctionDeclaration(expressionStatement, className) {
+	var {expression: {right: functionExpression}} = expressionStatement;
 	var classConstructorDeclaration = builders.functionDeclaration(
 		builders.identifier(className),
 		functionExpression.params,
 		functionExpression.body
 	);
 
-	classConstructor = {programStatement, classConstructorDeclaration};
+	classConstructor = {expressionStatement, classConstructorDeclaration};
 }
 
 /**
@@ -98,16 +99,28 @@ function createConstructorFunctionDeclaration(programStatement, className) {
  * @param {string} methodName - The method name.
  */
 function flattenClassMethod(assignmentExpression, className, methodName) {
-	var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
+	var classProto = builders.memberExpression(
+		builders.identifier(className),
+		builders.identifier('prototype'),
+		false
+	);
+	var classMethod = builders.memberExpression(
+		classProto,
+		builders.identifier(methodName),
+		false
+	);
 
-	assignmentExpression.left = builders.memberExpression(classProto, builders.identifier(methodName), false);
+	assignmentExpression.left = classMethod;
 }
 
 /**
+ * Replace class constructor Expression with a Function Declaration.
+ *
+ * @param {AstNode[]} programStatements - Program body Statements.
  */
 function replaceConstructorExpressionWithDeclaration(programStatements) {
-	var {programStatement, classConstructorDeclaration} = classConstructor;
-	var classConstructorExpression = programStatements.indexOf(programStatement);
+	var {expressionStatement, classConstructorDeclaration} = classConstructor;
+	var classConstructorExpression = programStatements.indexOf(expressionStatement);
 
 	if (classConstructorExpression > -1) {
 		programStatements.splice(classConstructorExpression, 1, classConstructorDeclaration);
