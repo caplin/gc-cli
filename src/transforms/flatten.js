@@ -1,23 +1,21 @@
 import {builders} from 'ast-types';
 
-var classConstructor = null;
-
 /**
  * @param {AstNode} programNode - Program AstNode.
  * @param {string} fullyQualifiedName - The fully qualified class name.
  */
-export function flattenNamespace({body: programStatements}, fullyQualifiedName) {
+export function flattenNamespace(programNode, fullyQualifiedName) {
 	fullyQualifiedName = fullyQualifiedName.split('.');
 
-	for (var programStatement of programStatements) {
+	programNode.body = programNode.body.map((programStatement) => {
 		var {type, expression} = programStatement;
 
 		if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-			flattenIfNamespaced(programStatement, fullyQualifiedName);
+			return flattenIfNamespaced(programStatement, fullyQualifiedName);
 		}
-	}
 
-	replaceConstructorExpressionWithDeclaration(programStatements);
+		return programStatement;
+	});
 }
 
 /**
@@ -40,10 +38,12 @@ function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
 	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
 	if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
-		createConstructorFunctionDeclaration(expressionStatement, className);
+		return createConstructorFunctionDeclaration(expressionStatement, className);
 	} else if (true) {
 		flattenClassMethod(expression, className, 'myMethod');
 	}
+
+	return expressionStatement;
 }
 
 /**
@@ -88,7 +88,7 @@ function createConstructorFunctionDeclaration(expressionStatement, className) {
 		functionExpression.body
 	);
 
-	classConstructor = {expressionStatement, classConstructorDeclaration};
+	return classConstructorDeclaration;
 }
 
 /**
@@ -111,18 +111,4 @@ function flattenClassMethod(assignmentExpression, className, methodName) {
 	);
 
 	assignmentExpression.left = classMethod;
-}
-
-/**
- * Replace class constructor Expression with a Function Declaration.
- *
- * @param {AstNode[]} programStatements - Program body Statements.
- */
-function replaceConstructorExpressionWithDeclaration(programStatements) {
-	var {expressionStatement, classConstructorDeclaration} = classConstructor;
-	var classConstructorExpression = programStatements.indexOf(expressionStatement);
-
-	if (classConstructorExpression > -1) {
-		programStatements.splice(classConstructorExpression, 1, classConstructorDeclaration);
-	}
 }

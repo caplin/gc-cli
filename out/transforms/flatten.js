@@ -6,31 +6,26 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var builders = require('ast-types').builders;
-var classConstructor = null;
-function flattenNamespace($__3, fullyQualifiedName) {
-  var programStatements = $traceurRuntime.assertObject($__3).body;
+function flattenNamespace(programNode, fullyQualifiedName) {
   fullyQualifiedName = fullyQualifiedName.split('.');
-  for (var $__1 = programStatements[Symbol.iterator](),
-      $__2; !($__2 = $__1.next()).done; ) {
-    var programStatement = $__2.value;
-    {
-      var $__4 = $traceurRuntime.assertObject(programStatement),
-          type = $__4.type,
-          expression = $__4.expression;
-      if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-        flattenIfNamespaced(programStatement, fullyQualifiedName);
-      }
+  programNode.body = programNode.body.map((function(programStatement) {
+    var $__1 = $traceurRuntime.assertObject(programStatement),
+        type = $__1.type,
+        expression = $__1.expression;
+    if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
+      return flattenIfNamespaced(programStatement, fullyQualifiedName);
     }
-  }
-  replaceConstructorExpressionWithDeclaration(programStatements);
+    return programStatement;
+  }));
 }
 function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
   var expression = $traceurRuntime.assertObject(expressionStatement).expression;
   var className = fullyQualifiedName[fullyQualifiedName.length - 1];
   if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
-    createConstructorFunctionDeclaration(expressionStatement, className);
+    return createConstructorFunctionDeclaration(expressionStatement, className);
   } else if (true) {
     flattenClassMethod(expression, className, 'myMethod');
+    return expressionStatement;
   }
 }
 function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
@@ -49,22 +44,10 @@ function isNamespacedClassConstructor(expression, namespacePart) {
 function createConstructorFunctionDeclaration(expressionStatement, className) {
   var functionExpression = $traceurRuntime.assertObject($traceurRuntime.assertObject(expressionStatement).expression).right;
   var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
-  classConstructor = {
-    expressionStatement: expressionStatement,
-    classConstructorDeclaration: classConstructorDeclaration
-  };
+  return classConstructorDeclaration;
 }
 function flattenClassMethod(assignmentExpression, className, methodName) {
   var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
   var classMethod = builders.memberExpression(classProto, builders.identifier(methodName), false);
   assignmentExpression.left = classMethod;
-}
-function replaceConstructorExpressionWithDeclaration(programStatements) {
-  var $__3 = $traceurRuntime.assertObject(classConstructor),
-      expressionStatement = $__3.expressionStatement,
-      classConstructorDeclaration = $__3.classConstructorDeclaration;
-  var classConstructorExpression = programStatements.indexOf(expressionStatement);
-  if (classConstructorExpression > -1) {
-    programStatements.splice(classConstructorExpression, 1, classConstructorDeclaration);
-  }
 }
