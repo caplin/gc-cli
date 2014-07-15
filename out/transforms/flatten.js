@@ -20,13 +20,15 @@ function flattenNamespace(programNode, fullyQualifiedName) {
 }
 function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
   var expression = $traceurRuntime.assertObject(expressionStatement).expression;
+  var assignmentLeftExpression = expression.left;
   var className = fullyQualifiedName[fullyQualifiedName.length - 1];
-  if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
+  if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
+    var methodName = assignmentLeftExpression.property.name;
+    flattenClassMethod(expression, className, methodName);
+  } else if (isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName)) {
     return createConstructorFunctionDeclaration(expressionStatement, className);
-  } else if (true) {
-    flattenClassMethod(expression, className, 'myMethod');
-    return expressionStatement;
   }
+  return expressionStatement;
 }
 function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
   return fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
@@ -36,7 +38,7 @@ function isNamespacedClassConstructor(expression, namespacePart) {
     return false;
   } else if (expression.type === 'Identifier' && expression.name === namespacePart) {
     return true;
-  } else if (expression.type === 'MemberExpression' && expression.property.name === namespacePart) {
+  } else if (expression.type === 'MemberExpression' && (expression.property.name === namespacePart || namespacePart === '*')) {
     return expression.object;
   }
   return false;
@@ -50,4 +52,8 @@ function flattenClassMethod(assignmentExpression, className, methodName) {
   var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
   var classMethod = builders.memberExpression(classProto, builders.identifier(methodName), false);
   assignmentExpression.left = classMethod;
+}
+function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
+  var fullyQualifiedMethod = Array.from(fullyQualifiedName).concat('prototype', '*');
+  return fullyQualifiedMethod.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
 }

@@ -35,12 +35,15 @@ export function flattenNamespace(programNode, fullyQualifiedName) {
  */
 function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
 	var {expression} = expressionStatement;
+	var assignmentLeftExpression = expression.left;
 	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
-	if (isNamespacedConstructorMemberExpression(expression.left, fullyQualifiedName)) {
+	if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
+		var methodName = assignmentLeftExpression.property.name;
+
+		flattenClassMethod(expression, className, methodName);
+	} else if (isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName)) {
 		return createConstructorFunctionDeclaration(expressionStatement, className);
-	} else if (true) {
-		flattenClassMethod(expression, className, 'myMethod');
 	}
 
 	return expressionStatement;
@@ -67,7 +70,7 @@ function isNamespacedClassConstructor(expression, namespacePart) {
 		return false;
 	} else if (expression.type === 'Identifier' && expression.name === namespacePart) {
 		return true;
-	} else if (expression.type === 'MemberExpression' && expression.property.name === namespacePart) {
+	} else if (expression.type === 'MemberExpression' && (expression.property.name === namespacePart || namespacePart === '*')) {
 		return expression.object;
 	}
 
@@ -111,4 +114,14 @@ function flattenClassMethod(assignmentExpression, className, methodName) {
 	);
 
 	assignmentExpression.left = classMethod;
+}
+
+/**
+ */
+function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
+	var fullyQualifiedMethod = Array
+								.from(fullyQualifiedName)
+								.concat('prototype', '*');
+
+	return fullyQualifiedMethod.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
 }
