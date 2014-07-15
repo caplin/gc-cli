@@ -29,10 +29,14 @@ function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
   }
   return expressionStatement;
 }
-function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
-  return fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
+function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
+  var fullyQualifiedMethod = Array.from(fullyQualifiedName).concat('prototype', '*');
+  return fullyQualifiedMethod.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
 }
-function isNamespacedClassConstructor(expression, namespacePart) {
+function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
+  return fullyQualifiedName.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
+}
+function isNamespacedClassMember(expression, namespacePart) {
   if (typeof expression === 'boolean') {
     return false;
   } else if (expression.type === 'Identifier' && expression.name === namespacePart) {
@@ -42,18 +46,14 @@ function isNamespacedClassConstructor(expression, namespacePart) {
   }
   return false;
 }
-function createConstructorFunctionDeclaration(expressionStatement, className) {
-  var functionExpression = $traceurRuntime.assertObject($traceurRuntime.assertObject(expressionStatement).expression).right;
-  var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
-  return classConstructorDeclaration;
-}
 function flattenClassMethod(assignmentExpression, className) {
   var methodName = $traceurRuntime.assertObject($traceurRuntime.assertObject($traceurRuntime.assertObject(assignmentExpression).left).property).name;
   var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
   var classMethod = builders.memberExpression(classProto, builders.identifier(methodName), false);
   assignmentExpression.left = classMethod;
 }
-function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
-  var fullyQualifiedMethod = Array.from(fullyQualifiedName).concat('prototype', '*');
-  return fullyQualifiedMethod.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
+function createConstructorFunctionDeclaration(expressionStatement, className) {
+  var functionExpression = $traceurRuntime.assertObject($traceurRuntime.assertObject(expressionStatement).expression).right;
+  var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
+  return classConstructorDeclaration;
 }

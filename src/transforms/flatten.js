@@ -48,14 +48,29 @@ function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
 }
 
 /**
+ * Returns true if provided node is a namespaced class method.
+ *
+ * @param {AstNode} assignmentLeftExpression - Node to test.
+ * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
+ * @returns {boolean} is node a class method.
+ */
+function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
+	var fullyQualifiedMethod = Array
+								.from(fullyQualifiedName)
+								.concat('prototype', '*');
+
+	return fullyQualifiedMethod.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
+}
+
+/**
  * Returns true if provided node is a namespaced class constructor.
  *
  * @param {AstNode} assignmentLeftExpression - Node to test.
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
- * @returns {boolean} is node a class constructor node.
+ * @returns {boolean} is node a class constructor.
  */
 function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
-	return fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
+	return fullyQualifiedName.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
 }
 
 /**
@@ -63,7 +78,7 @@ function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
  * @param {string} namespacePart - The part of the namespace to test.
  * @returns {(AstNode|boolean)} is node a class constructor node or next Expression AstNode to test.
  */
-function isNamespacedClassConstructor(expression, namespacePart) {
+function isNamespacedClassMember(expression, namespacePart) {
 	if (typeof expression === 'boolean') {
 		return false;
 	} else if (expression.type === 'Identifier' && expression.name === namespacePart) {
@@ -73,23 +88,6 @@ function isNamespacedClassConstructor(expression, namespacePart) {
 	}
 
 	return false;
-}
-
-/**
- * Given a class constructor ExpressionStatement AstNode create a FunctionDeclaration class constructor.
- *
- * @param {AstNode} expressionStatement - ExpressionStatement AstNode.
- * @param {string} className - The class name.
- */
-function createConstructorFunctionDeclaration(expressionStatement, className) {
-	var {expression: {right: functionExpression}} = expressionStatement;
-	var classConstructorDeclaration = builders.functionDeclaration(
-		builders.identifier(className),
-		functionExpression.params,
-		functionExpression.body
-	);
-
-	return classConstructorDeclaration;
 }
 
 /**
@@ -115,11 +113,18 @@ function flattenClassMethod(assignmentExpression, className) {
 }
 
 /**
+ * Given a class constructor ExpressionStatement AstNode create a FunctionDeclaration class constructor.
+ *
+ * @param {AstNode} expressionStatement - ExpressionStatement AstNode.
+ * @param {string} className - The class name.
  */
-function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
-	var fullyQualifiedMethod = Array
-								.from(fullyQualifiedName)
-								.concat('prototype', '*');
+function createConstructorFunctionDeclaration(expressionStatement, className) {
+	var {expression: {right: functionExpression}} = expressionStatement;
+	var classConstructorDeclaration = builders.functionDeclaration(
+		builders.identifier(className),
+		functionExpression.params,
+		functionExpression.body
+	);
 
-	return fullyQualifiedMethod.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
+	return classConstructorDeclaration;
 }
