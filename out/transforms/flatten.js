@@ -19,18 +19,17 @@ function flattenNamespace(programNode, fullyQualifiedName) {
   }));
 }
 function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
-  var expression = $traceurRuntime.assertObject(expressionStatement).expression;
-  var assignmentLeftExpression = expression.left;
+  var assignmentExpression = $traceurRuntime.assertObject(expressionStatement).expression;
+  var assignmentLeftExpression = assignmentExpression.left;
   var className = fullyQualifiedName[fullyQualifiedName.length - 1];
   if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
-    var methodName = assignmentLeftExpression.property.name;
-    flattenClassMethod(expression, className, methodName);
-  } else if (isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName)) {
+    flattenClassMethod(assignmentExpression, className);
+  } else if (isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName)) {
     return createConstructorFunctionDeclaration(expressionStatement, className);
   }
   return expressionStatement;
 }
-function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
+function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
   return fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
 }
 function isNamespacedClassConstructor(expression, namespacePart) {
@@ -48,7 +47,8 @@ function createConstructorFunctionDeclaration(expressionStatement, className) {
   var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
   return classConstructorDeclaration;
 }
-function flattenClassMethod(assignmentExpression, className, methodName) {
+function flattenClassMethod(assignmentExpression, className) {
+  var methodName = $traceurRuntime.assertObject($traceurRuntime.assertObject($traceurRuntime.assertObject(assignmentExpression).left).property).name;
   var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
   var classMethod = builders.memberExpression(classProto, builders.identifier(methodName), false);
   assignmentExpression.left = classMethod;

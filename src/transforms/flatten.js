@@ -1,6 +1,14 @@
 import {builders} from 'ast-types';
 
 /**
+ * SpiderMonkey AST node.
+ * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
+ *
+ * @typedef {Object} AstNode
+ * @property {string} type - A string representing the AST variant type.
+ */
+
+/**
  * @param {AstNode} programNode - Program AstNode.
  * @param {string} fullyQualifiedName - The fully qualified class name.
  */
@@ -19,14 +27,6 @@ export function flattenNamespace(programNode, fullyQualifiedName) {
 }
 
 /**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
  * Modify the provided ExpressionStatement AstNode if it's a namespaced node.
  * The node will have it's namespace removed.
  *
@@ -34,15 +34,13 @@ export function flattenNamespace(programNode, fullyQualifiedName) {
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
  */
 function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
-	var {expression} = expressionStatement;
-	var assignmentLeftExpression = expression.left;
+	var {expression: assignmentExpression} = expressionStatement;
+	var assignmentLeftExpression = assignmentExpression.left;
 	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
 	if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
-		var methodName = assignmentLeftExpression.property.name;
-
-		flattenClassMethod(expression, className, methodName);
-	} else if (isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName)) {
+		flattenClassMethod(assignmentExpression, className);
+	} else if (isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName)) {
 		return createConstructorFunctionDeclaration(expressionStatement, className);
 	}
 
@@ -56,7 +54,7 @@ function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
  * @returns {boolean} is node a class constructor node.
  */
-function isNamespacedConstructorMemberExpression(assignmentLeftExpression, fullyQualifiedName) {
+function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
 	return fullyQualifiedName.reduceRight(isNamespacedClassConstructor, assignmentLeftExpression);
 }
 
@@ -99,9 +97,9 @@ function createConstructorFunctionDeclaration(expressionStatement, className) {
  *
  * @param {AstNode} assignmentExpression - Node to flatten.
  * @param {string} className - The class name.
- * @param {string} methodName - The method name.
  */
-function flattenClassMethod(assignmentExpression, className, methodName) {
+function flattenClassMethod(assignmentExpression, className) {
+	var {left: {property: {name: methodName}}} = assignmentExpression;
 	var classProto = builders.memberExpression(
 		builders.identifier(className),
 		builders.identifier('prototype'),
