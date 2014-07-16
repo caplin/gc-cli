@@ -59,7 +59,7 @@ function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
 								.from(fullyQualifiedName)
 								.concat('prototype', '*');
 
-	return fullyQualifiedMethod.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
+	return fullyQualifiedMethod.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
 }
 
 /**
@@ -70,7 +70,7 @@ function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
  * @returns {boolean} is node a class constructor.
  */
 function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
-	return fullyQualifiedName.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
+	return fullyQualifiedName.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
 }
 
 /**
@@ -78,7 +78,7 @@ function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
  * @param {string} namespacePart - The part of the namespace to test.
  * @returns {(AstNode|boolean)} is node a class constructor node or next Expression AstNode to test.
  */
-function isNamespacedClassMember(expression, namespacePart) {
+function isNamespacedClassExpression(expression, namespacePart) {
 	if (typeof expression === 'boolean') {
 		return false;
 	} else if (expression.type === 'Identifier' && expression.name === namespacePart) {

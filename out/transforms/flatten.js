@@ -31,12 +31,12 @@ function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
 }
 function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
   var fullyQualifiedMethod = Array.from(fullyQualifiedName).concat('prototype', '*');
-  return fullyQualifiedMethod.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
+  return fullyQualifiedMethod.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
 }
 function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
-  return fullyQualifiedName.reduceRight(isNamespacedClassMember, assignmentLeftExpression);
+  return fullyQualifiedName.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
 }
-function isNamespacedClassMember(expression, namespacePart) {
+function isNamespacedClassExpression(expression, namespacePart) {
   if (typeof expression === 'boolean') {
     return false;
   } else if (expression.type === 'Identifier' && expression.name === namespacePart) {
