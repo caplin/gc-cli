@@ -1,5 +1,3 @@
 function SimpleClass() {}
-
-SimpleClass.protoype.myMethod = function() {}
-
-SimpleClass.protoype.anotherMethod = function() {}
+SimpleClass.prototype.myMethod = function() {}
+SimpleClass.prototype.anotherMethod = function() {}
