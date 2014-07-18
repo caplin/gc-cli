@@ -25,14 +25,17 @@ export function flattenNamespace(programNode, fullyQualifiedName) {
 }
 
 /**
-flatten top level ExpressionStatement.
-*/
+ * Flattens provided ExpressionStatement.
+ *
+ * @param {AstNode} programStatement - ExpressionStatement AstNode.
+ * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
+ */
 function flattenExpressionStatement(programStatement, fullyQualifiedName) {
-	var {type, expression} = programStatement;
+	var {expression} = programStatement;
 	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
 	if (expression.type === 'AssignmentExpression') {
-		return flattenIfNamespaced(programStatement, fullyQualifiedName);
+		return flattenAssignmentExpression(programStatement, fullyQualifiedName, className);
 	} else if (expression.type === 'CallExpression') {
 		flattenCallExpressionArguments(expression.arguments, fullyQualifiedName, className)
 	}
@@ -41,16 +44,16 @@ function flattenExpressionStatement(programStatement, fullyQualifiedName) {
 }
 
 /**
- * Modify the provided ExpressionStatement AstNode if it's a namespaced node.
+ * Modify the provided AssignmentExpression contained in an ExpressionStatement AstNode.
  * The node will have it's namespace removed.
  *
  * @param {AstNode} expressionStatement - ExpressionStatement AstNode.
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
+ * @param {string} className - The class name.
  */
-function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
+function flattenAssignmentExpression(expressionStatement, fullyQualifiedName, className) {
 	var {expression: assignmentExpression} = expressionStatement;
 	var assignmentLeftExpression = assignmentExpression.left;
-	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
 
 	if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
 		flattenClassMethod(assignmentExpression, className);
@@ -143,9 +146,16 @@ function createConstructorFunctionDeclaration(expressionStatement, className) {
 	return classConstructorDeclaration;
 }
 
+/**
+ * Modify the provided call arguments. The expressions will have their namespace removed.
+ *
+ * @param {AstNode[]} callArguments - Expression AstNodes.
+ * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
+ * @param {string} className - The class name.
+ */
 function flattenCallExpressionArguments(callArguments, fullyQualifiedName, className) {
-	callArguments.forEach((argumentNode, argumentIndex) => {
-		if (isNamespacedExpression(argumentNode, fullyQualifiedName)) {
+	callArguments.forEach((argumentExpression, argumentIndex) => {
+		if (isNamespacedExpression(argumentExpression, fullyQualifiedName)) {
 			callArguments[argumentIndex] = builders.identifier(className);
 		}
 	});
