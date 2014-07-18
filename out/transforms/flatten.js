@@ -9,14 +9,23 @@ var builders = require('ast-types').builders;
 function flattenNamespace(programNode, fullyQualifiedName) {
   fullyQualifiedName = fullyQualifiedName.split('.');
   programNode.body = programNode.body.map((function(programStatement) {
-    var $__1 = $traceurRuntime.assertObject(programStatement),
-        type = $__1.type,
-        expression = $__1.expression;
-    if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-      return flattenIfNamespaced(programStatement, fullyQualifiedName);
+    if (programStatement.type === 'ExpressionStatement') {
+      return flattenExpressionStatement(programStatement, fullyQualifiedName);
     }
     return programStatement;
   }));
+}
+function flattenExpressionStatement(programStatement, fullyQualifiedName) {
+  var $__1 = $traceurRuntime.assertObject(programStatement),
+      type = $__1.type,
+      expression = $__1.expression;
+  var className = fullyQualifiedName[fullyQualifiedName.length - 1];
+  if (expression.type === 'AssignmentExpression') {
+    return flattenIfNamespaced(programStatement, fullyQualifiedName);
+  } else if (expression.type === 'CallExpression') {
+    flattenCallExpressionArguments(expression.arguments, fullyQualifiedName, className);
+  }
+  return programStatement;
 }
 function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
   var assignmentExpression = $traceurRuntime.assertObject(expressionStatement).expression;
@@ -24,7 +33,7 @@ function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
   var className = fullyQualifiedName[fullyQualifiedName.length - 1];
   if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
     flattenClassMethod(assignmentExpression, className);
-  } else if (isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName)) {
+  } else if (isNamespacedExpression(assignmentLeftExpression, fullyQualifiedName)) {
     return createConstructorFunctionDeclaration(expressionStatement, className);
   }
   return expressionStatement;
@@ -33,7 +42,7 @@ function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
   var fullyQualifiedMethod = Array.from(fullyQualifiedName).concat('prototype', '*');
   return fullyQualifiedMethod.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
 }
-function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
+function isNamespacedExpression(assignmentLeftExpression, fullyQualifiedName) {
   return fullyQualifiedName.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
 }
 function isNamespacedClassExpression(expression, namespacePart) {
@@ -56,4 +65,11 @@ function createConstructorFunctionDeclaration(expressionStatement, className) {
   var functionExpression = $traceurRuntime.assertObject($traceurRuntime.assertObject(expressionStatement).expression).right;
   var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
   return classConstructorDeclaration;
+}
+function flattenCallExpressionArguments(callArguments, fullyQualifiedName, className) {
+  callArguments.forEach((function(argumentNode, argumentIndex) {
+    if (isNamespacedExpression(argumentNode, fullyQualifiedName)) {
+      callArguments[argumentIndex] = builders.identifier(className);
+    }
+  }));
 }

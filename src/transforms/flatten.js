@@ -16,14 +16,28 @@ export function flattenNamespace(programNode, fullyQualifiedName) {
 	fullyQualifiedName = fullyQualifiedName.split('.');
 
 	programNode.body = programNode.body.map((programStatement) => {
-		var {type, expression} = programStatement;
-
-		if (type === 'ExpressionStatement' && expression.type === 'AssignmentExpression') {
-			return flattenIfNamespaced(programStatement, fullyQualifiedName);
+		if (programStatement.type === 'ExpressionStatement') {
+			return flattenExpressionStatement(programStatement, fullyQualifiedName);
 		}
 
 		return programStatement;
 	});
+}
+
+/**
+flatten top level ExpressionStatement.
+*/
+function flattenExpressionStatement(programStatement, fullyQualifiedName) {
+	var {type, expression} = programStatement;
+	var className = fullyQualifiedName[fullyQualifiedName.length - 1];
+
+	if (expression.type === 'AssignmentExpression') {
+		return flattenIfNamespaced(programStatement, fullyQualifiedName);
+	} else if (expression.type === 'CallExpression') {
+		flattenCallExpressionArguments(expression.arguments, fullyQualifiedName, className)
+	}
+
+	return programStatement;
 }
 
 /**
@@ -40,7 +54,7 @@ function flattenIfNamespaced(expressionStatement, fullyQualifiedName) {
 
 	if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
 		flattenClassMethod(assignmentExpression, className);
-	} else if (isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName)) {
+	} else if (isNamespacedExpression(assignmentLeftExpression, fullyQualifiedName)) {
 		return createConstructorFunctionDeclaration(expressionStatement, className);
 	}
 
@@ -63,13 +77,13 @@ function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
 }
 
 /**
- * Returns true if provided node is a namespaced class constructor.
+ * Returns true if provided node is a namespaced class expression.
  *
  * @param {AstNode} assignmentLeftExpression - Node to test.
  * @param {string[]} fullyQualifiedName - The fully qualified name as an array.
  * @returns {boolean} is node a class constructor.
  */
-function isNamespacedConstructor(assignmentLeftExpression, fullyQualifiedName) {
+function isNamespacedExpression(assignmentLeftExpression, fullyQualifiedName) {
 	return fullyQualifiedName.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
 }
 
@@ -127,4 +141,12 @@ function createConstructorFunctionDeclaration(expressionStatement, className) {
 	);
 
 	return classConstructorDeclaration;
+}
+
+function flattenCallExpressionArguments(callArguments, fullyQualifiedName, className) {
+	callArguments.forEach((argumentNode, argumentIndex) => {
+		if (isNamespacedExpression(argumentNode, fullyQualifiedName)) {
+			callArguments[argumentIndex] = builders.identifier(className);
+		}
+	});
 }
