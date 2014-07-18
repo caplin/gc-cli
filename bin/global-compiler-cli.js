@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 "use strict";
 
-var global-compiler = require("../");
+var globalCompiler = require("../");
 
-//process.argv - Array that contains the command line arguments.
+globalCompiler.compileFile(process.argv);
