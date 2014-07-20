@@ -10,10 +10,17 @@ import {builders} from 'ast-types';
  */
 
 /**
- * Converts all Expressions with a provided root namespace and converts them.
- * They will be mutated to flat Identifiers provided by newly inserted CJS require statements.
+ * Converts all Expressions with a provided root namespace.
+ * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
 export class RootNamespaceVisitor extends Visitor {
+	/**
+	 * @param {string} rootNamespace - The root namespace.
+	 */
+	constructor(rootNamespace) {
+		this._rootNamespace = rootNamespace;
+	}
+
 	/**
 	 */
 	visitNewExpression(node, ...args) {
