@@ -10,7 +10,7 @@ import {builders} from 'ast-types';
  */
 
 /**
- * Converts all Expressions with a provided root namespace.
+ * Converts all Expressions under the specified root namespace.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
 export class RootNamespaceVisitor extends Visitor {
@@ -22,18 +22,23 @@ export class RootNamespaceVisitor extends Visitor {
 	}
 
 	/**
+	 * @param {AstNode} newExpression - NewExpression AstNode.
 	 */
-	visitNewExpression(node, ...args) {
-		console.log('visit NewExpression', node, args);
-
+	visitNewExpression(newExpression) {
 		//A NewExpression `callee` value going from a MemberExpression to an Identifier.
-		node.callee = builders.identifier('Field');
+		setNewExpressionIdentifier(newExpression);
 
-		this.genericVisit(node);
+		this.genericVisit(newExpression);
 	}
 }
 
+//Is it a MemberExpression with `object` value being an Identifier that equals the `_rootNamespace`
+
 /**
+ * @param {AstNode} newExpression - NewExpression AstNode.
  */
-function createIdentifier() {
+function setNewExpressionIdentifier(newExpression) {
+	var {callee: {property: {name: {identifierName}}}} = newExpression;
+
+	newExpression.callee = builders.identifier(identifierName);
 }
