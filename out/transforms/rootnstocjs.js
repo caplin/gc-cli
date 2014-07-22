@@ -11,9 +11,10 @@ var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace) {
   this._rootNamespace = rootNamespace;
 };
 ($traceurRuntime.createClass)(RootNamespaceVisitor, {visitNewExpression: function(newExpression) {
-    newExpression.callee = builders.identifier('Field');
+    setNewExpressionIdentifier(newExpression);
     this.genericVisit(newExpression);
   }}, {}, Visitor);
-function createIdentifier(memberExpression) {
-  var identifierName = $traceurRuntime.assertObject($traceurRuntime.assertObject($traceurRuntime.assertObject(memberExpression).property).name).identifierName;
+function setNewExpressionIdentifier(newExpression) {
+  var identifierName = $traceurRuntime.assertObject($traceurRuntime.assertObject($traceurRuntime.assertObject(newExpression).callee).property).name;
+  newExpression.callee = builders.identifier(identifierName);
 }

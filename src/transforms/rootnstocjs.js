@@ -38,7 +38,7 @@ export class RootNamespaceVisitor extends Visitor {
  * @param {AstNode} newExpression - NewExpression AstNode.
  */
 function setNewExpressionIdentifier(newExpression) {
-	var {callee: {property: {name: {identifierName}}}} = newExpression;
+	var {callee: {property: {name: identifierName}}} = newExpression;
 
 	newExpression.callee = builders.identifier(identifierName);
 }
