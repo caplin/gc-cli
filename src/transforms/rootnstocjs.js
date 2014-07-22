@@ -16,9 +16,12 @@ import {builders} from 'ast-types';
 export class RootNamespaceVisitor extends Visitor {
 	/**
 	 * @param {string} rootNamespace - The root namespace.
+	 * @param {AstNode[]} programStatements - Program body statements.
 	 */
-	constructor(rootNamespace) {
+	constructor(rootNamespace, programStatements) {
+		this._requiresToInsert = new Map();
 		this._rootNamespace = rootNamespace;
+		this._programStatements = programStatements;
 	}
 
 	/**
@@ -29,6 +32,14 @@ export class RootNamespaceVisitor extends Visitor {
 		setNewExpressionIdentifier(newExpression);
 
 		this.genericVisit(newExpression);
+	}
+
+	/**
+	 * Called at the 
+	 */
+	insertRequires() {
+		createRequireDeclaration(this._programStatements, 'Field', 'my.long.name.space.Field');
+//	programStatements.unshift(...requiresToInsert.values());
 	}
 }
 
@@ -41,4 +52,18 @@ function setNewExpressionIdentifier(newExpression) {
 	var {callee: {property: {name: identifierName}}} = newExpression;
 
 	newExpression.callee = builders.identifier(identifierName);
+}
+
+function createRequireDeclaration(programStatements, requiredIdentifier, importedModule) {
+	var requireCall = builders.callExpression(
+		builders.identifier('require'),	[
+			builders.literal(importedModule)
+		]);
+	var importDeclaration = builders.variableDeclaration('var', [
+		builders.variableDeclarator(
+			builders.identifier(requiredIdentifier),
+			requireCall
+		)]);
+
+	programStatements.unshift(importDeclaration);
 }
