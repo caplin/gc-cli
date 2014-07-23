@@ -29,7 +29,19 @@ export class RootNamespaceVisitor extends Visitor {
 	 */
 	visitNewExpression(newExpression) {
 		//A NewExpression `callee` value going from a MemberExpression to an Identifier.
-		setNewExpressionIdentifier(newExpression);
+		if (newExpression.callee.type === 'MemberExpression') {
+			var expressionNamespace = getExpressionNamespace(newExpression.callee.object);
+
+			if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
+				var importedModule = expressionNamespace + newExpression.callee.property.name;
+
+				console.log(importedModule);
+
+				setNewExpressionIdentifier(newExpression);
+			}
+		}
+
+
 
 		this.genericVisit(newExpression);
 	}
@@ -44,6 +56,16 @@ export class RootNamespaceVisitor extends Visitor {
 }
 
 //Is it a MemberExpression with `object` value being an Identifier that equals the `_rootNamespace`
+
+function getExpressionNamespace(memberExpression) {
+	if (memberExpression.type === 'Identifier') {
+		return memberExpression.name + '.';
+	}
+
+	if (memberExpression.type === 'MemberExpression') {
+		return getExpressionNamespace(memberExpression.object) + memberExpression.property.name + '.';
+	}
+}
 
 /**
  * @param {AstNode} newExpression - NewExpression AstNode.
