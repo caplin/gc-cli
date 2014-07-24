@@ -28,35 +28,35 @@ export class RootNamespaceVisitor extends Visitor {
 	 * @param {AstNode} newExpression - NewExpression AstNode.
 	 */
 	visitNewExpression(newExpression) {
-		//A NewExpression `callee` value going from a MemberExpression to an Identifier.
 		if (newExpression.callee.type === 'MemberExpression') {
 			var expressionNamespace = getExpressionNamespace(newExpression.callee.object);
 
 			if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
-				var importedModule = expressionNamespace + newExpression.callee.property.name;
-
-				console.log(importedModule);
+				var requireIdentifier = newExpression.callee.property.name;
+				var importedModule = expressionNamespace + requireIdentifier;
+				var importDeclaration = createRequireDeclaration(requireIdentifier, importedModule);
 
 				setNewExpressionIdentifier(newExpression);
+				this._requiresToInsert.set(importedModule, importDeclaration);
 			}
 		}
-
-
 
 		this.genericVisit(newExpression);
 	}
 
 	/**
-	 * Called at the 
+	 * Called after visiting ast to insert module requires.
 	 */
 	insertRequires() {
-		createRequireDeclaration(this._programStatements, 'Field', 'my.long.name.space.Field');
-//	programStatements.unshift(...requiresToInsert.values());
+		this._requiresToInsert.forEach((importDeclaration) => {
+			this._programStatements.unshift(importDeclaration);
+		});
 	}
 }
 
-//Is it a MemberExpression with `object` value being an Identifier that equals the `_rootNamespace`
-
+/**
+ * @param {AstNode} memberExpression - MemberExpression or Identifier AstNode.
+ */
 function getExpressionNamespace(memberExpression) {
 	if (memberExpression.type === 'Identifier') {
 		return memberExpression.name + '.';
@@ -76,16 +76,20 @@ function setNewExpressionIdentifier(newExpression) {
 	newExpression.callee = builders.identifier(identifierName);
 }
 
-function createRequireDeclaration(programStatements, requiredIdentifier, importedModule) {
+/**
+ * @param {string} requireIdentifier - The name of the identifier the require call result is set to.
+ * @param {string} importedModule - The module id literal.
+ */
+function createRequireDeclaration(requireIdentifier, importedModule) {
 	var requireCall = builders.callExpression(
 		builders.identifier('require'),	[
 			builders.literal(importedModule)
 		]);
 	var importDeclaration = builders.variableDeclaration('var', [
 		builders.variableDeclarator(
-			builders.identifier(requiredIdentifier),
+			builders.identifier(requireIdentifier),
 			requireCall
 		)]);
 
-	programStatements.unshift(importDeclaration);
+	return importDeclaration;
 }
