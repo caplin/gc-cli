@@ -28,17 +28,14 @@ export class RootNamespaceVisitor extends Visitor {
 	 * @param {AstNode} newExpression - NewExpression AstNode.
 	 */
 	visitNewExpression(newExpression) {
-		if (newExpression.callee.type === 'MemberExpression') {
-			var expressionNamespace = getExpressionNamespace(newExpression.callee);
+		var expressionNamespace = getExpressionNamespace(newExpression.callee);
 
-			if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
-				var requireIdentifier = newExpression.callee.property.name;
-				var importedModule = expressionNamespace;
-				var importDeclaration = createRequireDeclaration(requireIdentifier, importedModule);
+		if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
+			var requireIdentifier = newExpression.callee.property.name;
+			var importDeclaration = createRequireDeclaration(requireIdentifier, expressionNamespace);
 
-				setNewExpressionIdentifier(newExpression);
-				this._requiresToInsert.set(importedModule, importDeclaration);
-			}
+			newExpression.callee = builders.identifier(requireIdentifier);
+			this._requiresToInsert.set(expressionNamespace, importDeclaration);
 		}
 
 		this.genericVisit(newExpression);
@@ -48,10 +45,8 @@ export class RootNamespaceVisitor extends Visitor {
 	 * @param {AstNode} callExpression - CallExpression AstNode.
 	 */
 	visitCallExpression(callExpression) {
-		console.log(callExpression);
-
 		flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
-		
+
 		this.genericVisit(callExpression);
 	}
 
@@ -66,28 +61,21 @@ export class RootNamespaceVisitor extends Visitor {
 }
 
 /**
+ * Concatenates the name values of nested MemberExpressions and Identifier.
+ *
  * @param {AstNode} memberExpression - MemberExpression or Identifier AstNode.
  */
 function getExpressionNamespace(memberExpression) {
 	if (memberExpression.type === 'Identifier') {
 		return memberExpression.name;
-	}
-
-	if (memberExpression.type === 'MemberExpression') {
+	} else if (memberExpression.type === 'MemberExpression') {
 		return getExpressionNamespace(memberExpression.object) + '.' + memberExpression.property.name;
 	}
 }
 
 /**
- * @param {AstNode} newExpression - NewExpression AstNode.
- */
-function setNewExpressionIdentifier(newExpression) {
-	var {callee: {property: {name: identifierName}}} = newExpression;
-
-	newExpression.callee = builders.identifier(identifierName);
-}
-
-/**
+ * Creates a CJS require declaration e.g. 'var <reqIden> = require("importedModule");'
+ *
  * @param {string} requireIdentifier - The name of the identifier the require call result is set to.
  * @param {string} importedModule - The module id literal.
  */
@@ -114,17 +102,14 @@ function createRequireDeclaration(requireIdentifier, importedModule) {
  */
 function flattenCallExpressionArguments(callArguments, rootNamespace, requiresToInsert) {
 	callArguments.forEach((argumentExpression, argumentIndex) => {
-
 		var expressionNamespace = getExpressionNamespace(argumentExpression);
 
 		if (expressionNamespace.startsWith(rootNamespace + '.')) {
-			
 			var requireIdentifier = argumentExpression.property.name;
-			var importedModule = expressionNamespace;
-			var importDeclaration = createRequireDeclaration(requireIdentifier, importedModule);
+			var importDeclaration = createRequireDeclaration(requireIdentifier, expressionNamespace);
 
 			callArguments[argumentIndex] = builders.identifier(requireIdentifier);
-			requiresToInsert.set(importedModule, importDeclaration);
+			requiresToInsert.set(expressionNamespace, importDeclaration);
 		}
 	});
 }

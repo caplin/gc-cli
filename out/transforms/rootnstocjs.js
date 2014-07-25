@@ -14,20 +14,16 @@ var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace, programS
 };
 ($traceurRuntime.createClass)(RootNamespaceVisitor, {
   visitNewExpression: function(newExpression) {
-    if (newExpression.callee.type === 'MemberExpression') {
-      var expressionNamespace = getExpressionNamespace(newExpression.callee);
-      if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
-        var requireIdentifier = newExpression.callee.property.name;
-        var importedModule = expressionNamespace;
-        var importDeclaration = createRequireDeclaration(requireIdentifier, importedModule);
-        setNewExpressionIdentifier(newExpression);
-        this._requiresToInsert.set(importedModule, importDeclaration);
-      }
+    var expressionNamespace = getExpressionNamespace(newExpression.callee);
+    if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
+      var requireIdentifier = newExpression.callee.property.name;
+      var importDeclaration = createRequireDeclaration(requireIdentifier, expressionNamespace);
+      newExpression.callee = builders.identifier(requireIdentifier);
+      this._requiresToInsert.set(expressionNamespace, importDeclaration);
     }
     this.genericVisit(newExpression);
   },
   visitCallExpression: function(callExpression) {
-    console.log(callExpression);
     flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
     this.genericVisit(callExpression);
   },
@@ -41,14 +37,9 @@ var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace, programS
 function getExpressionNamespace(memberExpression) {
   if (memberExpression.type === 'Identifier') {
     return memberExpression.name;
-  }
-  if (memberExpression.type === 'MemberExpression') {
+  } else if (memberExpression.type === 'MemberExpression') {
     return getExpressionNamespace(memberExpression.object) + '.' + memberExpression.property.name;
   }
-}
-function setNewExpressionIdentifier(newExpression) {
-  var identifierName = $traceurRuntime.assertObject($traceurRuntime.assertObject($traceurRuntime.assertObject(newExpression).callee).property).name;
-  newExpression.callee = builders.identifier(identifierName);
 }
 function createRequireDeclaration(requireIdentifier, importedModule) {
   var requireCall = builders.callExpression(builders.identifier('require'), [builders.literal(importedModule)]);
@@ -60,10 +51,9 @@ function flattenCallExpressionArguments(callArguments, rootNamespace, requiresTo
     var expressionNamespace = getExpressionNamespace(argumentExpression);
     if (expressionNamespace.startsWith(rootNamespace + '.')) {
       var requireIdentifier = argumentExpression.property.name;
-      var importedModule = expressionNamespace;
-      var importDeclaration = createRequireDeclaration(requireIdentifier, importedModule);
+      var importDeclaration = createRequireDeclaration(requireIdentifier, expressionNamespace);
       callArguments[argumentIndex] = builders.identifier(requireIdentifier);
-      requiresToInsert.set(importedModule, importDeclaration);
+      requiresToInsert.set(expressionNamespace, importDeclaration);
     }
   }));
 }
