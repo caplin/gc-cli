@@ -29,11 +29,11 @@ export class RootNamespaceVisitor extends Visitor {
 	 */
 	visitNewExpression(newExpression) {
 		if (newExpression.callee.type === 'MemberExpression') {
-			var expressionNamespace = getExpressionNamespace(newExpression.callee.object);
+			var expressionNamespace = getExpressionNamespace(newExpression.callee);
 
 			if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
 				var requireIdentifier = newExpression.callee.property.name;
-				var importedModule = expressionNamespace + requireIdentifier;
+				var importedModule = expressionNamespace;
 				var importDeclaration = createRequireDeclaration(requireIdentifier, importedModule);
 
 				setNewExpressionIdentifier(newExpression);
@@ -42,6 +42,17 @@ export class RootNamespaceVisitor extends Visitor {
 		}
 
 		this.genericVisit(newExpression);
+	}
+
+	/**
+	 * @param {AstNode} callExpression - CallExpression AstNode.
+	 */
+	visitCallExpression(callExpression) {
+		console.log(callExpression);
+
+		flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
+		
+		this.genericVisit(callExpression);
 	}
 
 	/**
@@ -59,11 +70,11 @@ export class RootNamespaceVisitor extends Visitor {
  */
 function getExpressionNamespace(memberExpression) {
 	if (memberExpression.type === 'Identifier') {
-		return memberExpression.name + '.';
+		return memberExpression.name;
 	}
 
 	if (memberExpression.type === 'MemberExpression') {
-		return getExpressionNamespace(memberExpression.object) + memberExpression.property.name + '.';
+		return getExpressionNamespace(memberExpression.object) + '.' + memberExpression.property.name;
 	}
 }
 
@@ -92,4 +103,28 @@ function createRequireDeclaration(requireIdentifier, importedModule) {
 		)]);
 
 	return importDeclaration;
+}
+
+/**
+ * Modify the provided call arguments. The expressions will have their namespace removed.
+ *
+ * @param {AstNode[]} callArguments - Expression AstNodes.
+ * @param {string} rootNamespace - The fully qualified name as an array.
+ * @param {string} requiresToInsert - The class name.
+ */
+function flattenCallExpressionArguments(callArguments, rootNamespace, requiresToInsert) {
+	callArguments.forEach((argumentExpression, argumentIndex) => {
+
+		var expressionNamespace = getExpressionNamespace(argumentExpression);
+
+		if (expressionNamespace.startsWith(rootNamespace + '.')) {
+			
+			var requireIdentifier = argumentExpression.property.name;
+			var importedModule = expressionNamespace;
+			var importDeclaration = createRequireDeclaration(requireIdentifier, importedModule);
+
+			callArguments[argumentIndex] = builders.identifier(requireIdentifier);
+			requiresToInsert.set(importedModule, importDeclaration);
+		}
+	});
 }
