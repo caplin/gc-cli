@@ -3,4 +3,4 @@
 
 var globalCompiler = require("../");
 
-globalCompiler.compileFile(process.argv);
+globalCompiler.compileFile(process.argv.slice(2));
