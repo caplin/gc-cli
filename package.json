@@ -1,0 +1,19 @@
+{
+  "name": "gc-cli",
+  "version": "0.0.0",
+  "scripts": {
+    "test": "mocha",
+    "prepublish": "npm run build",
+    "start": "npm run build && node index.js",
+    "watch": "watchy -sw src -- npm run build",
+    "build": "traceur --dir src/ out/ --modules=commonjs --sourcemap"
+  },
+  "dependencies": {
+    "traceur": "0.0.51"
+  },
+  "devDependencies": {
+    "mocha": "^1.21.0",
+    "watchy": "~0.5.2"
+  },
+  "bin": "./bin/gc-cli-cli.js"
+}
