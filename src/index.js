@@ -8,6 +8,7 @@ import {
 module minimist from 'minimist';
 
 import {flattenNamespace} from './transforms/flatten';
+import {RootNamespaceVisitor} from './transforms/rootnstocjs';
 
 /**
  * @param {Array} options - List of options for compiler.
@@ -15,13 +16,18 @@ import {flattenNamespace} from './transforms/flatten';
 export function compileFile(options) {
 	var args = minimist(options);
 	var fileLocation = args._[0];
-	var namespace = args.flatten;
 	var filePath = join(process.cwd(), fileLocation);
 	var fileContents = readFileSync(filePath);
 	var ast = parse(fileContents);
 
-	flattenNamespace(ast.program, namespace);
+	if (args.flatten) {
+		var namespace = args.flatten;
+		flattenNamespace(ast.program, namespace);
+	} else if (args.rootnstocjs) {
+		var rootNsVisitor = new RootNamespaceVisitor(args.rootnstocjs, ast.program.body);
+		rootNsVisitor.visit(ast);
+		rootNsVisitor.insertRequires();
+	}
 
-	console.log(print(ast).code);
 	return print(ast).code;
 }
