@@ -6,6 +6,7 @@ import {
 	print
 } from 'recast';
 module minimist from 'minimist';
+import {visit} from 'ast-types';
 
 import {flattenNamespace} from './transforms/flatten';
 import {RootNamespaceVisitor} from './transforms/rootnstocjs';
@@ -25,7 +26,7 @@ export function compileFile(options) {
 		flattenNamespace(ast.program, namespace);
 	} else if (args.rootnstocjs) {
 		var rootNsVisitor = new RootNamespaceVisitor(args.rootnstocjs, ast.program.body);
-		rootNsVisitor.visit(ast);
+		visit(ast.program, rootNsVisitor);
 		rootNsVisitor.insertRequires();
 	}
 
