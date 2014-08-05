@@ -5,15 +5,19 @@ Object.defineProperties(exports, {
     }},
   __esModule: {value: true}
 });
-var Visitor = require('recast').Visitor;
-var builders = require('ast-types').builders;
+var $__0 = require('ast-types'),
+    builders = $__0.builders,
+    PathVisitor = $__0.PathVisitor;
 var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace, programStatements) {
+  $traceurRuntime.superCall(this, $RootNamespaceVisitor.prototype, "constructor", []);
   this._requiresToInsert = new Map();
   this._rootNamespace = rootNamespace;
   this._programStatements = programStatements;
 };
+var $RootNamespaceVisitor = RootNamespaceVisitor;
 ($traceurRuntime.createClass)(RootNamespaceVisitor, {
-  visitNewExpression: function(newExpression) {
+  visitNewExpression: function(newExpressionNodePath) {
+    var newExpression = newExpressionNodePath.node;
     var expressionNamespace = getExpressionNamespace(newExpression.callee);
     if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
       var requireIdentifier = newExpression.callee.property.name;
@@ -21,19 +25,20 @@ var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace, programS
       newExpression.callee = builders.identifier(requireIdentifier);
       this._requiresToInsert.set(expressionNamespace, importDeclaration);
     }
-    this.genericVisit(newExpression);
+    this.traverse(newExpressionNodePath);
   },
-  visitCallExpression: function(callExpression) {
+  visitCallExpression: function(callExpressionNodePath) {
+    var callExpression = callExpressionNodePath.node;
     flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
-    this.genericVisit(callExpression);
+    this.traverse(callExpressionNodePath);
   },
   insertRequires: function() {
-    var $__2 = this;
+    var $__1 = this;
     this._requiresToInsert.forEach((function(importDeclaration) {
-      $__2._programStatements.unshift(importDeclaration);
+      $__1._programStatements.unshift(importDeclaration);
     }));
   }
-}, {}, Visitor);
+}, {}, PathVisitor);
 function getExpressionNamespace(memberExpression) {
   if (memberExpression.type === 'Identifier') {
     return memberExpression.name;

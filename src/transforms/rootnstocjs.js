@@ -1,5 +1,7 @@
-import {Visitor} from 'recast';
-import {builders} from 'ast-types';
+import {
+	builders,
+	PathVisitor
+} from 'ast-types';
 
 /**
  * SpiderMonkey AST node.
@@ -13,12 +15,13 @@ import {builders} from 'ast-types';
  * Converts all Expressions under the specified root namespace.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
-export class RootNamespaceVisitor extends Visitor {
+export class RootNamespaceVisitor extends PathVisitor {
 	/**
 	 * @param {string} rootNamespace - The root namespace.
 	 * @param {AstNode[]} programStatements - Program body statements.
 	 */
 	constructor(rootNamespace, programStatements) {
+		super();
 		this._requiresToInsert = new Map();
 		this._rootNamespace = rootNamespace;
 		this._programStatements = programStatements;
@@ -27,7 +30,9 @@ export class RootNamespaceVisitor extends Visitor {
 	/**
 	 * @param {AstNode} newExpression - NewExpression AstNode.
 	 */
-	visitNewExpression(newExpression) {
+	visitNewExpression(newExpressionNodePath) {
+		var newExpression = newExpressionNodePath.node;
+
 		var expressionNamespace = getExpressionNamespace(newExpression.callee);
 
 		if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
@@ -38,16 +43,17 @@ export class RootNamespaceVisitor extends Visitor {
 			this._requiresToInsert.set(expressionNamespace, importDeclaration);
 		}
 
-		this.genericVisit(newExpression);
+		this.traverse(newExpressionNodePath);
 	}
 
 	/**
 	 * @param {AstNode} callExpression - CallExpression AstNode.
 	 */
-	visitCallExpression(callExpression) {
+	visitCallExpression(callExpressionNodePath) {
+		var callExpression = callExpressionNodePath.node;
 		flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
 
-		this.genericVisit(callExpression);
+		this.traverse(callExpressionNodePath);
 	}
 
 	/**
