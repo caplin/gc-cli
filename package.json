@@ -9,7 +9,7 @@
     "build": "traceur --dir src/ out/ --modules=commonjs --sourcemap"
   },
   "dependencies": {
-    "ast-types": "^0.3.38",
+    "ast-types": "^0.4.8",
     "minimist": "^0.2.0",
     "recast": "^0.6.10",
     "traceur": "0.0.49"
