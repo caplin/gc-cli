@@ -12,6 +12,13 @@ import {
  */
 
 /**
+ * AstTypes NodePath.
+ *
+ * @typedef {Object} NodePath
+ * @property {AstNode} node - SpiderMonkey AST node.
+ */
+
+/**
  * Converts all Expressions under the specified root namespace.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
@@ -22,17 +29,17 @@ export class RootNamespaceVisitor extends PathVisitor {
 	 */
 	constructor(rootNamespace, programStatements) {
 		super();
+
 		this._requiresToInsert = new Map();
 		this._rootNamespace = rootNamespace;
 		this._programStatements = programStatements;
 	}
 
 	/**
-	 * @param {AstNode} newExpression - NewExpression AstNode.
+	 * @param {NodePath} newExpressionNodePath - NewExpression NodePath.
 	 */
 	visitNewExpression(newExpressionNodePath) {
 		var newExpression = newExpressionNodePath.node;
-
 		var expressionNamespace = getExpressionNamespace(newExpression.callee);
 
 		if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
@@ -47,7 +54,7 @@ export class RootNamespaceVisitor extends PathVisitor {
 	}
 
 	/**
-	 * @param {AstNode} callExpression - CallExpression AstNode.
+	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
 	 */
 	visitCallExpression(callExpressionNodePath) {
 		var callExpression = callExpressionNodePath.node;
