@@ -1,5 +1,6 @@
 import {
 	builders,
+	namedTypes,
 	PathVisitor
 } from 'ast-types';
 
@@ -79,9 +80,9 @@ export class RootNamespaceVisitor extends PathVisitor {
  * @param {AstNode} memberExpression - MemberExpression or Identifier AstNode.
  */
 function getExpressionNamespace(memberExpression) {
-	if (memberExpression.type === 'Identifier') {
+	if (namedTypes.Identifier.check(memberExpression)) {
 		return memberExpression.name;
-	} else if (memberExpression.type === 'MemberExpression') {
+	} else if (namedTypes.MemberExpression.check(memberExpression)) {
 		return getExpressionNamespace(memberExpression.object) + '.' + memberExpression.property.name;
 	}
 }

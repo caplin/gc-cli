@@ -7,6 +7,7 @@ Object.defineProperties(exports, {
 });
 var $__0 = require('ast-types'),
     builders = $__0.builders,
+    namedTypes = $__0.namedTypes,
     PathVisitor = $__0.PathVisitor;
 var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace, programStatements) {
   $traceurRuntime.superCall(this, $RootNamespaceVisitor.prototype, "constructor", []);
@@ -40,9 +41,9 @@ var $RootNamespaceVisitor = RootNamespaceVisitor;
   }
 }, {}, PathVisitor);
 function getExpressionNamespace(memberExpression) {
-  if (memberExpression.type === 'Identifier') {
+  if (namedTypes.Identifier.check(memberExpression)) {
     return memberExpression.name;
-  } else if (memberExpression.type === 'MemberExpression') {
+  } else if (namedTypes.MemberExpression.check(memberExpression)) {
     return getExpressionNamespace(memberExpression.object) + '.' + memberExpression.property.name;
   }
 }
