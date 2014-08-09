@@ -5,8 +5,8 @@ import {
 	parse,
 	print
 } from 'recast';
-module minimist from 'minimist';
 import {visit} from 'ast-types';
+var minimist = require('minimist');
 
 import {flattenNamespace} from './transforms/flatten';
 import {RootNamespaceVisitor} from './transforms/rootnstocjs';

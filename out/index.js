@@ -10,8 +10,8 @@ var readFileSync = require('fs').readFileSync;
 var $__2 = require('recast'),
     parse = $__2.parse,
     print = $__2.print;
-var minimist = require('minimist');
 var visit = require('ast-types').visit;
+var minimist = require('minimist');
 var flattenNamespace = require('./transforms/flatten').flattenNamespace;
 var RootNamespaceVisitor = require('./transforms/rootnstocjs').RootNamespaceVisitor;
 function compileFile(options) {
