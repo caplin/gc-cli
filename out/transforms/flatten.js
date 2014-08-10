@@ -37,7 +37,7 @@ function flattenAssignmentExpression(expressionStatement, fullyQualifiedName, cl
 }
 function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
   var fullyQualifiedMethod = Array.from(fullyQualifiedName).concat('prototype', '*');
-  return fullyQualifiedMethod.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
+  return isNamespacedExpression(assignmentLeftExpression, fullyQualifiedMethod);
 }
 function isNamespacedExpression(assignmentLeftExpression, fullyQualifiedName) {
   return fullyQualifiedName.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);

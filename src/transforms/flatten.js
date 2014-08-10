@@ -37,7 +37,7 @@ function flattenExpressionStatement(programStatement, fullyQualifiedName) {
 	if (expression.type === 'AssignmentExpression') {
 		return flattenAssignmentExpression(programStatement, fullyQualifiedName, className);
 	} else if (expression.type === 'CallExpression') {
-		flattenCallExpressionArguments(expression.arguments, fullyQualifiedName, className)
+		flattenCallExpressionArguments(expression.arguments, fullyQualifiedName, className);
 	}
 
 	return programStatement;
@@ -76,7 +76,7 @@ function isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName) {
 								.from(fullyQualifiedName)
 								.concat('prototype', '*');
 
-	return fullyQualifiedMethod.reduceRight(isNamespacedClassExpression, assignmentLeftExpression);
+	return isNamespacedExpression(assignmentLeftExpression, fullyQualifiedMethod);
 }
 
 /**
