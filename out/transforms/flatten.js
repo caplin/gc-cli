@@ -3,9 +3,15 @@ Object.defineProperties(exports, {
   flattenNamespace: {get: function() {
       return flattenNamespace;
     }},
+  NamespacedClassVisitor: {get: function() {
+      return NamespacedClassVisitor;
+    }},
   __esModule: {value: true}
 });
-var builders = require('ast-types').builders;
+var $__0 = require('ast-types'),
+    builders = $__0.builders,
+    namedTypes = $__0.namedTypes,
+    PathVisitor = $__0.PathVisitor;
 function flattenNamespace(programNode, fullyQualifiedName) {
   fullyQualifiedName = fullyQualifiedName.split('.');
   programNode.body = programNode.body.map((function(programStatement) {
@@ -70,3 +76,21 @@ function flattenCallExpressionArguments(callArguments, fullyQualifiedName, class
     }
   }));
 }
+var NamespacedClassVisitor = function NamespacedClassVisitor(fullyQualifiedName) {
+  $traceurRuntime.superCall(this, $NamespacedClassVisitor.prototype, "constructor", []);
+  this._fullyQualifiedName = fullyQualifiedName.split('.');
+  this._className = this._fullyQualifiedName[this._fullyQualifiedName.length - 1];
+};
+var $NamespacedClassVisitor = NamespacedClassVisitor;
+($traceurRuntime.createClass)(NamespacedClassVisitor, {visitIdentifier: function(identifierNodePath) {
+    var identifierNode = identifierNodePath.node;
+    if (identifierNode.name === this._className) {
+      var grandParent = identifierNodePath.parent.parent;
+      if (namedTypes.CallExpression.check(grandParent.node)) {
+        grandParent.get('arguments', identifierNodePath.parent.name).replace(identifierNode);
+      } else {
+        identifierNodePath.parent.parent.get('object').replace(identifierNode);
+      }
+    }
+    this.traverse(identifierNodePath);
+  }}, {}, PathVisitor);

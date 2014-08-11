@@ -1,4 +1,8 @@
-import {builders} from 'ast-types';
+import {
+	builders,
+	namedTypes,
+	PathVisitor
+} from 'ast-types';
 
 /**
  * SpiderMonkey AST node.
@@ -160,3 +164,59 @@ function flattenCallExpressionArguments(callArguments, fullyQualifiedName, class
 		}
 	});
 }
+
+
+
+
+/**
+ * AstTypes NodePath.
+ *
+ * @typedef {Object} NodePath
+ * @property {AstNode} node - SpiderMonkey AST node.
+ */
+
+/**
+ */
+export class NamespacedClassVisitor extends PathVisitor {
+	/**
+	 * @param {string} fullyQualifiedName - The fully qualified class name.
+	 */
+	constructor(fullyQualifiedName) {
+		super();
+
+		this._fullyQualifiedName = fullyQualifiedName.split('.');
+		this._className = this._fullyQualifiedName[this._fullyQualifiedName.length - 1];
+	}
+
+	/**
+	 * @param {NodePath} identifierNodePath - Identifier NodePath.
+	 */
+	visitIdentifier(identifierNodePath) {
+		var identifierNode = identifierNodePath.node;
+
+		//TODO: Improve check.
+		if (identifierNode.name === this._className) {
+			var grandParent = identifierNodePath.parent.parent;
+
+			if (namedTypes.CallExpression.check(grandParent.node)) {
+//				debugger;
+//			if (namedTypes.ExpressionStatement.check(grandParent.node)) {
+				grandParent.get('arguments', identifierNodePath.parent.name).replace(identifierNode);
+			} else {
+				//namedTypes.MemberExpression.check(identifierNodePath.parent.node)
+				identifierNodePath.parent.parent.get('object').replace(identifierNode);
+	
+//				console.log(identifierNodePath.parent.parent); //MemberExpression
+			}
+		}
+
+		this.traverse(identifierNodePath);
+	}
+}
+
+
+
+
+
+
+
