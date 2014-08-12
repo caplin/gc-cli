@@ -196,27 +196,19 @@ export class NamespacedClassVisitor extends PathVisitor {
 
 		//TODO: Improve check.
 		if (identifierNode.name === this._className) {
-			var grandParent = identifierNodePath.parent.parent;
+			var parent = identifierNodePath.parent;
+			var grandParent = parent.parent;
 
 			if (namedTypes.CallExpression.check(grandParent.node)) {
-//				debugger;
-//			if (namedTypes.ExpressionStatement.check(grandParent.node)) {
-				grandParent.get('arguments', identifierNodePath.parent.name).replace(identifierNode);
+				grandParent.get('arguments', parent.name).replace(identifierNode);
+			} else if (namedTypes.AssignmentExpression.check(grandParent.node)) {
+				grandParent.get(parent.name).replace(identifierNode);
+				console.log('***********', grandParent.parent.name);
 			} else {
-				//namedTypes.MemberExpression.check(identifierNodePath.parent.node)
 				identifierNodePath.parent.parent.get('object').replace(identifierNode);
-	
-//				console.log(identifierNodePath.parent.parent); //MemberExpression
 			}
 		}
 
 		this.traverse(identifierNodePath);
 	}
 }
-
-
-
-
-
-
-
