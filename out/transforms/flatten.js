@@ -12,6 +12,7 @@ var $__0 = require('ast-types'),
     builders = $__0.builders,
     namedTypes = $__0.namedTypes,
     PathVisitor = $__0.PathVisitor;
+var Sequence = require('immutable').Sequence;
 function flattenNamespace(programNode, fullyQualifiedName) {
   fullyQualifiedName = fullyQualifiedName.split('.');
   programNode.body = programNode.body.map((function(programStatement) {
@@ -78,6 +79,7 @@ function flattenCallExpressionArguments(callArguments, fullyQualifiedName, class
 }
 var NamespacedClassVisitor = function NamespacedClassVisitor(fullyQualifiedName) {
   $traceurRuntime.superCall(this, $NamespacedClassVisitor.prototype, "constructor", []);
+  this._s = Sequence(fullyQualifiedName.split('.')).reverse();
   this._fullyQualifiedName = fullyQualifiedName.split('.');
   this._className = this._fullyQualifiedName[this._fullyQualifiedName.length - 1];
 };
@@ -98,3 +100,11 @@ var $NamespacedClassVisitor = NamespacedClassVisitor;
     }
     this.traverse(identifierNodePath);
   }}, {}, PathVisitor);
+function t(expressionNode, namespaceSequence) {
+  if (namedTypes.Identifier.check(expressionNode)) {
+    return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;
+  } else if (namedTypes.MemberExpression.check(expressionNode)) {
+    return namedTypes.Identifier.check(expressionNode.property) && expressionNode.property.name === namespaceSequence.first() && t(expressionNode.object, namespaceSequence.skip(1));
+  }
+  return false;
+}

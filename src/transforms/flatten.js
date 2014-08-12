@@ -3,6 +3,7 @@ import {
 	namedTypes,
 	PathVisitor
 } from 'ast-types';
+import {Sequence} from 'immutable';
 
 /**
  * SpiderMonkey AST node.
@@ -184,6 +185,7 @@ export class NamespacedClassVisitor extends PathVisitor {
 	constructor(fullyQualifiedName) {
 		super();
 
+		this._s = Sequence(fullyQualifiedName.split('.')).reverse();
 		this._fullyQualifiedName = fullyQualifiedName.split('.');
 		this._className = this._fullyQualifiedName[this._fullyQualifiedName.length - 1];
 	}
@@ -211,4 +213,22 @@ export class NamespacedClassVisitor extends PathVisitor {
 
 		this.traverse(identifierNodePath);
 	}
+}
+
+/**
+ *
+ *
+ * @param {AstNode} expressionNode - Expression AstNode.
+ * @param {Sequence} namespaceSequence - .
+ */
+function t(expressionNode, namespaceSequence) {
+	if (namedTypes.Identifier.check(expressionNode)) {
+		return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;
+	} else if (namedTypes.MemberExpression.check(expressionNode)) {
+		return namedTypes.Identifier.check(expressionNode.property)
+				&& expressionNode.property.name === namespaceSequence.first()
+				&& t(expressionNode.object, namespaceSequence.skip(1));
+	}
+
+	return false;
 }
