@@ -12,7 +12,6 @@ var $__0 = require('ast-types'),
     builders = $__0.builders,
     namedTypes = $__0.namedTypes,
     PathVisitor = $__0.PathVisitor;
-var Sequence = require('immutable').Sequence;
 function flattenNamespace(programNode, fullyQualifiedName) {
   fullyQualifiedName = fullyQualifiedName.split('.');
   programNode.body = programNode.body.map((function(programStatement) {
@@ -79,32 +78,31 @@ function flattenCallExpressionArguments(callArguments, fullyQualifiedName, class
 }
 var NamespacedClassVisitor = function NamespacedClassVisitor(fullyQualifiedName) {
   $traceurRuntime.superCall(this, $NamespacedClassVisitor.prototype, "constructor", []);
-  this._s = Sequence(fullyQualifiedName.split('.')).reverse();
   this._fullyQualifiedName = fullyQualifiedName.split('.');
   this._className = this._fullyQualifiedName[this._fullyQualifiedName.length - 1];
 };
 var $NamespacedClassVisitor = NamespacedClassVisitor;
 ($traceurRuntime.createClass)(NamespacedClassVisitor, {visitIdentifier: function(identifierNodePath) {
+    var parent = identifierNodePath.parent;
     var identifierNode = identifierNodePath.node;
     if (identifierNode.name === this._className) {
-      var parent = identifierNodePath.parent;
+      console.log(t(parent.node, this._fullyQualifiedName, this._fullyQualifiedName.length - 1));
       var grandParent = parent.parent;
       if (namedTypes.CallExpression.check(grandParent.node)) {
         grandParent.get('arguments', parent.name).replace(identifierNode);
       } else if (namedTypes.AssignmentExpression.check(grandParent.node)) {
         grandParent.get(parent.name).replace(identifierNode);
-        console.log('***********', grandParent.parent.name);
       } else {
         identifierNodePath.parent.parent.get('object').replace(identifierNode);
       }
     }
     this.traverse(identifierNodePath);
   }}, {}, PathVisitor);
-function t(expressionNode, namespaceSequence) {
+function t(expressionNode, fullyQualifiedName, positionToCheck) {
   if (namedTypes.Identifier.check(expressionNode)) {
-    return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;
+    return expressionNode.name === fullyQualifiedName[positionToCheck] && positionToCheck === 0;
   } else if (namedTypes.MemberExpression.check(expressionNode)) {
-    return namedTypes.Identifier.check(expressionNode.property) && expressionNode.property.name === namespaceSequence.first() && t(expressionNode.object, namespaceSequence.skip(1));
+    return namedTypes.Identifier.check(expressionNode.property) && expressionNode.property.name === fullyQualifiedName[positionToCheck] && t(expressionNode.object, fullyQualifiedName, positionToCheck - 1);
   }
   return false;
 }
