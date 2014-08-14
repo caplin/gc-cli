@@ -8,10 +8,9 @@ Object.defineProperties(exports, {
     }},
   __esModule: {value: true}
 });
-var $__0 = require('ast-types'),
-    builders = $__0.builders,
-    namedTypes = $__0.namedTypes,
-    PathVisitor = $__0.PathVisitor;
+var builders = require('ast-types').builders;
+var namedTypes = require('ast-types').namedTypes;
+var PathVisitor = require('ast-types').PathVisitor;
 function flattenNamespace(programNode, fullyQualifiedName) {
   fullyQualifiedName = fullyQualifiedName.split('.');
   programNode.body = programNode.body.map((function(programStatement) {
@@ -22,7 +21,7 @@ function flattenNamespace(programNode, fullyQualifiedName) {
   }));
 }
 function flattenExpressionStatement(programStatement, fullyQualifiedName) {
-  var expression = $traceurRuntime.assertObject(programStatement).expression;
+  var expression = programStatement.expression;
   var className = fullyQualifiedName[fullyQualifiedName.length - 1];
   if (expression.type === 'AssignmentExpression') {
     return flattenAssignmentExpression(programStatement, fullyQualifiedName, className);
@@ -32,7 +31,7 @@ function flattenExpressionStatement(programStatement, fullyQualifiedName) {
   return programStatement;
 }
 function flattenAssignmentExpression(expressionStatement, fullyQualifiedName, className) {
-  var assignmentExpression = $traceurRuntime.assertObject(expressionStatement).expression;
+  var assignmentExpression = expressionStatement.expression;
   var assignmentLeftExpression = assignmentExpression.left;
   if (isNamespacedMethod(assignmentLeftExpression, fullyQualifiedName)) {
     flattenClassMethod(assignmentExpression, className);
@@ -59,13 +58,13 @@ function isNamespacedClassExpression(expression, namespacePart) {
   return false;
 }
 function flattenClassMethod(assignmentExpression, className) {
-  var methodName = $traceurRuntime.assertObject($traceurRuntime.assertObject($traceurRuntime.assertObject(assignmentExpression).left).property).name;
+  var methodName = assignmentExpression.left.property.name;
   var classProto = builders.memberExpression(builders.identifier(className), builders.identifier('prototype'), false);
   var classMethod = builders.memberExpression(classProto, builders.identifier(methodName), false);
   assignmentExpression.left = classMethod;
 }
 function createConstructorFunctionDeclaration(expressionStatement, className) {
-  var functionExpression = $traceurRuntime.assertObject($traceurRuntime.assertObject(expressionStatement).expression).right;
+  var functionExpression = expressionStatement.expression.right;
   var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
   return classConstructorDeclaration;
 }

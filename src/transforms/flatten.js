@@ -1,8 +1,6 @@
-import {
-	builders,
-	namedTypes,
-	PathVisitor
-} from 'ast-types';
+var builders = require('ast-types').builders;
+var namedTypes = require('ast-types').namedTypes;
+var PathVisitor = require('ast-types').PathVisitor;
 
 /**
  * SpiderMonkey AST node.
