@@ -18,6 +18,8 @@ var PathVisitor = require('ast-types').PathVisitor;
  */
 
 /**
+ * Converts all Expression trees that match the provided fully qualified class name.
+ * They will be mutated to flat Identifiers with the class name as their value.
  */
 export class NamespacedClassVisitor extends PathVisitor {
 	/**
@@ -47,8 +49,10 @@ export class NamespacedClassVisitor extends PathVisitor {
 				var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, this._className);
 
 				grandParent.parent.replace(constructorFunctionDeclaration);
+			} else if (namedTypes.MemberExpression.check(grandParent.node)) {
+				grandParent.get('object').replace(identifierNode);
 			} else {
-				identifierNodePath.parent.parent.get('object').replace(identifierNode);
+				console.log('Namespaced class expression not transformed, grandparent node type ::', grandParent.node.type);
 			}
 		}
 
@@ -76,13 +80,13 @@ function isNamespacedClassExpressionNode(expressionNode, fullyQualifiedName, pos
 }
 
 /**
- * Given a class constructor ExpressionStatement AstNode create a FunctionDeclaration class constructor.
+ * Given a class constructor AssignmentExpression AstNode create a FunctionDeclaration class constructor.
  *
- * @param {AstNode} expressionStatement - ExpressionStatement AstNode.
+ * @param {AstNode} assignmentExpression - AssignmentExpression AstNode.
  * @param {string} className - The class name.
  */
-function createConstructorFunctionDeclaration(expressionStatement, className) {
-	var {right: functionExpression} = expressionStatement;
+function createConstructorFunctionDeclaration(assignmentExpression, className) {
+	var {right: functionExpression} = assignmentExpression;
 	var classConstructorDeclaration = builders.functionDeclaration(
 		builders.identifier(className),
 		functionExpression.params,

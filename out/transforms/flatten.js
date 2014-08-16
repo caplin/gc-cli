@@ -25,8 +25,10 @@ var $NamespacedClassVisitor = NamespacedClassVisitor;
       } else if (namedTypes.AssignmentExpression.check(grandParent.node)) {
         var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, this._className);
         grandParent.parent.replace(constructorFunctionDeclaration);
+      } else if (namedTypes.MemberExpression.check(grandParent.node)) {
+        grandParent.get('object').replace(identifierNode);
       } else {
-        identifierNodePath.parent.parent.get('object').replace(identifierNode);
+        console.log('Namespaced class expression not transformed, grandparent node type ::', grandParent.node.type);
       }
     }
     this.traverse(identifierNodePath);
@@ -39,8 +41,8 @@ function isNamespacedClassExpressionNode(expressionNode, fullyQualifiedName, pos
   }
   return false;
 }
-function createConstructorFunctionDeclaration(expressionStatement, className) {
-  var functionExpression = expressionStatement.right;
+function createConstructorFunctionDeclaration(assignmentExpression, className) {
+  var functionExpression = assignmentExpression.right;
   var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
   return classConstructorDeclaration;
 }
