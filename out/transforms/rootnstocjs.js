@@ -5,10 +5,9 @@ Object.defineProperties(exports, {
     }},
   __esModule: {value: true}
 });
-var $__0 = require('ast-types'),
-    builders = $__0.builders,
-    namedTypes = $__0.namedTypes,
-    PathVisitor = $__0.PathVisitor;
+var builders = require('ast-types').builders;
+var namedTypes = require('ast-types').namedTypes;
+var PathVisitor = require('ast-types').PathVisitor;
 var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace, programStatements) {
   $traceurRuntime.superCall(this, $RootNamespaceVisitor.prototype, "constructor", []);
   this._requiresToInsert = new Map();
@@ -34,9 +33,9 @@ var $RootNamespaceVisitor = RootNamespaceVisitor;
     this.traverse(callExpressionNodePath);
   },
   insertRequires: function() {
-    var $__1 = this;
+    var $__0 = this;
     this._requiresToInsert.forEach((function(importDeclaration) {
-      $__1._programStatements.unshift(importDeclaration);
+      $__0._programStatements.unshift(importDeclaration);
     }));
   }
 }, {}, PathVisitor);
