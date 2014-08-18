@@ -5,15 +5,21 @@ Object.defineProperties(exports, {
     }},
   __esModule: {value: true}
 });
-var join = require('path').join;
-var readFileSync = require('fs').readFileSync;
-var $__2 = require('recast'),
+var $__path__,
+    $__fs__,
+    $__recast__,
+    $__ast_45_types__,
+    $__transforms_47_flatten__,
+    $__transforms_47_rootnstocjs__;
+var join = ($__path__ = require("path"), $__path__ && $__path__.__esModule && $__path__ || {default: $__path__}).join;
+var readFileSync = ($__fs__ = require("fs"), $__fs__ && $__fs__.__esModule && $__fs__ || {default: $__fs__}).readFileSync;
+var $__2 = ($__recast__ = require("recast"), $__recast__ && $__recast__.__esModule && $__recast__ || {default: $__recast__}),
     parse = $__2.parse,
     print = $__2.print;
-var visit = require('ast-types').visit;
+var visit = ($__ast_45_types__ = require("ast-types"), $__ast_45_types__ && $__ast_45_types__.__esModule && $__ast_45_types__ || {default: $__ast_45_types__}).visit;
 var minimist = require('minimist');
-var flattenNamespace = require('./transforms/flatten').flattenNamespace;
-var RootNamespaceVisitor = require('./transforms/rootnstocjs').RootNamespaceVisitor;
+var NamespacedClassVisitor = ($__transforms_47_flatten__ = require("./transforms/flatten"), $__transforms_47_flatten__ && $__transforms_47_flatten__.__esModule && $__transforms_47_flatten__ || {default: $__transforms_47_flatten__}).NamespacedClassVisitor;
+var RootNamespaceVisitor = ($__transforms_47_rootnstocjs__ = require("./transforms/rootnstocjs"), $__transforms_47_rootnstocjs__ && $__transforms_47_rootnstocjs__.__esModule && $__transforms_47_rootnstocjs__ || {default: $__transforms_47_rootnstocjs__}).RootNamespaceVisitor;
 function compileFile(options) {
   var args = minimist(options);
   var fileLocation = args._[0];
@@ -21,8 +27,8 @@ function compileFile(options) {
   var fileContents = readFileSync(filePath);
   var ast = parse(fileContents);
   if (args.flatten) {
-    var namespace = args.flatten;
-    flattenNamespace(ast.program, namespace);
+    var namespacedClassVisitor = new NamespacedClassVisitor(args.flatten);
+    visit(ast.program, namespacedClassVisitor);
   } else if (args.rootnstocjs) {
     var rootNsVisitor = new RootNamespaceVisitor(args.rootnstocjs, ast.program.body);
     visit(ast.program, rootNsVisitor);

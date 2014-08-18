@@ -8,7 +8,7 @@ import {
 import {visit} from 'ast-types';
 var minimist = require('minimist');
 
-import {flattenNamespace} from './transforms/flatten';
+import {NamespacedClassVisitor} from './transforms/flatten';
 import {RootNamespaceVisitor} from './transforms/rootnstocjs';
 
 /**
@@ -22,10 +22,12 @@ export function compileFile(options) {
 	var ast = parse(fileContents);
 
 	if (args.flatten) {
-		var namespace = args.flatten;
-		flattenNamespace(ast.program, namespace);
+		var namespacedClassVisitor = new NamespacedClassVisitor(args.flatten);
+
+		visit(ast.program, namespacedClassVisitor);
 	} else if (args.rootnstocjs) {
 		var rootNsVisitor = new RootNamespaceVisitor(args.rootnstocjs, ast.program.body);
+
 		visit(ast.program, rootNsVisitor);
 		rootNsVisitor.insertRequires();
 	}
