@@ -1,12 +1,10 @@
-import {join} from 'path';
-import {readFileSync} from 'fs';
+var join = require('path').join;
+var readFileSync = require('fs').readFileSync;
 
-import {
-	parse,
-	print
-} from 'recast';
-import {visit} from 'ast-types';
 var minimist = require('minimist');
+var parse = require('recast').parse;
+var print = require('recast').print;
+var visit = require('ast-types').visit;
 
 import {NamespacedClassVisitor} from './transforms/flatten';
 import {RootNamespaceVisitor} from './transforms/rootnstocjs';
