@@ -17,19 +17,8 @@ var NamespacedClassVisitor = function NamespacedClassVisitor(fullyQualifiedName)
 var $NamespacedClassVisitor = NamespacedClassVisitor;
 ($traceurRuntime.createClass)(NamespacedClassVisitor, {visitIdentifier: function(identifierNodePath) {
     var parent = identifierNodePath.parent;
-    var identifierNode = identifierNodePath.node;
     if (isNamespacedClassExpressionNode(parent.node, this._fullyQualifiedName, this._namespaceLength)) {
-      var grandParent = parent.parent;
-      if (namedTypes.CallExpression.check(grandParent.node)) {
-        grandParent.get('arguments', parent.name).replace(identifierNode);
-      } else if (namedTypes.AssignmentExpression.check(grandParent.node)) {
-        var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, this._className);
-        grandParent.parent.replace(constructorFunctionDeclaration);
-      } else if (namedTypes.MemberExpression.check(grandParent.node)) {
-        grandParent.get('object').replace(identifierNode);
-      } else {
-        console.log('Namespaced class expression not transformed, grandparent node type ::', grandParent.node.type);
-      }
+      replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
     }
     this.traverse(identifierNodePath);
   }}, {}, PathVisitor);
@@ -40,6 +29,19 @@ function isNamespacedClassExpressionNode(expressionNode, fullyQualifiedName, pos
     return namedTypes.Identifier.check(expressionNode.property) && expressionNode.property.name === fullyQualifiedName[positionToCheck] && isNamespacedClassExpressionNode(expressionNode.object, fullyQualifiedName, positionToCheck - 1);
   }
   return false;
+}
+function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
+  var grandParent = namespacedClassNodePath.parent;
+  if (namedTypes.CallExpression.check(grandParent.node)) {
+    grandParent.get('arguments', namespacedClassNodePath.name).replace(classNameIdentifierNode);
+  } else if (namedTypes.AssignmentExpression.check(grandParent.node)) {
+    var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
+    grandParent.parent.replace(constructorFunctionDeclaration);
+  } else if (namedTypes.MemberExpression.check(grandParent.node)) {
+    grandParent.get('object').replace(classNameIdentifierNode);
+  } else {
+    console.log('Namespaced class expression not transformed, grandparent node type ::', grandParent.node.type);
+  }
 }
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
   var functionExpression = assignmentExpression.right;
