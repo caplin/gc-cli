@@ -9,14 +9,14 @@
     "build": "traceur --dir src/ out/ --modules=commonjs --sourcemap"
   },
   "dependencies": {
-    "ast-types": "^0.4.8",
-    "minimist": "^0.2.0",
-    "recast": "^0.6.10",
+    "ast-types": "^0.4.9",
+    "minimist": "^1.1.0",
+    "recast": "^0.7.0",
     "traceur": "0.0.58"
   },
   "devDependencies": {
-    "mocha": "^1.20.1",
-    "watchy": "~0.4.4"
+    "mocha": "^1.21.4",
+    "watchy": "^0.5.2"
   },
   "bin": "./bin/global-compiler-cli.js"
 }
