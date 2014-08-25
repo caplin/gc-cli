@@ -5,28 +5,29 @@ Object.defineProperties(exports, {
     }},
   __esModule: {value: true}
 });
+var Sequence = require('immutable').Sequence;
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
 var PathVisitor = require('ast-types').PathVisitor;
 var NamespacedClassVisitor = function NamespacedClassVisitor(fullyQualifiedName) {
   $traceurRuntime.superCall(this, $NamespacedClassVisitor.prototype, "constructor", []);
-  this._fullyQualifiedName = fullyQualifiedName.split('.');
-  this._namespaceLength = this._fullyQualifiedName.length - 1;
-  this._className = this._fullyQualifiedName[this._namespaceLength];
+  this._namespaceSequence = Sequence(fullyQualifiedName.split('.').reverse());
+  this._className = this._namespaceSequence.first();
 };
 var $NamespacedClassVisitor = NamespacedClassVisitor;
 ($traceurRuntime.createClass)(NamespacedClassVisitor, {visitIdentifier: function(identifierNodePath) {
     var parent = identifierNodePath.parent;
-    if (isNamespacedClassExpressionNode(parent.node, this._fullyQualifiedName, this._namespaceLength)) {
+    if (isNamespacedClassExpressionNode(parent.node, this._namespaceSequence)) {
       replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
     }
     this.traverse(identifierNodePath);
   }}, {}, PathVisitor);
-function isNamespacedClassExpressionNode(expressionNode, fullyQualifiedName, positionToCheck) {
+function isNamespacedClassExpressionNode(expressionNode, namespaceSequence) {
   if (namedTypes.Identifier.check(expressionNode)) {
-    return expressionNode.name === fullyQualifiedName[positionToCheck] && positionToCheck === 0;
+    return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;
   } else if (namedTypes.MemberExpression.check(expressionNode)) {
-    return namedTypes.Identifier.check(expressionNode.property) && expressionNode.property.name === fullyQualifiedName[positionToCheck] && isNamespacedClassExpressionNode(expressionNode.object, fullyQualifiedName, positionToCheck - 1);
+    var shortenedSequence = Sequence(namespaceSequence.skip(1).toArray());
+    return namedTypes.Identifier.check(expressionNode.property) && expressionNode.property.name === namespaceSequence.first() && isNamespacedClassExpressionNode(expressionNode.object, shortenedSequence);
   }
   return false;
 }

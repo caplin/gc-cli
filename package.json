@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "ast-types": "^0.4.9",
+    "immutable": "^2.0.15",
     "minimist": "^1.1.0",
     "recast": "^0.7.0",
     "traceur": "0.0.58"
