@@ -5,7 +5,7 @@ var assert = require('assert');
 
 var globalCompiler = require('../');
 
-describe('GlobalCompiler flattening', function() {
+describe('Namespaced class flattening', function() {
 	it('should remove the class namespace.', function() {
 		var expectedResult = fs.readFileSync('test/flatten/expected.js', {encoding: 'utf-8'});
 		var code = globalCompiler.compileFile([
