@@ -9,6 +9,7 @@
     "build": "traceur --dir src/ out/ --modules=commonjs --sourcemap"
   },
   "dependencies": {
+    "glob": "^4.0.5",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
     "traceur": "0.0.51"
   },
