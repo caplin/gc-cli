@@ -6,9 +6,19 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var glob = require('glob');
-var minimist = require('minimist');
 var compileFile = require('global-compiler').compileFile;
 function processFile(options) {
-  var files = glob.sync('src/**/*.js');
-  console.log(files);
+  var sourceFiles = glob.sync('src/**/*.js');
+  var filesMetadata = sourceFiles.map(generateFileMetadata);
+  var processedFiles = filesMetadata.map((function(fileMetadata) {
+    return compileFile(['--flatten', fileMetadata.namespace, fileMetadata.fileName]);
+  }));
+  console.log(processedFiles[0]);
+}
+function generateFileMetadata(fileName) {
+  var namespace = fileName.replace(/^src\//, '').replace(/\.js$/, '').replace(/\//g, '.');
+  return {
+    namespace: namespace,
+    fileName: fileName
+  };
 }
