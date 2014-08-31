@@ -12,6 +12,7 @@
     "glob": "^4.0.5",
     "glob-stream": "^3.1.15",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
+    "recast": "^0.7.0",
     "through2": "^0.6.1",
     "traceur": "0.0.51"
   },
