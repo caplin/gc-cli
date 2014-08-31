@@ -1,15 +1,21 @@
 var fs = require('fs');
 
-var recast = require('recast');
 var through2 = require('through2');
+var bluebird = require('bluebird');
+var parse = require('recast').parse;
+var visit = require('ast-types').visit;
 var globStream = require('glob-stream');
+import {NamespacedClassVisitor} from 'global-compiler';
+
+var readFile = bluebird.promisify(fs.readFile);
 
 /**
  * @param {Array} options - List of options for CLI.
  */
 export function processFile(options) {
-	var stream = globStream.create('src/**/*.js')
-		.pipe(createJsAst());
+	globStream.create('src/**/*.js')
+		.pipe(through2.obj(readAndParseJsFile))
+		.pipe(flattenClass());
 
 //	stream.on('data', function() {
 //		console.log(arguments);
@@ -27,32 +33,30 @@ export function processFile(options) {
 //	console.log(processedFiles[0]);
 }
 
-function createJsAst() {
-	return through2.obj(function(fileMetadata, encoding, callback) {
-		console.log(fileMetadata);
-		
-		fs.readFile(fileMetadata.path, (error, data) => {
-			if (error) {
-				return callback(null, error);
-			}
-
-			var fileAst = recast.parse(data);
+function readAndParseJsFile(fileMetadata, encoding, callback) {
+	readFile(fileMetadata.path)
+		.then(fileContent => {
+			var fileAst = parse(fileContent);
 
 			fileMetadata.ast = fileAst;
-			callback(fileMetadata);
+			this.push(fileMetadata);
+
+			callback();
+		})
+		.catch(error => {
+			callback(null, error);
 		});
-	});
 }
 
+function flattenClass() {
+	return through2.obj((fileMetadata, encoding, callback) => {
 
-//function generateFileMetadata(fileName) {
-//	var namespace = fileName
-//						.replace(/^src\//, '')
-//						.replace(/\.js$/, '')
-//						.replace(/\//g, '.');
-//
-//	return {namespace, fileName};
-//}
+		console.log(fileMetadata);
+//		var namespacedClassVisitor = new NamespacedClassVisitor(args.flatten);
+
+//		visit(ast.program, namespacedClassVisitor);
+	});
+}
 
 function generateFileMetadata(fileName) {
 	var namespace = fileName
