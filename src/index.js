@@ -1,5 +1,6 @@
 var fs = require('fs');
 
+var recast = require('recast');
 var through2 = require('through2');
 var globStream = require('glob-stream');
 
@@ -31,14 +32,19 @@ function createJsAst() {
 		console.log(fileMetadata);
 		
 		fs.readFile(fileMetadata.path, (error, data) => {
+			if (error) {
+				return callback(null, error);
+			}
+
+			var fileAst = recast.parse(data);
+
+			fileMetadata.ast = fileAst;
+			callback(fileMetadata);
 		});
-
-		this.push(data);
-
-		callback();
 	});
 }
-	
+
+
 //function generateFileMetadata(fileName) {
 //	var namespace = fileName
 //						.replace(/^src\//, '')

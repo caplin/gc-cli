@@ -6,6 +6,7 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var fs = require('fs');
+var recast = require('recast');
 var through2 = require('through2');
 var globStream = require('glob-stream');
 function processFile(options) {
@@ -14,9 +15,14 @@ function processFile(options) {
 function createJsAst() {
   return through2.obj(function(fileMetadata, encoding, callback) {
     console.log(fileMetadata);
-    fs.readFile(fileMetadata.path, (function(error, data) {}));
-    this.push(data);
-    callback();
+    fs.readFile(fileMetadata.path, (function(error, data) {
+      if (error) {
+        return callback(null, error);
+      }
+      var fileAst = recast.parse(data);
+      fileMetadata.ast = fileAst;
+      callback(fileMetadata);
+    }));
   });
 }
 function generateFileMetadata(fileName) {
