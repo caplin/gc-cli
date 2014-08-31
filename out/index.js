@@ -5,15 +5,19 @@ Object.defineProperties(exports, {
     }},
   __esModule: {value: true}
 });
-var glob = require('glob');
-var compileFile = require('global-compiler').compileFile;
+var fs = require('fs');
+var through2 = require('through2');
+var globStream = require('glob-stream');
 function processFile(options) {
-  var sourceFiles = glob.sync('src/**/*.js');
-  var filesMetadata = sourceFiles.map(generateFileMetadata);
-  var processedFiles = filesMetadata.map((function(fileMetadata) {
-    return compileFile(['--flatten', fileMetadata.namespace, fileMetadata.fileName]);
-  }));
-  console.log(processedFiles[0]);
+  var stream = globStream.create('src/**/*.js').pipe(createJsAst());
+}
+function createJsAst() {
+  return through2.obj(function(fileMetadata, encoding, callback) {
+    console.log(fileMetadata);
+    fs.readFile(fileMetadata.path, (function(error, data) {}));
+    this.push(data);
+    callback();
+  });
 }
 function generateFileMetadata(fileName) {
   var namespace = fileName.replace(/^src\//, '').replace(/\.js$/, '').replace(/\//g, '.');
