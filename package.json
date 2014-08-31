@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "ast-types": "^0.4.9",
-    "glob": "^4.0.5",
     "glob-stream": "^3.1.15",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
     "recast": "^0.7.0",
