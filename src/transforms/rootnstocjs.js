@@ -63,12 +63,12 @@ export class RootNamespaceVisitor extends PathVisitor {
 	}
 
 	/**
-	 * Called after visiting ast to insert module requires.
+	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
 	 */
-	insertRequires() {
-		this._requiresToInsert.forEach((importDeclaration) => {
-			this._programStatements.unshift(importDeclaration);
-		});
+	visitProgram(programNodePath) {
+		this.traverse(programNodePath);
+
+		insertRequires(this._requiresToInsert, this._programStatements);
 	}
 }
 
@@ -123,5 +123,14 @@ function flattenCallExpressionArguments(callArguments, rootNamespace, requiresTo
 			callArguments[argumentIndex] = builders.identifier(requireIdentifier);
 			requiresToInsert.set(expressionNamespace, importDeclaration);
 		}
+	});
+}
+
+/**
+ * Called after visiting ast to insert module requires.
+ */
+function insertRequires(requiresToInsert, programStatements) {
+	requiresToInsert.forEach((importDeclaration) => {
+		programStatements.unshift(importDeclaration);
 	});
 }

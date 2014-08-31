@@ -32,11 +32,9 @@ var $RootNamespaceVisitor = RootNamespaceVisitor;
     flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
     this.traverse(callExpressionNodePath);
   },
-  insertRequires: function() {
-    var $__0 = this;
-    this._requiresToInsert.forEach((function(importDeclaration) {
-      $__0._programStatements.unshift(importDeclaration);
-    }));
+  visitProgram: function(programNodePath) {
+    this.traverse(programNodePath);
+    insertRequires(this._requiresToInsert, this._programStatements);
   }
 }, {}, PathVisitor);
 function getExpressionNamespace(memberExpression) {
@@ -60,5 +58,10 @@ function flattenCallExpressionArguments(callArguments, rootNamespace, requiresTo
       callArguments[argumentIndex] = builders.identifier(requireIdentifier);
       requiresToInsert.set(expressionNamespace, importDeclaration);
     }
+  }));
+}
+function insertRequires(requiresToInsert, programStatements) {
+  requiresToInsert.forEach((function(importDeclaration) {
+    programStatements.unshift(importDeclaration);
   }));
 }
