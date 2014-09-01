@@ -33,20 +33,19 @@ export function processFile(options) {
 //	console.log(processedFiles[0]);
 }
 
-function readAndParseJsFile(fileMetadata, encoding, callback) {
-	readFile(fileMetadata.path)
-		.then(fileContent => {
-			var fileAst = parse(fileContent);
+var readAndParseJsFile = bluebird.coroutine(function* (fileMetadata, encoding, callback) {
+	try {
+		var fileContent = yield readFile(fileMetadata.path);
+		var fileAst = parse(fileContent);
 
-			fileMetadata.ast = fileAst;
-			this.push(fileMetadata);
+		fileMetadata.ast = fileAst;
+		this.push(fileMetadata);
 
-			callback();
-		})
-		.catch(error => {
-			callback(null, error);
-		});
-}
+		callback();
+	} catch (error) {
+		callback(null, error);
+	}
+});
 
 function flattenClass() {
 	return through2.obj((fileMetadata, encoding, callback) => {
