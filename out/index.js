@@ -13,10 +13,10 @@ var visit = require('ast-types').visit;
 var globStream = require('glob-stream');
 var NamespacedClassVisitor = require('global-compiler').NamespacedClassVisitor;
 var readFile = bluebird.promisify(fs.readFile);
-function processFile(options) {
-  globStream.create('src/**/*.js').pipe(through2.obj(readAndParseJsFile)).pipe(flattenClass());
+function processFile() {
+  globStream.create('src/**/*.js').pipe(through2.obj(readAndParseJsFile)).pipe(through2.obj(flattenClass));
 }
-var readAndParseJsFile = bluebird.coroutine($traceurRuntime.initGeneratorFunction(function $__1(fileMetadata, encoding, callback) {
+var readAndParseJsFile = bluebird.coroutine($traceurRuntime.initGeneratorFunction(function $__2(fileMetadata, encoding, callback) {
   var fileContent,
       fileAst,
       error;
@@ -57,17 +57,17 @@ var readAndParseJsFile = bluebird.coroutine($traceurRuntime.initGeneratorFunctio
         default:
           return $ctx.end();
       }
-  }, $__1, this);
+  }, $__2, this);
 }));
-function flattenClass() {
-  return through2.obj((function(fileMetadata, encoding, callback) {
-    console.log(fileMetadata);
-  }));
-}
-function generateFileMetadata(fileName) {
-  var namespace = fileName.replace(/^src\//, '').replace(/\.js$/, '').replace(/\//g, '.');
-  return {
-    namespace: namespace,
-    fileName: fileName
-  };
+function flattenClass(fileMetadata, encoding, callback) {
+  var $__1 = $traceurRuntime.assertObject(fileMetadata),
+      filePath = $__1.path,
+      fileBase = $__1.base,
+      ast = $__1.ast;
+  var fileName = filePath.replace(fileBase, '');
+  var classNamespace = fileName.replace(/\.js$/, '').replace(/\//g, '.');
+  var namespacedClassVisitor = new NamespacedClassVisitor(classNamespace);
+  visit(ast, namespacedClassVisitor);
+  this.push(fileMetadata);
+  callback();
 }

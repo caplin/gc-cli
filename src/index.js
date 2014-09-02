@@ -10,27 +10,12 @@ import {NamespacedClassVisitor} from 'global-compiler';
 var readFile = bluebird.promisify(fs.readFile);
 
 /**
- * @param {Array} options - List of options for CLI.
+ *
  */
-export function processFile(options) {
+export function processFile() {
 	globStream.create('src/**/*.js')
 		.pipe(through2.obj(readAndParseJsFile))
-		.pipe(flattenClass());
-
-//	stream.on('data', function() {
-//		console.log(arguments);
-//	});
-	
-//	var sourceFiles = glob.sync('src/**/*.js');
-//	var filesMetadata = sourceFiles.map(generateFileMetadata);
-//	var processedFiles = filesMetadata.map(fileMetadata => {
-//		return compileFile(['--flatten', fileMetadata.namespace, fileMetadata.fileName]);
-//	});
-//				'--flatten',
-//			'my.long.name.space.SimpleClass',
-//			'test/flatten/given.js'
-	
-//	console.log(processedFiles[0]);
+		.pipe(through2.obj(flattenClass));
 }
 
 var readAndParseJsFile = bluebird.coroutine(function* (fileMetadata, encoding, callback) {
@@ -47,21 +32,22 @@ var readAndParseJsFile = bluebird.coroutine(function* (fileMetadata, encoding, c
 	}
 });
 
-function flattenClass() {
-	return through2.obj((fileMetadata, encoding, callback) => {
+/**
+ * Stream transform implementation (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {?} fileMetadata - .
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
+ */
+function flattenClass(fileMetadata, encoding, callback) {
+	var {path: filePath, base: fileBase, ast} = fileMetadata;
+	var fileName = filePath.replace(fileBase, '');
+	var classNamespace = fileName.replace(/\.js$/, '').replace(/\//g, '.');
+	var namespacedClassVisitor = new NamespacedClassVisitor(classNamespace);
 
-		console.log(fileMetadata);
-//		var namespacedClassVisitor = new NamespacedClassVisitor(args.flatten);
+	visit(ast, namespacedClassVisitor);
 
-//		visit(ast.program, namespacedClassVisitor);
-	});
-}
+	this.push(fileMetadata);
 
-function generateFileMetadata(fileName) {
-	var namespace = fileName
-						.replace(/^src\//, '')
-						.replace(/\.js$/, '')
-						.replace(/\//g, '.');
-
-	return {namespace, fileName};
+	callback();
 }
