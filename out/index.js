@@ -9,12 +9,13 @@ var fs = require('fs');
 var through2 = require('through2');
 var bluebird = require('bluebird');
 var parse = require('recast').parse;
+var print = require('recast').print;
 var visit = require('ast-types').visit;
 var globStream = require('glob-stream');
 var NamespacedClassVisitor = require('global-compiler').NamespacedClassVisitor;
 var readFile = bluebird.promisify(fs.readFile);
 function processFile() {
-  globStream.create('src/**/*.js').pipe(through2.obj(readAndParseJsFile)).pipe(through2.obj(flattenClass));
+  globStream.create('src/**/*.js').pipe(through2.obj(readAndParseJsFile)).pipe(through2.obj(flattenClass)).pipe(through2.obj(convertAstToBuffer));
 }
 var readAndParseJsFile = bluebird.coroutine($traceurRuntime.initGeneratorFunction(function $__2(fileMetadata, encoding, callback) {
   var fileContent,
@@ -68,6 +69,13 @@ function flattenClass(fileMetadata, encoding, callback) {
   var classNamespace = fileName.replace(/\.js$/, '').replace(/\//g, '.');
   var namespacedClassVisitor = new NamespacedClassVisitor(classNamespace);
   visit(ast, namespacedClassVisitor);
+  this.push(fileMetadata);
+  callback();
+}
+function convertAstToBuffer(fileMetadata, encoding, callback) {
+  var convertedCode = print(fileMetadata.ast).code;
+  var convertedCodeBuffer = new Buffer(convertedCode);
+  fileMetadata.contents = convertedCodeBuffer;
   this.push(fileMetadata);
   callback();
 }
