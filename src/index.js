@@ -29,7 +29,7 @@ export function processFile() {
  * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
  */
 function parseJsFile(vinylFile, encoding, callback) {
-	var fileAst = parse(vinylFile.content);
+	var fileAst = parse(vinylFile.contents.toString());
 
 	vinylFile.ast = fileAst;
 	this.push(vinylFile);
