@@ -6,8 +6,10 @@ var parse = require('recast').parse;
 var print = require('recast').print;
 var visit = require('ast-types').visit;
 
-import {NamespacedClassVisitor} from './transforms/flatten';
-import {RootNamespaceVisitor} from './transforms/rootnstocjs';
+import {namespacedClassVisitor} from './transforms/flatten';
+import {rootNamespaceVisitor} from './transforms/rootnstocjs';
+
+export {namespacedClassVisitor, rootNamespaceVisitor};
 
 /**
  * @param {Array} options - List of options for compiler.
@@ -20,14 +22,13 @@ export function compileFile(options) {
 	var ast = parse(fileContents);
 
 	if (args.flatten) {
-		var namespacedClassVisitor = new NamespacedClassVisitor(args.flatten);
+		namespacedClassVisitor.initialize(args.flatten);
 
-		visit(ast.program, namespacedClassVisitor);
+		visit(ast, namespacedClassVisitor);
 	} else if (args.rootnstocjs) {
-		var rootNsVisitor = new RootNamespaceVisitor(args.rootnstocjs, ast.program.body);
+		rootNamespaceVisitor.initialize(args.rootnstocjs, ast.program.body);
 
-		visit(ast.program, rootNsVisitor);
-		rootNsVisitor.insertRequires();
+		visit(ast, rootNamespaceVisitor);
 	}
 
 	return print(ast).code;
