@@ -1,27 +1,26 @@
 "use strict";
 Object.defineProperties(exports, {
-  NamespacedClassVisitor: {get: function() {
-      return NamespacedClassVisitor;
+  namespacedClassVisitor: {get: function() {
+      return namespacedClassVisitor;
     }},
   __esModule: {value: true}
 });
 var Sequence = require('immutable').Sequence;
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
-var PathVisitor = require('ast-types').PathVisitor;
-var NamespacedClassVisitor = function NamespacedClassVisitor(fullyQualifiedName) {
-  $traceurRuntime.superCall(this, $NamespacedClassVisitor.prototype, "constructor", []);
-  this._namespaceSequence = Sequence(fullyQualifiedName.split('.').reverse());
-  this._className = this._namespaceSequence.first();
-};
-var $NamespacedClassVisitor = NamespacedClassVisitor;
-($traceurRuntime.createClass)(NamespacedClassVisitor, {visitIdentifier: function(identifierNodePath) {
+var namespacedClassVisitor = {
+  initialize: function(fullyQualifiedName) {
+    this._namespaceSequence = Sequence(fullyQualifiedName.split('.').reverse());
+    this._className = this._namespaceSequence.first();
+  },
+  visitIdentifier: function(identifierNodePath) {
     var parent = identifierNodePath.parent;
     if (isNamespacedClassExpressionNode(parent.node, this._namespaceSequence)) {
       replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
     }
     this.traverse(identifierNodePath);
-  }}, {}, PathVisitor);
+  }
+};
 function isNamespacedClassExpressionNode(expressionNode, namespaceSequence) {
   if (namedTypes.Identifier.check(expressionNode)) {
     return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;

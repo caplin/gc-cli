@@ -1,21 +1,19 @@
 "use strict";
 Object.defineProperties(exports, {
-  RootNamespaceVisitor: {get: function() {
-      return RootNamespaceVisitor;
+  rootNamespaceVisitor: {get: function() {
+      return rootNamespaceVisitor;
     }},
   __esModule: {value: true}
 });
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
 var PathVisitor = require('ast-types').PathVisitor;
-var RootNamespaceVisitor = function RootNamespaceVisitor(rootNamespace, programStatements) {
-  $traceurRuntime.superCall(this, $RootNamespaceVisitor.prototype, "constructor", []);
-  this._requiresToInsert = new Map();
-  this._rootNamespace = rootNamespace;
-  this._programStatements = programStatements;
-};
-var $RootNamespaceVisitor = RootNamespaceVisitor;
-($traceurRuntime.createClass)(RootNamespaceVisitor, {
+var rootNamespaceVisitor = {
+  initialize: function(rootNamespace, programStatements) {
+    this._requiresToInsert = new Map();
+    this._rootNamespace = rootNamespace;
+    this._programStatements = programStatements;
+  },
   visitNewExpression: function(newExpressionNodePath) {
     var newExpression = newExpressionNodePath.node;
     var expressionNamespace = getExpressionNamespace(newExpression.callee);
@@ -36,7 +34,7 @@ var $RootNamespaceVisitor = RootNamespaceVisitor;
     this.traverse(programNodePath);
     insertRequires(this._requiresToInsert, this._programStatements);
   }
-}, {}, PathVisitor);
+};
 function getExpressionNamespace(memberExpression) {
   if (namedTypes.Identifier.check(memberExpression)) {
     return memberExpression.name;
