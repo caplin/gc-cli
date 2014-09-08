@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "mocha": "^1.21.4",
+    "systemjs": "^0.8.2",
     "watchy": "^0.5.2"
   },
   "bin": "./bin/global-compiler-cli.js"
