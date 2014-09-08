@@ -1,6 +1,5 @@
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
-var PathVisitor = require('ast-types').PathVisitor;
 
 /**
  * SpiderMonkey AST node.
@@ -21,18 +20,16 @@ var PathVisitor = require('ast-types').PathVisitor;
  * Converts all Expressions under the specified root namespace.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
-export class RootNamespaceVisitor extends PathVisitor {
+export var rootNamespaceVisitor = {
 	/**
 	 * @param {string} rootNamespace - The root namespace.
 	 * @param {AstNode[]} programStatements - Program body statements.
 	 */
-	constructor(rootNamespace, programStatements) {
-		super();
-
+	initialize(rootNamespace, programStatements) {
 		this._requiresToInsert = new Map();
 		this._rootNamespace = rootNamespace;
 		this._programStatements = programStatements;
-	}
+	},
 
 	/**
 	 * @param {NodePath} newExpressionNodePath - NewExpression NodePath.
@@ -50,7 +47,7 @@ export class RootNamespaceVisitor extends PathVisitor {
 		}
 
 		this.traverse(newExpressionNodePath);
-	}
+	},
 
 	/**
 	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
@@ -60,7 +57,7 @@ export class RootNamespaceVisitor extends PathVisitor {
 		flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
 
 		this.traverse(callExpressionNodePath);
-	}
+	},
 
 	/**
 	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.

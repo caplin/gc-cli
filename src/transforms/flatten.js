@@ -1,7 +1,6 @@
 var Sequence = require('immutable').Sequence;
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
-var PathVisitor = require('ast-types').PathVisitor;
 
 /**
  * SpiderMonkey AST node.
@@ -22,16 +21,14 @@ var PathVisitor = require('ast-types').PathVisitor;
  * Converts all Expression trees that match the provided fully qualified class name.
  * They will be mutated to flat Identifiers with the class name as their value.
  */
-export class NamespacedClassVisitor extends PathVisitor {
+export var namespacedClassVisitor = {
 	/**
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
-	constructor(fullyQualifiedName) {
-		super();
-
+	initialize(fullyQualifiedName) {
 		this._namespaceSequence = Sequence(fullyQualifiedName.split('.').reverse());
 		this._className = this._namespaceSequence.first();
-	}
+	},
 
 	/**
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
