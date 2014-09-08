@@ -18,7 +18,8 @@ export function processFile() {
 		.pipe(through2.obj(parseJsFile))
 		.pipe(through2.obj(flattenClass))
 		.pipe(through2.obj(convertGlobalsToRequires))
-		.pipe(through2.obj(convertAstToBuffer));
+		.pipe(through2.obj(convertAstToBuffer))
+		.pipe(vinylFs.dest('./output'));
 }
 
 /**
