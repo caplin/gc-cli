@@ -1,6 +1,2 @@
-"use strict";
-
-var traceurRuntimePath = require("traceur").RUNTIME_PATH;
-var traceurRuntime = require(traceurRuntimePath);
-
-module.exports = require("./out/");
+export {namespacedClassVisitor} from './src/flatten';
+export {rootNamespaceVisitor} from './src/rootnstocjs';
