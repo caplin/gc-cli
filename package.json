@@ -11,6 +11,7 @@
   "dependencies": {
     "ast-types": "^0.4.9",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
+    "immutable": "^2.0.17",
     "recast": "^0.7.0",
     "through2": "^0.6.1",
     "traceur": "0.0.60",
