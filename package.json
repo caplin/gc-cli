@@ -6,15 +6,11 @@
   },
   "dependencies": {
     "ast-types": "^0.4.9",
-    "immutable": "^2.0.15",
-    "minimist": "^1.1.0",
-    "recast": "^0.7.0",
-    "traceur": "0.0.60"
+    "immutable": "^2.0.15"
   },
   "devDependencies": {
+    "recast": "^0.7.0",
     "mocha": "^1.21.4",
-    "systemjs": "^0.8.2",
-    "watchy": "^0.5.2"
-  },
-  "bin": "./bin/global-compiler-cli.js"
+    "systemjs": "^0.8.2"
+  }
 }
