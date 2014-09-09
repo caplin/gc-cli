@@ -81,7 +81,7 @@ function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, className
 	} else if (namedTypes.MemberExpression.check(grandParent.node)) {
 		grandParent.get('object').replace(classNameIdentifierNode);
 	} else {
-		console.log('Namespaced class expression not transformed, grandparent node type ::', grandParent.node.type);
+		console.log('Namespaced expression not transformed, grandparent node type ::', grandParent.node.type);
 	}
 }
 
