@@ -2,11 +2,7 @@
   "name": "global-compiler",
   "version": "0.0.0",
   "scripts": {
-    "test": "mocha",
-    "prepublish": "npm run build",
-    "start": "npm run build && node index.js",
-    "watch": "watchy -sw src -- npm run build",
-    "build": "traceur --dir src/ out/ --modules=commonjs --sourcemap"
+    "test": "mocha"
   },
   "dependencies": {
     "ast-types": "^0.4.9",
