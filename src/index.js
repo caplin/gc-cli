@@ -1,5 +1,3 @@
-var fs = require('fs');
-
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 var parse = require('recast').parse;
