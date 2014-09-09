@@ -4,8 +4,8 @@ var parse = require('recast').parse;
 var print = require('recast').print;
 var visit = require('ast-types').visit;
 import {
-	RootNamespaceVisitor,
-	NamespacedClassVisitor
+	rootNamespaceVisitor,
+	namespacedClassVisitor
 } from 'global-compiler';
 
 /**
@@ -17,6 +17,7 @@ export function processFile() {
 		.pipe(through2.obj(flattenClass))
 		.pipe(through2.obj(convertGlobalsToRequires))
 		.pipe(through2.obj(convertAstToBuffer))
+		//TODO: hardcoded
 		.pipe(vinylFs.dest('./output'));
 }
 
@@ -47,7 +48,8 @@ function flattenClass(fileMetadata, encoding, callback) {
 	var {path: filePath, base: fileBase, ast} = fileMetadata;
 	var fileName = filePath.replace(fileBase, '');
 	var classNamespace = fileName.replace(/\.js$/, '').replace(/\//g, '.');
-	var namespacedClassVisitor = new NamespacedClassVisitor(classNamespace);
+
+	namespacedClassVisitor.initialize(classNamespace);
 
 	visit(ast, namespacedClassVisitor);
 
@@ -66,7 +68,7 @@ function flattenClass(fileMetadata, encoding, callback) {
 function convertGlobalsToRequires(fileMetadata, encoding, callback) {
 	var ast = fileMetadata.ast;
 	//TODO: hardcoded
-	var rootNamespaceVisitor = new RootNamespaceVisitor('my', ast.program.body);
+	rootNamespaceVisitor.initialize('my', ast.program.body);
 
 	visit(ast, rootNamespaceVisitor);
 
