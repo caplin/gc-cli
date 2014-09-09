@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 "use strict";
 
-var gc-cli = require("../");
+var gcCli = require("../");
 
-//process.argv.slice(2)
-//process.argv - Array that contains the command line arguments.
+gcCli.processFile(process.argv.slice(2));
