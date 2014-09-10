@@ -10,6 +10,14 @@ import {
 } from 'global-compiler';
 
 /**
+ * Vinyl file.
+ *
+ * @typedef {Object} VinylFile
+ * @property {String} path - File path.
+ * @property {String} base - File base, path without file name.
+ */
+
+/**
  *
  */
 export function processFile() {
@@ -23,9 +31,10 @@ export function processFile() {
 }
 
 /**
- * Stream transform implementation (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
  *
- * @param {?} vinylFile - .
+ * @param {VinylFile} vinylFile - Virtual file object.
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
  * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
  */
@@ -40,7 +49,8 @@ function parseJsFile(vinylFile, encoding, callback) {
 }
 
 /**
- * Stream transform implementation (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
  *
  * @param {?} fileMetadata - .
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
@@ -61,7 +71,8 @@ function flattenClass(fileMetadata, encoding, callback) {
 }
 
 /**
- * Stream transform implementation (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
  *
  * @param {?} fileMetadata - .
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
@@ -80,7 +91,8 @@ function convertGlobalsToRequires(fileMetadata, encoding, callback) {
 }
 
 /**
- * Stream transform implementation (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
  *
  * @param {?} fileMetadata - .
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
