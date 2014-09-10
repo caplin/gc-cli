@@ -1,3 +1,4 @@
+var chalk = require('chalk');
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 var parse = require('recast').parse;
@@ -29,6 +30,7 @@ export function processFile() {
  * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
  */
 function parseJsFile(vinylFile, encoding, callback) {
+	console.log(chalk.green('Parsing', vinylFile.path));
 	var fileAst = parse(vinylFile.contents.toString());
 
 	vinylFile.ast = fileAst;
