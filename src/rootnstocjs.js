@@ -141,8 +141,8 @@ function removeMethodCalls(nodesPath, namespaceParts) {
 	var namespacePart = namespaceParts[namespaceParts.length - 1];
 
 	if (namespacePart.match(/^[a-z]/)) {
-		namespaceParts.pop();
 		nodesPath.pop();
+		namespaceParts.pop();
 	}
 }
 
