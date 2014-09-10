@@ -6,7 +6,6 @@ Object.defineProperties(exports, {
   __esModule: {value: true}
 });
 var $__global_45_compiler__;
-var fs = require('fs');
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 var parse = require('recast').parse;
