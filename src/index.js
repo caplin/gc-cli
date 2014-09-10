@@ -36,7 +36,7 @@ export function processFile() {
  *
  * @param {VinylFile} vinylFile - Virtual file object.
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
- * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function parseJsFile(vinylFile, encoding, callback) {
 	console.log(chalk.green('Parsing', vinylFile.path));
@@ -54,7 +54,7 @@ function parseJsFile(vinylFile, encoding, callback) {
  *
  * @param {?} fileMetadata - .
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
- * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenClass(fileMetadata, encoding, callback) {
 	var {path: filePath, base: fileBase, ast} = fileMetadata;
@@ -76,7 +76,7 @@ function flattenClass(fileMetadata, encoding, callback) {
  *
  * @param {?} fileMetadata - .
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
- * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function convertGlobalsToRequires(fileMetadata, encoding, callback) {
 	var ast = fileMetadata.ast;
@@ -96,7 +96,7 @@ function convertGlobalsToRequires(fileMetadata, encoding, callback) {
  *
  * @param {?} fileMetadata - .
  * @param {String} encoding - If the chunk is a string, then this is the encoding type.
- * @param {Function} callback - Function to call (takes optional error argument) when processing the supplied object is complete.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function convertAstToBuffer(fileMetadata, encoding, callback) {
 	var convertedCode = print(fileMetadata.ast).code;
