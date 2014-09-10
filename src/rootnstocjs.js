@@ -56,9 +56,10 @@ export var rootNamespaceVisitor = {
 }
 
 /**
+ * Replaces namespaced nodes with an identifier and a require statement.
  *
- * @param {?} identifierNodePath - .
- * @param {?} requiresToInsert - .
+ * @param {NodePath} identifierNodePath - Identifier node path.
+ * @param {Map} requiresToInsert - Map of requires to insert into program.
  */
 function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 	var nodesPath = [identifierNodePath];
@@ -69,17 +70,18 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 	var parentNode = nodesPath[nodesPath.length - 1].node;
 
 	if (namedTypes.NewExpression.check(parentNode)) {
-		createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert);
+		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.CallExpression.check(parentNode)) {
 		removeMethodCalls(nodesPath, namespaceParts);
-		createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert);
+		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	}
 }
 
 /**
+ * Fill provided arrays with nodes and the namespace parts that make up the namespace tree.
  *
- * @param {Array} nodesPath - .
- * @param {Array} namespaceParts - .
+ * @param {Array} nodesPath - Node paths that make up the namespace.
+ * @param {Array} namespaceParts - Namespace parts taken from node property names.
  */
 function populateNamespacePath(nodesPath, namespaceParts) {
 	var parent = nodesPath[nodesPath.length - 1].parent;
@@ -93,11 +95,12 @@ function populateNamespacePath(nodesPath, namespaceParts) {
 }
 
 /**
+ * Replaces namespaced node tree with single identifier and adds a require declaration for the identifier.
  *
- * @param {Array} nodesPath - .
- * @param {Array} namespaceParts - .
+ * @param {Array} nodesPath - Node paths that make up the namespace.
+ * @param {Array} namespaceParts - Namespace parts taken from node property names.
  */
-function createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert) {
+function replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert) {
 	var namespace = namespaceParts.join('.');
 	var requireIdentifier = namespaceParts[namespaceParts.length - 1];
 	var namespaceExpressionToReplace = nodesPath[nodesPath.length - 2];
@@ -106,6 +109,7 @@ function createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert) {
 	console.log(namespaceParts);
 
 	namespaceExpressionToReplace.replace(builders.identifier(requireIdentifier));
+	//TODO: There can be multiple import declarations with same identifier, this must be handled.
 	requiresToInsert.set(namespace, importDeclaration);
 }
 
@@ -130,9 +134,10 @@ function createRequireDeclaration(requireIdentifier, importedModule) {
 }
 
 /**
+ * Removes last namespace part and node path if it's a method call.
  *
- * @param {Array} nodesPath - .
- * @param {Array} namespaceParts - .
+ * @param {Array} nodesPath - Node paths that make up the namespace.
+ * @param {Array} namespaceParts - Namespace parts taken from node property names.
  */
 function removeMethodCalls(nodesPath, namespaceParts) {
 	var namespacePart = namespaceParts[namespaceParts.length - 1];
