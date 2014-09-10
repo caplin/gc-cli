@@ -31,7 +31,10 @@ function shouldRemoveClassNamespace(done, flattenModule) {
 	visit(givenAst, namespacedClassVisitor);
 
 	//Then.
-	assert.equal(print(givenAst).code, expected);
+	var expectedCode = expected.replace(/\r/g, '');
+	var outputtedCode = print(givenAst).code.replace(/\r/g, '');
+
+	assert.equal(outputtedCode, expectedCode);
 
 	done();
 }
