@@ -30,16 +30,15 @@ export var rootNamespaceVisitor = {
 	 */
 	initialize(rootNamespace, programStatements) {
 		this._requiresToInsert = new Map();
-		this._rootNamespace = rootNamespace;
+		this._rootNamespace = Sequence(rootNamespace);
 		this._programStatements = programStatements;
-		this._rootNamespaceS = Sequence(rootNamespace);
 	},
 
 	/**
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
 	visitIdentifier(identifierNodePath) {
-		if (isNamespacedExpressionNode(identifierNodePath.node, this._rootNamespaceS)) {
+		if (isNamespacedExpressionNode(identifierNodePath.node, this._rootNamespace)) {
 			replaceNamespaceWithIdentifier(identifierNodePath, this._requiresToInsert);
 		}
 
