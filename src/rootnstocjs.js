@@ -71,8 +71,10 @@ export var rootNamespaceVisitor = {
 
 /**
  * Concatenates the name values of nested MemberExpressions and Identifier.
+ * If expression has no name value, like a literal, it returns an empty string.
  *
  * @param {AstNode} memberExpression - MemberExpression or Identifier AstNode.
+ * @returns {String} namespace of expression or an empty string.
  */
 function getExpressionNamespace(memberExpression) {
 	if (namedTypes.Identifier.check(memberExpression)) {
@@ -80,6 +82,8 @@ function getExpressionNamespace(memberExpression) {
 	} else if (namedTypes.MemberExpression.check(memberExpression)) {
 		return getExpressionNamespace(memberExpression.object) + '.' + memberExpression.property.name;
 	}
+
+	return '';
 }
 
 /**

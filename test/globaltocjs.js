@@ -31,7 +31,10 @@ function shouldReplaceGlobalsWithRequires(done, transforms) {
 	visit(givenAst, rootNamespaceVisitor);
 
 	//Then.
-	assert.equal(print(givenAst).code, expected);
+	var expectedCode = expected.replace(/\r/g, '');
+	var outputtedCode = print(givenAst).code.replace(/\r/g, '');
+
+	assert.equal(outputtedCode, expectedCode);
 
 	done();
 }
