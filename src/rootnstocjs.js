@@ -1,5 +1,8 @@
+var Sequence = require('immutable').Sequence;
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
+
+import {isNamespacedExpressionNode} from './utils/utilities';
 
 /**
  * SpiderMonkey AST node.
@@ -29,34 +32,18 @@ export var rootNamespaceVisitor = {
 		this._requiresToInsert = new Map();
 		this._rootNamespace = rootNamespace;
 		this._programStatements = programStatements;
+		this._rootNamespaceS = Sequence(rootNamespace);
 	},
 
 	/**
-	 * @param {NodePath} newExpressionNodePath - NewExpression NodePath.
+	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
-	visitNewExpression(newExpressionNodePath) {
-		var newExpression = newExpressionNodePath.node;
-		var expressionNamespace = getExpressionNamespace(newExpression.callee);
-
-		if (expressionNamespace.startsWith(this._rootNamespace + '.')) {
-			var requireIdentifier = newExpression.callee.property.name;
-			var importDeclaration = createRequireDeclaration(requireIdentifier, expressionNamespace);
-
-			newExpression.callee = builders.identifier(requireIdentifier);
-			this._requiresToInsert.set(expressionNamespace, importDeclaration);
+	visitIdentifier(identifierNodePath) {
+		if (isNamespacedExpressionNode(identifierNodePath.node, this._rootNamespaceS)) {
+			replaceNamespaceWithIdentifier(identifierNodePath, this._requiresToInsert);
 		}
 
-		this.traverse(newExpressionNodePath);
-	},
-
-	/**
-	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
-	 */
-	visitCallExpression(callExpressionNodePath) {
-		var callExpression = callExpressionNodePath.node;
-		flattenCallExpressionArguments(callExpression.arguments, this._rootNamespace, this._requiresToInsert);
-
-		this.traverse(callExpressionNodePath);
+		this.traverse(identifierNodePath);
 	},
 
 	/**
@@ -70,20 +57,56 @@ export var rootNamespaceVisitor = {
 }
 
 /**
- * Concatenates the name values of nested MemberExpressions and Identifier.
- * If expression has no name value, like a literal, it returns an empty string.
  *
- * @param {AstNode} memberExpression - MemberExpression or Identifier AstNode.
- * @returns {String} namespace of expression or an empty string.
+ * @param {?} identifierNodePath - .
+ * @param {?} requiresToInsert - .
  */
-function getExpressionNamespace(memberExpression) {
-	if (namedTypes.Identifier.check(memberExpression)) {
-		return memberExpression.name;
-	} else if (namedTypes.MemberExpression.check(memberExpression)) {
-		return getExpressionNamespace(memberExpression.object) + '.' + memberExpression.property.name;
-	}
+function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
+	var nodesPath = [identifierNodePath];
+	var namespaceParts = [identifierNodePath.node.name];
 
-	return '';
+	populateNamespacePath(nodesPath, namespaceParts);
+
+	var parentNode = nodesPath[nodesPath.length - 1].node;
+
+	if (namedTypes.NewExpression.check(parentNode)) {
+		createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert);
+	} else if (namedTypes.CallExpression.check(parentNode)) {
+		createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert);
+	}
+}
+
+/**
+ *
+ * @param {Array} nodesPath - .
+ * @param {Array} namespaceParts - .
+ */
+function populateNamespacePath(nodesPath, namespaceParts) {
+	var parent = nodesPath[nodesPath.length - 1].parent;
+	nodesPath.push(parent);
+
+	if (namedTypes.MemberExpression.check(parent.node)) {
+		namespaceParts.push(parent.node.property.name);
+
+		populateNamespacePath(nodesPath, namespaceParts);
+	}
+}
+
+/**
+ *
+ * @param {Array} nodesPath - .
+ * @param {Array} namespaceParts - .
+ */
+function createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert) {
+	var namespace = namespaceParts.join('.');
+	var requireIdentifier = namespaceParts[namespaceParts.length - 1];
+	var namespaceExpressionToReplace = nodesPath[nodesPath.length - 2];
+	var importDeclaration = createRequireDeclaration(requireIdentifier, namespace);
+
+	console.log(namespaceParts);
+
+	namespaceExpressionToReplace.replace(builders.identifier(requireIdentifier));
+	requiresToInsert.set(namespace, importDeclaration);
 }
 
 /**
@@ -104,27 +127,6 @@ function createRequireDeclaration(requireIdentifier, importedModule) {
 		)]);
 
 	return importDeclaration;
-}
-
-/**
- * Modify the provided call arguments. The expressions will have their namespace removed.
- *
- * @param {AstNode[]} callArguments - Expression AstNodes.
- * @param {string} rootNamespace - The fully qualified name as an array.
- * @param {string} requiresToInsert - The class name.
- */
-function flattenCallExpressionArguments(callArguments, rootNamespace, requiresToInsert) {
-	callArguments.forEach((argumentExpression, argumentIndex) => {
-		var expressionNamespace = getExpressionNamespace(argumentExpression);
-
-		if (expressionNamespace.startsWith(rootNamespace + '.')) {
-			var requireIdentifier = argumentExpression.property.name;
-			var importDeclaration = createRequireDeclaration(requireIdentifier, expressionNamespace);
-
-			callArguments[argumentIndex] = builders.identifier(requireIdentifier);
-			requiresToInsert.set(expressionNamespace, importDeclaration);
-		}
-	});
 }
 
 /**
