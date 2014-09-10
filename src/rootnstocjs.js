@@ -72,6 +72,7 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 	if (namedTypes.NewExpression.check(parentNode)) {
 		createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.CallExpression.check(parentNode)) {
+		removeMethodCalls(nodesPath, namespaceParts);
 		createAndInsertRequire(nodesPath, namespaceParts, requiresToInsert);
 	}
 }
@@ -127,6 +128,20 @@ function createRequireDeclaration(requireIdentifier, importedModule) {
 		)]);
 
 	return importDeclaration;
+}
+
+/**
+ *
+ * @param {Array} nodesPath - .
+ * @param {Array} namespaceParts - .
+ */
+function removeMethodCalls(nodesPath, namespaceParts) {
+	var namespacePart = namespaceParts[namespaceParts.length - 1];
+
+	if (namespacePart.match(/^[a-z]/)) {
+		namespaceParts.pop();
+		nodesPath.pop();
+	}
 }
 
 /**
