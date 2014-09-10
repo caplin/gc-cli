@@ -106,8 +106,6 @@ function replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts
 	var namespaceExpressionToReplace = nodesPath[nodesPath.length - 2];
 	var importDeclaration = createRequireDeclaration(requireIdentifier, namespace);
 
-	console.log(namespaceParts);
-
 	namespaceExpressionToReplace.replace(builders.identifier(requireIdentifier));
 	//TODO: There can be multiple import declarations with same identifier, this must be handled.
 	requiresToInsert.set(namespace, importDeclaration);
