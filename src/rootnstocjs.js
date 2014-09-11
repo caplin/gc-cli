@@ -101,7 +101,7 @@ function populateNamespacePath(nodesPath, namespaceParts) {
  * @param {Array} namespaceParts - Namespace parts taken from node property names.
  */
 function replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert) {
-	var namespace = namespaceParts.join('.');
+	var namespace = namespaceParts.join('/');
 	var requireIdentifier = namespaceParts[namespaceParts.length - 1];
 	var namespaceExpressionToReplace = nodesPath[nodesPath.length - 2];
 	var importDeclaration = createRequireDeclaration(requireIdentifier, namespace);
