@@ -1,3 +1,5 @@
+var path = require('path');
+
 var chalk = require('chalk');
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
@@ -57,9 +59,10 @@ function parseJsFile(vinylFile, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenClass(fileMetadata, encoding, callback) {
+	var fileSepRegExp = new RegExp('\\' + path.sep, 'g');
 	var {path: filePath, base: fileBase, ast} = fileMetadata;
 	var fileName = filePath.replace(fileBase, '');
-	var classNamespace = fileName.replace(/\.js$/, '').replace(/\//g, '.');
+	var classNamespace = fileName.replace(/\.js$/, '').replace(fileSepRegExp, '.');
 
 	namespacedClassVisitor.initialize(classNamespace);
 
