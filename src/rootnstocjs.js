@@ -20,17 +20,17 @@ import {isNamespacedExpressionNode} from './utils/utilities';
  */
 
 /**
- * Converts all Expressions under the specified root namespace.
+ * Converts all Expressions under the specified root namespaces.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
 export var rootNamespaceVisitor = {
 	/**
-	 * @param {string} rootNamespace - The root namespace.
+	 * @param {String[]} rootNamespaces - The root namespaces.
 	 * @param {AstNode[]} programStatements - Program body statements.
 	 */
-	initialize(rootNamespace, programStatements) {
+	initialize(rootNamespaces, programStatements) {
 		this._requiresToInsert = new Map();
-		this._rootNamespace = Sequence(rootNamespace);
+		this._rootNamespaces = rootNamespaces.map(rootNamespace => Sequence(rootNamespace));
 		this._programStatements = programStatements;
 	},
 
@@ -38,9 +38,11 @@ export var rootNamespaceVisitor = {
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
 	visitIdentifier(identifierNodePath) {
-		if (isNamespacedExpressionNode(identifierNodePath.node, this._rootNamespace)) {
-			replaceNamespaceWithIdentifier(identifierNodePath, this._requiresToInsert);
-		}
+		this._rootNamespaces.forEach((rootNamespace) => {
+			if (isNamespacedExpressionNode(identifierNodePath.node, rootNamespace)) {
+				replaceNamespaceWithIdentifier(identifierNodePath, this._requiresToInsert);
+			}
+		});
 
 		this.traverse(identifierNodePath);
 	},

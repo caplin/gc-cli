@@ -25,7 +25,7 @@ describe('Global to CJS conversion', function() {
 function shouldReplaceGlobalsWithRequires(done, transforms) {
 	//Given.
 	var rootNamespaceVisitor = transforms.rootNamespaceVisitor;
-	rootNamespaceVisitor.initialize('my', givenAst.program.body);
+	rootNamespaceVisitor.initialize(['my', 'other'], givenAst.program.body);
 
 	//When.
 	visit(givenAst, rootNamespaceVisitor);
