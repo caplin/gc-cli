@@ -8,7 +8,8 @@ var print = require('recast').print;
 var visit = require('ast-types').visit;
 import {
 	rootNamespaceVisitor,
-	namespacedClassVisitor
+	namespacedClassVisitor,
+	namespacedIIFEClassVisitor
 } from 'global-compiler';
 
 /**
@@ -25,6 +26,7 @@ import {
 export function processFile() {
 	vinylFs.src('src/**/*.js')
 		.pipe(through2.obj(parseJsFile))
+		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
 		.pipe(through2.obj(convertGlobalsToRequires))
 		.pipe(through2.obj(convertAstToBuffer))
@@ -46,6 +48,29 @@ function parseJsFile(vinylFile, encoding, callback) {
 
 	vinylFile.ast = fileAst;
 	this.push(vinylFile);
+
+	callback();
+}
+
+/**
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {?} fileMetadata - .
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ */
+function flattenIIFEClass(fileMetadata, encoding, callback) {
+	var fileSepRegExp = new RegExp('\\' + path.sep, 'g');
+	var {path: filePath, base: fileBase, ast} = fileMetadata;
+	var fileName = filePath.replace(fileBase, '');
+	var classNamespace = fileName.replace(/\.js$/, '').replace(fileSepRegExp, '.');
+
+	namespacedIIFEClassVisitor.initialize(classNamespace);
+
+	visit(ast, namespacedIIFEClassVisitor);
+
+	this.push(fileMetadata);
 
 	callback();
 }

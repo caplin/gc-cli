@@ -11,6 +11,7 @@ var visit = require('ast-types').visit;
 process.chdir('test');
 
 var expected = fs.readFileSync('expected/expected.js', {encoding: 'utf-8'});
+var expectedIIFE = fs.readFileSync('expected/expected-iife.js', {encoding: 'utf-8'});
 
 System.config({
 	map: {
@@ -39,7 +40,11 @@ function shouldConvertNamespacedCode(done, cliModule) {
 
 	setTimeout(function() {
 		var output = fs.readFileSync('output/my/long/name/space/SimpleClass.js', {encoding: 'utf-8'});
+		var outputIIFE = fs.readFileSync('output/my/long/name/space/SimpleIIFEClass.js', {encoding: 'utf-8'});
+
 		assert.equal(output, expected);
+		assert.equal(outputIIFE, expectedIIFE);
+
 		done();
 	}, 500);
 }
