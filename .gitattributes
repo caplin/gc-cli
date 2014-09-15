@@ -1,2 +1,4 @@
-# Auto-detect text files, ensure they use LF.
-* text=auto eol=lf
+# These files are text and should be normalized (convert crlf to lf)
+*.js	eol=lf
+*.md	eol=lf
+*.json	eol=lf
