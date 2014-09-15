@@ -2,6 +2,8 @@ var Sequence = require('immutable').Sequence;
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
 
+import {isNamespacedExpressionNode} from './utils/utilities';
+
 /**
  * SpiderMonkey AST node.
  * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
@@ -36,32 +38,12 @@ export var namespacedClassVisitor = {
 	visitIdentifier(identifierNodePath) {
 		var parent = identifierNodePath.parent;
 
-		if (isNamespacedClassExpressionNode(parent.node, this._namespaceSequence)) {
+		if (isNamespacedExpressionNode(parent.node, this._namespaceSequence)) {
 			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
 		}
 
 		this.traverse(identifierNodePath);
 	}
-}
-
-/**
- * Returns true if the provided Expression node is the root of a hierarchy of nodes that match the namespaced class.
- *
- * @param {AstNode} expressionNode - Expression AstNode.
- * @param {Sequence} namespaceSequence - A sequence of names to match the expressionNode to.
- */
-function isNamespacedClassExpressionNode(expressionNode, namespaceSequence) {
-	if (namedTypes.Identifier.check(expressionNode)) {
-		return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;
-	} else if (namedTypes.MemberExpression.check(expressionNode)) {
-		var shortenedSequence = Sequence(namespaceSequence.skip(1).toArray());
-
-		return namedTypes.Identifier.check(expressionNode.property)
-			&& expressionNode.property.name === namespaceSequence.first()
-			&& isNamespacedClassExpressionNode(expressionNode.object, shortenedSequence);
-	}
-
-	return false;
 }
 
 /**
