@@ -27,8 +27,10 @@ export var rootNamespaceVisitor = {
 	/**
 	 * @param {String[]} rootNamespaces - The root namespaces.
 	 * @param {AstNode[]} programStatements - Program body statements.
+	 * @param {string} className - The class name to export.
 	 */
-	initialize(rootNamespaces, programStatements) {
+	initialize(rootNamespaces, programStatements, className) {
+		this._className = className;
 		this._requiresToInsert = new Map();
 		this._rootNamespaces = rootNamespaces.map(rootNamespace => Sequence(rootNamespace));
 		this._programStatements = programStatements;
@@ -53,6 +55,7 @@ export var rootNamespaceVisitor = {
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
+		insertExport(this._className, this._programStatements);
 		insertRequires(this._requiresToInsert, this._programStatements);
 	}
 }
@@ -174,9 +177,34 @@ function removeConstantsReference(nodesPath, namespaceParts) {
 
 /**
  * Called after visiting ast to insert module requires.
+ *
+ * @param {Map} requiresToInsert - Map of requires to insert into program.
+ * @param {AstNode[]} programStatements - Program body statements.
  */
 function insertRequires(requiresToInsert, programStatements) {
 	requiresToInsert.forEach((importDeclaration) => {
 		programStatements.unshift(importDeclaration);
 	});
+}
+
+/**
+ * @param {string} className - The class name to export.
+ * @param {AstNode[]} programStatements - Program body statements.
+ */
+function insertExport(className, programStatements) {
+	var exportsExpression = builders.memberExpression(
+		builders.identifier('module'),
+		builders.identifier('exports'),
+		false
+	);
+
+	var assignmentExpression = builders.assignmentExpression(
+		'=',
+		exportsExpression,
+		builders.identifier(className)
+	);
+
+	var exportsStatement = builders.expressionStatement(assignmentExpression);
+
+	programStatements.push(exportsStatement);
 }

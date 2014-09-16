@@ -26,3 +26,4 @@ SimpleClass.prototype._initMethod = function() {
 
 	this.controller.someCall(Reference.ANOTHER_CONSTANT);
 }
+module.exports = SimpleClass;
