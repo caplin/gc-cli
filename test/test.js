@@ -10,6 +10,11 @@ var visit = require('ast-types').visit;
 
 process.chdir('test');
 
+var commandOptions = {
+	_: [],
+	ns: 'my,other',
+	namespaces: 'my,other'
+};
 var expected = fs.readFileSync('expected/expected.js', {encoding: 'utf-8'});
 var expectedIIFE = fs.readFileSync('expected/expected-iife.js', {encoding: 'utf-8'});
 
@@ -34,7 +39,7 @@ function shouldConvertNamespacedCode(done, cliModule) {
 	//Clear the output dir.
 
 	//When.
-	cliModule.processFile();
+	cliModule.processFile(commandOptions);
 
 	//Then.
 

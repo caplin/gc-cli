@@ -2,6 +2,13 @@
 "use strict";
 
 var System = require('systemjs');
+var parseArgs = require('minimist');
+
+var commandParseOptions = {
+	alias: {
+		n: 'namespaces'
+	}
+};
 
 System.config({
 	baseURL: __dirname.replace('bin', ''),
@@ -13,7 +20,9 @@ System.config({
 
 System.import('src/index')
 	.then(function(gcCli) {
-		gcCli.processFile(process.argv.slice(2));
+		var options = parseArgs(process.argv.slice(2), commandParseOptions);
+
+		gcCli.processFile(options);
 	})
 	.catch(function(error) {
 		console.error(error);

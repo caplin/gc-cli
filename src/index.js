@@ -13,6 +13,14 @@ import {
 } from 'global-compiler';
 
 /**
+ * Options object.
+ *
+ * @typedef {Object} OptionsObject
+ * @property {String} ns - Alias for namespace.
+ * @property {String} namespace - Comma separated list of root namespaces to convert to CJS.
+ */
+
+/**
  * Vinyl file.
  *
  * @typedef {Object} VinylFile
@@ -21,14 +29,14 @@ import {
  */
 
 /**
- *
+ * @param {OptionsObject} options - Options to configure transforms.
  */
-export function processFile() {
+export function processFile(options) {
 	vinylFs.src('src/**/*.js')
 		.pipe(through2.obj(parseJsFile))
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
-		.pipe(through2.obj(convertGlobalsToRequires))
+		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(through2.obj(convertAstToBuffer))
 		//TODO: hardcoded
 		.pipe(vinylFs.dest('./output'));
@@ -99,23 +107,23 @@ function flattenClass(fileMetadata, encoding, callback) {
 }
 
 /**
- * Stream transform implementation.
- * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
- *
- * @param {?} fileMetadata - .
- * @param {String} encoding - If the chunk is a string, then this is the encoding type.
- * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ * @param {String} namespaces - Comma separated list of root namespaces to convert to CJS.
+ * @returns {Function} Stream transform implementation which replaces all global namespaced code with module references.
  */
-function convertGlobalsToRequires(fileMetadata, encoding, callback) {
-	var ast = fileMetadata.ast;
-	//TODO: hardcoded
-	rootNamespaceVisitor.initialize('my', ast.program.body);
+function convertGlobalsToRequires(namespaces) {
+	var rootNamespaces = namespaces.split(',');
 
-	visit(ast, rootNamespaceVisitor);
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		var ast = fileMetadata.ast;
 
-	this.push(fileMetadata);
+		rootNamespaceVisitor.initialize(rootNamespaces, ast.program.body);
 
-	callback();
+		visit(ast, rootNamespaceVisitor);
+
+		this.push(fileMetadata);
+
+		callback();
+	});
 }
 
 /**
