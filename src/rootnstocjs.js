@@ -72,9 +72,11 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 	var parentNode = nodesPath[nodesPath.length - 1].node;
 
 	if (namedTypes.NewExpression.check(parentNode)) {
+		removeConstantsReference(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.CallExpression.check(parentNode)) {
 		removeMethodCalls(nodesPath, namespaceParts);
+		removeConstantsReference(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.VariableDeclarator.check(parentNode)) {
 		removeConstantsReference(nodesPath, namespaceParts);

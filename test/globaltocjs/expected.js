@@ -1,3 +1,4 @@
+var Reference = require("other/some/Reference");
 var ClassWithConstants = require("my/constant/ClassWithConstants");
 var SomeController = require("other/spaced/class/SomeController");
 var SuperClass = require("my/long/name/space/SuperClass");
@@ -17,5 +18,7 @@ SimpleClass.prototype._initMethod = function() {
 	var SomeController = SomeController;
 	var SomeConstants = ClassWithConstants.CONSTANTS_REFERENCE;
 
-	this.controller = new SomeController(SomeConstants.A_CONSTANT);
+	this.controller = new SomeController(SomeConstants.A_CONSTANT, Reference.SOME_CONSTANT);
+
+	this.controller.someCall(Reference.ANOTHER_CONSTANT);
 }
