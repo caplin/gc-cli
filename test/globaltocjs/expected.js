@@ -6,7 +6,11 @@ var my = require("my");
 var ClassName = require("other/name/space/ClassName");
 var Factory = require("my/other/name/space/Factory");
 var Field = require("my/long/name/space/Field");
+var Utility = require("my/simple/Utility");
+var Utility;
+
 function SimpleClass() {
+	Utility = Utility;
 	var test = new Field();
 	this.aValue = Factory.callExpression('A Literal Value');
 	ClassName.callExpression(42);

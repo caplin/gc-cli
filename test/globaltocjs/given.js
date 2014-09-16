@@ -1,4 +1,7 @@
+var Utility;
+
 function SimpleClass() {
+	Utility = my.simple.Utility;
 	var test = new my.long.name.space.Field();
 	this.aValue = my.other.name.space.Factory.callExpression('A Literal Value');
 	other.name.space.ClassName.callExpression(42);

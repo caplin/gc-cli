@@ -81,6 +81,8 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 	} else if (namedTypes.VariableDeclarator.check(parentNode)) {
 		removeConstantsReference(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
+	} else if (namedTypes.AssignmentExpression.check(parentNode)) {
+		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else {
 		console.log('Namespaced expression not transformed to CJS, parent node type ::', parentNode.type);
 	}
