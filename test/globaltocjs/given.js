@@ -8,7 +8,7 @@ my.extend(SimpleClass, my.long.name.space.SuperClass);
 
 SimpleClass.prototype._initMethod = function() {
 	var SomeController = other.spaced.class.SomeController;
-	var SomeConstants = my.constant.ClassWithConstants.CONSTANTS;
+	var SomeConstants = my.constant.ClassWithConstants.CONSTANTS_REFERENCE;
 
 	this.controller = new SomeController(SomeConstants.A_CONSTANT);
 }

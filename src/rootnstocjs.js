@@ -162,7 +162,7 @@ function removeMethodCalls(nodesPath, namespaceParts) {
 function removeConstantsReference(nodesPath, namespaceParts) {
 	var namespacePart = namespaceParts[namespaceParts.length - 1];
 
-	if (namespacePart.match(/^[A-Z]*$/)) {
+	if (namespacePart.match(/^[A-Z_-]*$/)) {
 		nodesPath.pop();
 		namespaceParts.pop();
 	}

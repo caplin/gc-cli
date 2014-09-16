@@ -15,7 +15,7 @@ my.extend(SimpleClass, SuperClass);
 
 SimpleClass.prototype._initMethod = function() {
 	var SomeController = SomeController;
-	var SomeConstants = ClassWithConstants.CONSTANTS;
+	var SomeConstants = ClassWithConstants.CONSTANTS_REFERENCE;
 
 	this.controller = new SomeController(SomeConstants.A_CONSTANT);
 }
