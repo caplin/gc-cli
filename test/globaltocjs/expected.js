@@ -1,3 +1,4 @@
+var ClassWithConstants = require("my/constant/ClassWithConstants");
 var SomeController = require("other/spaced/class/SomeController");
 var SuperClass = require("my/long/name/space/SuperClass");
 var my = require("my");
@@ -14,6 +15,7 @@ my.extend(SimpleClass, SuperClass);
 
 SimpleClass.prototype._initMethod = function() {
 	var SomeController = SomeController;
+	var SomeConstants = ClassWithConstants.CONSTANTS;
 
-	this.controller = new SomeController();
+	this.controller = new SomeController(SomeConstants.A_CONSTANT);
 }

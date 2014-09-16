@@ -77,6 +77,7 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 		removeMethodCalls(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.VariableDeclarator.check(parentNode)) {
+		removeConstantsReference(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else {
 		console.log('Namespaced expression not transformed to CJS, parent node type ::', parentNode.type);
@@ -147,6 +148,21 @@ function removeMethodCalls(nodesPath, namespaceParts) {
 	var namespacePart = namespaceParts[namespaceParts.length - 1];
 
 	if (namespacePart.match(/^[a-z]/)) {
+		nodesPath.pop();
+		namespaceParts.pop();
+	}
+}
+
+/**
+ * Removes last namespace part and node path if it's a reference to a constant.
+ *
+ * @param {Array} nodesPath - Node paths that make up the namespace.
+ * @param {Array} namespaceParts - Namespace parts taken from node property names.
+ */
+function removeConstantsReference(nodesPath, namespaceParts) {
+	var namespacePart = namespaceParts[namespaceParts.length - 1];
+
+	if (namespacePart.match(/^[A-Z]*$/)) {
 		nodesPath.pop();
 		namespaceParts.pop();
 	}
