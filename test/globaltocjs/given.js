@@ -5,3 +5,9 @@ function SimpleClass() {
 }
 
 my.extend(SimpleClass, my.long.name.space.SuperClass);
+
+SimpleClass.prototype._initMethod = function() {
+	var SomeController = other.spaced.class.SomeController;
+
+	this.controller = new SomeController();
+}

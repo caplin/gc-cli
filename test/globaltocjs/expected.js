@@ -1,3 +1,4 @@
+var SomeController = require("other/spaced/class/SomeController");
 var SuperClass = require("my/long/name/space/SuperClass");
 var my = require("my");
 var ClassName = require("other/name/space/ClassName");
@@ -10,3 +11,9 @@ function SimpleClass() {
 }
 
 my.extend(SimpleClass, SuperClass);
+
+SimpleClass.prototype._initMethod = function() {
+	var SomeController = SomeController;
+
+	this.controller = new SomeController();
+}

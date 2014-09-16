@@ -76,6 +76,10 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 	} else if (namedTypes.CallExpression.check(parentNode)) {
 		removeMethodCalls(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
+	} else if (namedTypes.VariableDeclarator.check(parentNode)) {
+		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
+	} else {
+		console.log('Namespaced expression not transformed to CJS, parent node type ::', parentNode.type);
 	}
 }
 
