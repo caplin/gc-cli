@@ -74,16 +74,11 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 
 	var parentNode = nodesPath[nodesPath.length - 1].node;
 
-	if (namedTypes.NewExpression.check(parentNode)) {
+	if (namedTypes.MemberExpression.check(parentNode) || namedTypes.NewExpression.check(parentNode) ||
+		namedTypes.VariableDeclarator.check(parentNode) || namedTypes.AssignmentExpression.check(parentNode)) {
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.CallExpression.check(parentNode)) {
 		removeMethodCalls(nodesPath, namespaceParts);
-		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
-	} else if (namedTypes.VariableDeclarator.check(parentNode)) {
-		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
-	} else if (namedTypes.AssignmentExpression.check(parentNode)) {
-		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
-	} else if (namedTypes.MemberExpression.check(parentNode)) {
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else {
 		console.log('Namespaced expression not transformed to CJS, parent node type ::', parentNode.type);
