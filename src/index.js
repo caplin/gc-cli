@@ -108,11 +108,10 @@ function convertGlobalsToRequires(namespaces) {
 	var rootNamespaces = namespaces.split(',');
 
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		var ast = fileMetadata.ast;
+		var className = getFileNamespaceParts(fileMetadata).pop();
+		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className);
 
-		rootNamespaceVisitor.initialize(rootNamespaces, ast.program.body);
-
-		visit(ast, rootNamespaceVisitor);
+		visit(fileMetadata.ast, rootNamespaceVisitor);
 
 		this.push(fileMetadata);
 
