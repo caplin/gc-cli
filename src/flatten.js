@@ -54,13 +54,14 @@ export var namespacedClassVisitor = {
 function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
 	var grandParent = namespacedClassNodePath.parent;
 
-	if (namedTypes.AssignmentExpression.check(grandParent.node)) {
+	if (namedTypes.AssignmentExpression.check(grandParent.node) &&
+		namedTypes.FunctionExpression.check(grandParent.node.right)) {
 		var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
 
 		grandParent.parent.replace(constructorFunctionDeclaration);
 	} else if (namedTypes.MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
-	}  else {
+	} else {
 		console.log('Namespaced expression not transformed, grandparent node type ::', grandParent.node.type);
 	}
 }

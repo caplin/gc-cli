@@ -1,0 +1,3 @@
+SimpleObject = {}
+
+SimpleObject.anotherMethod = function() {}
