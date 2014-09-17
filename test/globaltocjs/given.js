@@ -17,3 +17,7 @@ SimpleClass.prototype._initMethod = function() {
 
 	this.controller.someCall(other.some.Reference.ANOTHER_CONSTANT);
 }
+
+SimpleClass.prototype.callToSuper = function() {
+	my.long.name.space.SuperClass.prototype.callToSuper.call(this);
+}

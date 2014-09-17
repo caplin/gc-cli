@@ -26,4 +26,8 @@ SimpleClass.prototype._initMethod = function() {
 
 	this.controller.someCall(Reference.ANOTHER_CONSTANT);
 }
+
+SimpleClass.prototype.callToSuper = function() {
+	SuperClass.prototype.callToSuper.call(this);
+}
 module.exports = SimpleClass;

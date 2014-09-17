@@ -75,16 +75,15 @@ function replaceNamespaceWithIdentifier(identifierNodePath, requiresToInsert) {
 	var parentNode = nodesPath[nodesPath.length - 1].node;
 
 	if (namedTypes.NewExpression.check(parentNode)) {
-		removeConstantsReference(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.CallExpression.check(parentNode)) {
 		removeMethodCalls(nodesPath, namespaceParts);
-		removeConstantsReference(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.VariableDeclarator.check(parentNode)) {
-		removeConstantsReference(nodesPath, namespaceParts);
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else if (namedTypes.AssignmentExpression.check(parentNode)) {
+		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
+	} else if (namedTypes.MemberExpression.check(parentNode)) {
 		replaceNamespacedNodeWithIdentifierAndRequire(nodesPath, namespaceParts, requiresToInsert);
 	} else {
 		console.log('Namespaced expression not transformed to CJS, parent node type ::', parentNode.type);
@@ -101,7 +100,8 @@ function populateNamespacePath(nodesPath, namespaceParts) {
 	var parent = nodesPath[nodesPath.length - 1].parent;
 	nodesPath.push(parent);
 
-	if (namedTypes.MemberExpression.check(parent.node)) {
+	if (namedTypes.MemberExpression.check(parent.node) && namedTypes.Identifier.check(parent.node.property)
+	   && isIdentierNamePartOfNamespace(parent.node.property.name)) {
 		namespaceParts.push(parent.node.property.name);
 
 		populateNamespacePath(nodesPath, namespaceParts);
@@ -161,18 +161,17 @@ function removeMethodCalls(nodesPath, namespaceParts) {
 }
 
 /**
- * Removes last namespace part and node path if it's a reference to a constant.
+ * Verifies the identifier name is a namespace part and not a `prototype` or constant reference.
  *
- * @param {Array} nodesPath - Node paths that make up the namespace.
- * @param {Array} namespaceParts - Namespace parts taken from node property names.
+ * @param {string} identifierName - The identifier name to validate.
+ * @returns {boolean} is the name part of a namespace.
  */
-function removeConstantsReference(nodesPath, namespaceParts) {
-	var namespacePart = namespaceParts[namespaceParts.length - 1];
-
-	if (namespacePart.match(/^[A-Z_-]*$/)) {
-		nodesPath.pop();
-		namespaceParts.pop();
+function isIdentierNamePartOfNamespace(identifierName) {
+	if (identifierName === 'prototype' || identifierName.match(/^[A-Z_-]*$/)) {
+		return false;
 	}
+
+	return true;
 }
 
 /**
