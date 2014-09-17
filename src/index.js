@@ -69,14 +69,11 @@ function parseJsFile(vinylFile, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenIIFEClass(fileMetadata, encoding, callback) {
-	var fileSepRegExp = new RegExp('\\' + path.sep, 'g');
-	var {path: filePath, base: fileBase, ast} = fileMetadata;
-	var fileName = filePath.replace(fileBase, '');
-	var classNamespace = fileName.replace(/\.js$/, '').replace(fileSepRegExp, '.');
+	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedIIFEClassVisitor.initialize(classNamespace);
 
-	visit(ast, namespacedIIFEClassVisitor);
+	visit(fileMetadata.ast, namespacedIIFEClassVisitor);
 
 	this.push(fileMetadata);
 
@@ -92,14 +89,11 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenClass(fileMetadata, encoding, callback) {
-	var fileSepRegExp = new RegExp('\\' + path.sep, 'g');
-	var {path: filePath, base: fileBase, ast} = fileMetadata;
-	var fileName = filePath.replace(fileBase, '');
-	var classNamespace = fileName.replace(/\.js$/, '').replace(fileSepRegExp, '.');
+	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedClassVisitor.initialize(classNamespace);
 
-	visit(ast, namespacedClassVisitor);
+	visit(fileMetadata.ast, namespacedClassVisitor);
 
 	this.push(fileMetadata);
 
@@ -143,4 +137,12 @@ function convertAstToBuffer(fileMetadata, encoding, callback) {
 	this.push(fileMetadata);
 
 	callback();
+}
+
+function getFileNamespace(fileMetadata) {
+	return getFileNamespaceParts(fileMetadata).join('.');
+}
+
+function getFileNamespaceParts(fileMetadata) {
+	return fileMetadata.relative.replace(/\.js$/, '').split(path.sep);
 }
