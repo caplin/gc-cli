@@ -20,6 +20,14 @@ import {isNamespacedExpressionNode} from './utils/utilities';
  */
 
 /**
+ * Namespace data.
+ *
+ * @typedef {Object} NamespaceData
+ * @property {string[]} namespaceParts - the labels that make up a fully qualified namespace.
+ * @property {NodePath[]} nodePathsToTransform - all the leaf NodePaths for this fully qualified namespace.
+ */
+
+/**
  * Converts all Expressions under the specified root namespaces.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
@@ -32,8 +40,8 @@ export var rootNamespaceVisitor = {
 	initialize(namespaceRoots, programStatements, className) {
 		this._className = className;
 		this._moduleIdentifiers = new Set();
+		this._fullyQualifiedNameData = new Map();
 		this._programStatements = programStatements;
-		this._namespacedNodePathsToTransform = new Map();
 		this._namespaceRoots = namespaceRoots.map(rootNamespace => Sequence(rootNamespace));
 	},
 
@@ -43,7 +51,7 @@ export var rootNamespaceVisitor = {
 	visitIdentifier(identifierNodePath) {
 		this._namespaceRoots.forEach((namespaceRoot) => {
 			if (isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoot)) {
-				findAndStoreNodePathToTransform(identifierNodePath, this._namespacedNodePathsToTransform);
+				findAndStoreNodePathToTransform(identifierNodePath, this._fullyQualifiedNameData);
 			}
 		});
 
@@ -57,11 +65,13 @@ export var rootNamespaceVisitor = {
 		this.traverse(programNodePath);
 
 		insertExport(this._className, this._programStatements);
-		transform(this._namespacedNodePathsToTransform, this._moduleIdentifiers, this._programStatements);
+		transform(this._fullyQualifiedNameData, this._moduleIdentifiers, this._programStatements);
 	}
 }
 
 /**
+ * Does identifier value match a namespace root and is it at the root of an expression tree.
+ *
  * @param {NodePath} identifierNodePath - Identifier node path.
  * @param {string} namespaceRoot - The top level of a namespace, the root label.
  * @returns {boolean} true if this namespaced expression should be flattened.
@@ -74,14 +84,17 @@ function isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoo
 }
 
 /**
+ * Finds fully qualified leaf nodes (class name references) and stores them.
+ *
  * @param {NodePath} identifierNodePath - Identifier node path.
+ * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
  */
-function findAndStoreNodePathToTransform(identifierNodePath, namespacedExpressionsToTransform) {
+function findAndStoreNodePathToTransform(identifierNodePath, fullyQualifiedNameData) {
 	var nodesPath = [identifierNodePath];
 	var namespaceParts = [identifierNodePath.node.name];
 
 	populateNamespacePath(identifierNodePath.parent, nodesPath, namespaceParts);
-	storeNodePathsToTransform(namespaceParts, nodesPath.pop(), namespacedExpressionsToTransform);
+	storeNodePathInFQNameData(namespaceParts, nodesPath.pop(), fullyQualifiedNameData);
 }
 
 /**
@@ -121,13 +134,20 @@ function isAstNodePartOfNamespace(astNode, parentNodePath) {
 	return false;
 }
 
-function storeNodePathsToTransform(namespaceParts, nodePath, namespaceToNamespaceData) {
+/**
+ * Stores NodePath in fqn map NamespaceData value keyed by fqn, creates NamespaceData if required.
+ *
+ * @param {string[]} namespaceParts - Namespace parts that make up the namespace.
+ * @param {NodePath} nodePath - Leaf NodePath of fully qualified name (class name reference).
+ * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
+ */
+function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameData) {
 	var namespace = namespaceParts.join('/');
-	var namespaceData = namespaceToNamespaceData.get(namespace);
+	var namespaceData = fullyQualifiedNameData.get(namespace);
 
 	if (namespaceData === undefined) {
 		namespaceData = { namespaceParts, nodePathsToTransform: [] };
-		namespaceToNamespaceData.set(namespace, namespaceData);
+		fullyQualifiedNameData.set(namespace, namespaceData);
 	}
 
 	namespaceData.nodePathsToTransform.push(nodePath);
@@ -159,7 +179,6 @@ function insertExport(className, programStatements) {
 //Map <String, NodePath[]>, the String is the namespace, the NodePath is an array of references that need to be mutated.
 //Set <String> contains all the module variables.
 
-//namespacedExpressionsToTransform
 function transform(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
 	namespacedExpressionsToTransform.forEach((namespaceData, namespace) => {
 		var requireIdentifierName = calculateModuleUniqueIdentifier(namespaceData.namespaceParts);
