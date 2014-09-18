@@ -66,7 +66,6 @@ export var rootNamespaceVisitor = {
 		var functionName = functionDeclarationNodePath.node.id.name;
 
 		this._moduleIdentifiers.add(functionName);
-
 		this.traverse(functionDeclarationNodePath);
 	},
 
@@ -77,8 +76,8 @@ export var rootNamespaceVisitor = {
 		this.traverse(programNodePath);
 
 		insertExportsStatement(this._className, this._programStatements);
-		calculateUniqueIdentifiersForNamespacedExpressions(this._fullyQualifiedNameData, this._moduleIdentifiers);
-		transformAllNamespacedExpressions(this._fullyQualifiedNameData, this._moduleIdentifiers, this._programStatements);
+		findUniqueIdentifiersForModules(this._fullyQualifiedNameData, this._moduleIdentifiers);
+		transformAllNamespacedExpressions(this._fullyQualifiedNameData, this._programStatements);
 	}
 }
 
@@ -182,8 +181,13 @@ function insertExportsStatement(className, programStatements) {
 	programStatements.push(exportsStatement);
 }
 
-
-function calculateUniqueIdentifiersForNamespacedExpressions(fullyQualifiedNameData, moduleIdentifiers) {
+/**
+ * Calculate and store a unique variable name for a required module.
+ *
+ * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
+ * @param {Set} moduleIdentifiers - all variable names declared in the module.
+ */
+function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifiers) {
 	fullyQualifiedNameData.forEach((namespaceData) => {
 		var moduleVariableId = namespaceData.namespaceParts.pop();
 		var uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers);
@@ -193,6 +197,13 @@ function calculateUniqueIdentifiersForNamespacedExpressions(fullyQualifiedNameDa
 	});
 }
 
+/**
+ * Generates a variable name that does not clash with already existing variable names in the module.
+ *
+ * @param {string} moduleVariableId - variable name seed for required module.
+ * @param {Set} moduleIdentifiers - all variable names declared in the module.
+ * @returns {string} a unique variable name for the module.
+ */
 function calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers) {
 	var referencesWithSameName = 1;
 
@@ -204,32 +215,34 @@ function calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers) {
 	return moduleVariableId;
 }
 
-function transformAllNamespacedExpressions(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
-	namespacedExpressionsToTransform.forEach((namespaceData, namespace) => {
-		var requireIdentifierName = namespaceData.moduleVariableId;
-		var moduleUniqueIdentifier = builders.identifier(requireIdentifierName);
-		var importDeclaration = createRequireDeclaration(requireIdentifierName, namespace);
-
-		namespaceData.nodePathsToTransform.forEach((nodePathToTransform) => {
-			nodePathToTransform.replace(moduleUniqueIdentifier);
-		});
+/**
+ * Replace all namespaced expressions with their module id and insert requires for their module.
+ *
+ * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
+ * @param {AstNode[]} programStatements - Program body statements.
+ */
+function transformAllNamespacedExpressions(fullyQualifiedNameData, programStatements) {
+	fullyQualifiedNameData.forEach(({moduleVariableId, nodePathsToTransform}, namespace) => {
+		var moduleIdentifier = builders.identifier(moduleVariableId);
+		var importDeclaration = createRequireDeclaration(moduleIdentifier, namespace);
 
 		programStatements.unshift(importDeclaration);
+		nodePathsToTransform.forEach((nodePathToTransform) => nodePathToTransform.replace(moduleIdentifier));
 	});
 }
 
 /**
- * Creates a CJS require declaration e.g. 'var <reqIden> = require("importedModule");'
+ * Creates a CJS require declaration e.g. 'var <modIden> = require("importedModule");'
  *
- * @param {string} requireIdentifier - The name of the identifier the require call result is set to.
+ * @param {AstNode} moduleIdentifier - The identifier the require call result is set to.
  * @param {string} importedModule - The module id literal.
  */
-function createRequireDeclaration(requireIdentifier, importedModule) {
+function createRequireDeclaration(moduleIdentifier, importedModule) {
 	var requireCall = builders.callExpression(
 		builders.identifier('require'),	[builders.literal(importedModule)]
 	);
 	var importDeclaration = builders.variableDeclaration(
-		'var', [builders.variableDeclarator(builders.identifier(requireIdentifier), requireCall)]
+		'var', [builders.variableDeclarator(moduleIdentifier, requireCall)]
 	);
 
 	return importDeclaration;
