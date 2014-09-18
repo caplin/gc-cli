@@ -80,7 +80,7 @@ function findAndStoreNodePathToTransform(identifierNodePath, namespacedExpressio
 	var nodesPath = [identifierNodePath];
 	var namespaceParts = [identifierNodePath.node.name];
 
-	populateNamespacePath(nodesPath, namespaceParts);
+	populateNamespacePath(identifierNodePath.parent, nodesPath, namespaceParts);
 
 	var namespace = namespaceParts.join('/');
 	var nodePathsToTransform = namespacedExpressionsToTransform.get(namespace) || [];
@@ -92,25 +92,25 @@ function findAndStoreNodePathToTransform(identifierNodePath, namespacedExpressio
 /**
  * Fill provided arrays with nodes and the namespace parts that make up the namespace tree.
  *
+ * @param {NodePath} nodePathToCheck - Node path checked to see if it's part of the namespace.
  * @param {NodePath[]} nodesPath - Node paths that make up the namespace.
- * @param {string[]} namespaceParts - Namespace parts taken from node property names.
+ * @param {string[]} namespaceParts - Namespace parts that make up the namespace.
  */
-function populateNamespacePath(nodesPath, namespaceParts) {
-	var parent = nodesPath[nodesPath.length - 1].parent;
+function populateNamespacePath(nodePathToCheck, nodesPath, namespaceParts) {
+	if (isAstNodePartOfNamespace(nodePathToCheck.node, nodePathToCheck.parent)) {
+		nodesPath.push(nodePathToCheck);
+		namespaceParts.push(nodePathToCheck.node.property.name);
 
-	if (isAstNodePartOfNamespace(parent.node, parent.parent)) {
-		nodesPath.push(parent);
-		namespaceParts.push(parent.node.property.name);
-
-		populateNamespacePath(nodesPath, namespaceParts);
+		populateNamespacePath(nodePathToCheck.parent, nodesPath, namespaceParts);
 	}
 }
 
 /**
- * Verifies the identifier name is a namespace part and not a `prototype` or constant reference.
+ * Verifies astNode is a namespace node and not a `prototype`, constant or call expression.
  *
- * @param {string} identifierName - The identifier name to validate.
- * @returns {boolean} is the name part of a namespace.
+ * @param {AstNode} astNode - The ast node to validate.
+ * @param {NodePath} parentNodePath - The ast node's parent node path.
+ * @returns {boolean} is astNode part of a namespace.
  */
 function isAstNodePartOfNamespace(astNode, parentNodePath) {
 	if (namedTypes.MemberExpression.check(astNode) && namedTypes.Identifier.check(astNode.property)) {
