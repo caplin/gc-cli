@@ -25,7 +25,7 @@ import {isNamespacedExpressionNode} from './utils/utilities';
  */
 export var rootNamespaceVisitor = {
 	/**
-	 * @param {string[]} namespaceRoots - The namespace roots, the top level part.
+	 * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
 	 * @param {AstNode[]} programStatements - Program body statements.
 	 * @param {string} className - The class name to export.
 	 */
@@ -51,7 +51,7 @@ export var rootNamespaceVisitor = {
 	},
 
 	/**
-	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
+	 * @param {NodePath} programNodePath - Program NodePath.
 	 */
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
