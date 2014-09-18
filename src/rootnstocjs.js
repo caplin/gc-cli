@@ -64,8 +64,8 @@ export var rootNamespaceVisitor = {
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
-		insertExport(this._className, this._programStatements);
-		transform(this._fullyQualifiedNameData, this._moduleIdentifiers, this._programStatements);
+		insertExportsStatement(this._className, this._programStatements);
+		flattenAllNamespacedExpressionsAndInsertRequires(this._fullyQualifiedNameData, this._moduleIdentifiers, this._programStatements);
 	}
 }
 
@@ -157,7 +157,7 @@ function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameD
  * @param {string} className - The class name to export.
  * @param {AstNode[]} programStatements - Program body statements.
  */
-function insertExport(className, programStatements) {
+function insertExportsStatement(className, programStatements) {
 	var exportsExpression = builders.memberExpression(
 		builders.identifier('module'), builders.identifier('exports'), false
 	);
@@ -169,17 +169,7 @@ function insertExport(className, programStatements) {
 	programStatements.push(exportsStatement);
 }
 
-//You need a list of variables defined in the module.
-//None of the newly created require identifiers can clash with them or with each other.
-//It's impossible to know all module variables until the entire module has been parsed.
-//This means we must keep a reference to all nodes we want to transform and build up a list of all module variables.
-//Then at the very end we must mutate all references making sure we provide unique names to all require identifiers.
-
-//We store all namespaced references we want to mutate.
-//Map <String, NodePath[]>, the String is the namespace, the NodePath is an array of references that need to be mutated.
-//Set <String> contains all the module variables.
-
-function transform(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
+function flattenAllNamespacedExpressionsAndInsertRequires(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
 	namespacedExpressionsToTransform.forEach((namespaceData, namespace) => {
 		var requireIdentifierName = calculateModuleUniqueIdentifier(namespaceData.namespaceParts);
 		var moduleUniqueIdentifier = builders.identifier(requireIdentifierName);
