@@ -81,12 +81,7 @@ function findAndStoreNodePathToTransform(identifierNodePath, namespacedExpressio
 	var namespaceParts = [identifierNodePath.node.name];
 
 	populateNamespacePath(identifierNodePath.parent, nodesPath, namespaceParts);
-
-	var namespace = namespaceParts.join('/');
-	var nodePathsToTransform = namespacedExpressionsToTransform.get(namespace) || [];
-
-	nodePathsToTransform.push(nodesPath);
-	namespacedExpressionsToTransform.set(namespace, nodePathsToTransform);
+	storeNodePathsToTransform(namespaceParts, nodesPath, namespacedExpressionsToTransform);
 }
 
 /**
@@ -126,6 +121,18 @@ function isAstNodePartOfNamespace(astNode, parentNodePath) {
 	return false;
 }
 
+function storeNodePathsToTransform(namespaceParts, nodePaths, namespaceToNamespaceData) {
+	var namespace = namespaceParts.join('/');
+	var namespaceData = namespaceToNamespaceData.get(namespace);
+
+	if (namespaceData === undefined) {
+		namespaceData = { namespaceParts, nodePathsToTransform: [] };
+		namespaceToNamespaceData.set(namespace, namespaceData);
+	}
+
+	namespaceData.nodePathsToTransform.push(nodePaths);
+}
+
 /**
  * @param {string} className - The class name to export.
  * @param {AstNode[]} programStatements - Program body statements.
@@ -160,12 +167,12 @@ function insertExport(className, programStatements) {
 
 //namespacedExpressionsToTransform
 function transform(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
-	namespacedExpressionsToTransform.forEach((nodePathsToTransform, namespace) => {
-		var requireIdentifierName = calculateModuleUniqueIdentifier(nodePathsToTransform[0]);
+	namespacedExpressionsToTransform.forEach((namespaceData, namespace) => {
+		var requireIdentifierName = calculateModuleUniqueIdentifier(namespaceData.nodePathsToTransform[0]);
 		var moduleUniqueIdentifier = builders.identifier(requireIdentifierName);
 		var importDeclaration = createRequireDeclaration(requireIdentifierName, namespace);
 
-		nodePathsToTransform.forEach((nodePathToTransform) => {
+		namespaceData.nodePathsToTransform.forEach((nodePathToTransform) => {
 			var t = nodePathToTransform.pop();
 			t.replace(moduleUniqueIdentifier);
 		});
