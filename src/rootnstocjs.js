@@ -139,17 +139,11 @@ function storeNodePathsToTransform(namespaceParts, nodePaths, namespaceToNamespa
  */
 function insertExport(className, programStatements) {
 	var exportsExpression = builders.memberExpression(
-		builders.identifier('module'),
-		builders.identifier('exports'),
-		false
+		builders.identifier('module'), builders.identifier('exports'), false
 	);
-
 	var assignmentExpression = builders.assignmentExpression(
-		'=',
-		exportsExpression,
-		builders.identifier(className)
+		'=', exportsExpression, builders.identifier(className)
 	);
-
 	var exportsStatement = builders.expressionStatement(assignmentExpression);
 
 	programStatements.push(exportsStatement);
@@ -200,14 +194,11 @@ function calculateModuleUniqueIdentifier(namespaceNodePaths) {
  */
 function createRequireDeclaration(requireIdentifier, importedModule) {
 	var requireCall = builders.callExpression(
-		builders.identifier('require'),	[
-			builders.literal(importedModule)
-		]);
-	var importDeclaration = builders.variableDeclaration('var', [
-		builders.variableDeclarator(
-			builders.identifier(requireIdentifier),
-			requireCall
-		)]);
+		builders.identifier('require'),	[builders.literal(importedModule)]
+	);
+	var importDeclaration = builders.variableDeclaration(
+		'var', [builders.variableDeclarator(builders.identifier(requireIdentifier), requireCall)]
+	);
 
 	return importDeclaration;
 }
