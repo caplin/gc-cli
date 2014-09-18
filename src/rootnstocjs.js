@@ -81,7 +81,7 @@ function findAndStoreNodePathToTransform(identifierNodePath, namespacedExpressio
 	var namespaceParts = [identifierNodePath.node.name];
 
 	populateNamespacePath(identifierNodePath.parent, nodesPath, namespaceParts);
-	storeNodePathsToTransform(namespaceParts, nodesPath, namespacedExpressionsToTransform);
+	storeNodePathsToTransform(namespaceParts, nodesPath.pop(), namespacedExpressionsToTransform);
 }
 
 /**
@@ -121,7 +121,7 @@ function isAstNodePartOfNamespace(astNode, parentNodePath) {
 	return false;
 }
 
-function storeNodePathsToTransform(namespaceParts, nodePaths, namespaceToNamespaceData) {
+function storeNodePathsToTransform(namespaceParts, nodePath, namespaceToNamespaceData) {
 	var namespace = namespaceParts.join('/');
 	var namespaceData = namespaceToNamespaceData.get(namespace);
 
@@ -130,7 +130,7 @@ function storeNodePathsToTransform(namespaceParts, nodePaths, namespaceToNamespa
 		namespaceToNamespaceData.set(namespace, namespaceData);
 	}
 
-	namespaceData.nodePathsToTransform.push(nodePaths);
+	namespaceData.nodePathsToTransform.push(nodePath);
 }
 
 /**
@@ -162,28 +162,20 @@ function insertExport(className, programStatements) {
 //namespacedExpressionsToTransform
 function transform(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
 	namespacedExpressionsToTransform.forEach((namespaceData, namespace) => {
-		var requireIdentifierName = calculateModuleUniqueIdentifier(namespaceData.nodePathsToTransform[0]);
+		var requireIdentifierName = calculateModuleUniqueIdentifier(namespaceData.namespaceParts);
 		var moduleUniqueIdentifier = builders.identifier(requireIdentifierName);
 		var importDeclaration = createRequireDeclaration(requireIdentifierName, namespace);
 
 		namespaceData.nodePathsToTransform.forEach((nodePathToTransform) => {
-			var t = nodePathToTransform.pop();
-			t.replace(moduleUniqueIdentifier);
+			nodePathToTransform.replace(moduleUniqueIdentifier);
 		});
 
 		programStatements.unshift(importDeclaration);
 	});
 }
 
-function calculateModuleUniqueIdentifier(namespaceNodePaths) {
-	var namespacedClass = namespaceNodePaths[namespaceNodePaths.length - 1];
-
-	if (namedTypes.MemberExpression.check(namespacedClass.node)) {
-		return namespacedClass.node.property.name;
-	} else if (namedTypes.Identifier.check(namespacedClass.node)) {
-		return namespacedClass.node.name;
-	}
-
+function calculateModuleUniqueIdentifier(namespaceParts) {
+	return namespaceParts.pop();
 }
 
 /**
