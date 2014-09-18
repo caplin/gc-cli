@@ -8,6 +8,7 @@ function SimpleClass() {
 }
 
 my.extend(SimpleClass, my.long.name.space.SuperClass);
+my.extend(SimpleClass, my.long.different.space.SimpleClass);
 
 SimpleClass.prototype._initMethod = function() {
 	var SomeController = other.spaced.class.SomeController;
@@ -20,4 +21,5 @@ SimpleClass.prototype._initMethod = function() {
 
 SimpleClass.prototype.callToSuper = function() {
 	my.long.name.space.SuperClass.prototype.callToSuper.call(this);
+	this.duplicateReference = my.other.name.space.duplicate.Factory.someCall();
 }

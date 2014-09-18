@@ -25,6 +25,7 @@ import {isNamespacedExpressionNode} from './utils/utilities';
  * @typedef {Object} NamespaceData
  * @property {string[]} namespaceParts - the labels that make up a fully qualified namespace.
  * @property {NodePath[]} nodePathsToTransform - all the leaf NodePaths for this fully qualified namespace.
+ * @property {string} moduleVariableId - the identifier name that references to this namespace will use post-transform.
  */
 
 /**
@@ -59,13 +60,25 @@ export var rootNamespaceVisitor = {
 	},
 
 	/**
+	 * @param {NodePath} functionDeclarationNodePath - Function Declaration NodePath.
+	 */
+	visitFunctionDeclaration(functionDeclarationNodePath) {
+		var functionName = functionDeclarationNodePath.node.id.name;
+
+		this._moduleIdentifiers.add(functionName);
+
+		this.traverse(functionDeclarationNodePath);
+	},
+
+	/**
 	 * @param {NodePath} programNodePath - Program NodePath.
 	 */
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
 		insertExportsStatement(this._className, this._programStatements);
-		flattenAllNamespacedExpressionsAndInsertRequires(this._fullyQualifiedNameData, this._moduleIdentifiers, this._programStatements);
+		calculateUniqueIdentifiersForNamespacedExpressions(this._fullyQualifiedNameData, this._moduleIdentifiers);
+		transformAllNamespacedExpressions(this._fullyQualifiedNameData, this._moduleIdentifiers, this._programStatements);
 	}
 }
 
@@ -146,7 +159,7 @@ function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameD
 	var namespaceData = fullyQualifiedNameData.get(namespace);
 
 	if (namespaceData === undefined) {
-		namespaceData = { namespaceParts, nodePathsToTransform: [] };
+		namespaceData = { namespaceParts, nodePathsToTransform: [], moduleVariableId: '' };
 		fullyQualifiedNameData.set(namespace, namespaceData);
 	}
 
@@ -169,9 +182,31 @@ function insertExportsStatement(className, programStatements) {
 	programStatements.push(exportsStatement);
 }
 
-function flattenAllNamespacedExpressionsAndInsertRequires(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
+
+function calculateUniqueIdentifiersForNamespacedExpressions(fullyQualifiedNameData, moduleIdentifiers) {
+	fullyQualifiedNameData.forEach((namespaceData) => {
+		var moduleVariableId = namespaceData.namespaceParts.pop();
+		var uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers);
+
+		moduleIdentifiers.add(uniqueModuleVariableId);
+		namespaceData.moduleVariableId = uniqueModuleVariableId;
+	});
+}
+
+function calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers) {
+	var referencesWithSameName = 1;
+
+	while (moduleIdentifiers.has(moduleVariableId)) {
+		moduleVariableId += ('__' + referencesWithSameName);
+		referencesWithSameName++;
+	}
+
+	return moduleVariableId;
+}
+
+function transformAllNamespacedExpressions(namespacedExpressionsToTransform, moduleIdentifiers, programStatements) {
 	namespacedExpressionsToTransform.forEach((namespaceData, namespace) => {
-		var requireIdentifierName = calculateModuleUniqueIdentifier(namespaceData.namespaceParts);
+		var requireIdentifierName = namespaceData.moduleVariableId;
 		var moduleUniqueIdentifier = builders.identifier(requireIdentifierName);
 		var importDeclaration = createRequireDeclaration(requireIdentifierName, namespace);
 
@@ -181,10 +216,6 @@ function flattenAllNamespacedExpressionsAndInsertRequires(namespacedExpressionsT
 
 		programStatements.unshift(importDeclaration);
 	});
-}
-
-function calculateModuleUniqueIdentifier(namespaceParts) {
-	return namespaceParts.pop();
 }
 
 /**
