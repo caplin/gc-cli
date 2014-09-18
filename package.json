@@ -9,8 +9,12 @@
     "immutable": "^2.0.15"
   },
   "devDependencies": {
-    "recast": "^0.7.0",
+    "eslint": "^0.8.1",
+    "gulp": "^3.8.8",
+    "gulp-mocha": "^1.1.0",
     "mocha": "^1.21.4",
-    "systemjs": "^0.8.2"
+    "recast": "^0.7.0",
+    "systemjs": "^0.8.2",
+    "through2": "^0.6.1"
   }
 }
