@@ -37,7 +37,8 @@ export var namespacedIIFEClassVisitor = {
 	visitIdentifier(identifierNodePath) {
 		var parent = identifierNodePath.parent;
 
-		if (isNamespacedExpressionNode(parent.node, this._namespaceSequence) && ifPartOfIIFE(parent)) {
+		if (isNamespacedExpressionNode(parent.node, this._namespaceSequence)
+			&& isRootPartOfIIFE(parent, identifierNodePath)) {
 			replaceIIFEWithItsContents(parent.parent, this._className);
 		}
 
@@ -48,17 +49,18 @@ export var namespacedIIFEClassVisitor = {
 /**
  * @param {NodePath} namespacedNodePath - Root of the fully qualified namespaced NodePath.
  */
-function ifPartOfIIFE(namespacedNodePath) {
+function isRootPartOfIIFE(namespacedNodePath, identifierNodePath) {
 	var grandparent = namespacedNodePath.parent;
 	var assignmentExpressionGrandparent = grandparent.parent.parent;
 
 	var namespacedNodeIsOnLeft = (grandparent.get('left') === namespacedNodePath);
+	var isRootOfIIFE = (namespacedNodePath.get('property') === identifierNodePath);
 	var callExpressionIsOnRight = namedTypes.CallExpression.check(grandparent.get('right').node);
 	var namespacedNodeIsInAssignmentExpression = namedTypes.AssignmentExpression.check(grandparent.node);
 	var assignmentGrandparentIsProgram = namedTypes.Program.check(assignmentExpressionGrandparent.node);
 
 	if (namespacedNodeIsOnLeft && namespacedNodeIsInAssignmentExpression
-		&& assignmentGrandparentIsProgram && callExpressionIsOnRight) {
+		&& assignmentGrandparentIsProgram && callExpressionIsOnRight && isRootOfIIFE) {
 		return true;
 	}
 
