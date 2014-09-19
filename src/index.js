@@ -51,12 +51,12 @@ export function processFile(options) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function parseJsFile(vinylFile, encoding, callback) {
-	console.log(chalk.green('Parsing', chalk.bold(vinylFile.relative)));
+	console.log(chalk.green('Parsing'), chalk.bold(vinylFile.relative));
+
 	var fileAst = parse(vinylFile.contents.toString());
 
 	vinylFile.ast = fileAst;
 	this.push(vinylFile);
-
 	callback();
 }
 
@@ -69,16 +69,12 @@ function parseJsFile(vinylFile, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenIIFEClass(fileMetadata, encoding, callback) {
-	console.log(chalk.green('Flattening IIFE if present', chalk.bold(fileMetadata.relative)));
+	console.log(chalk.green('Flatten IIFE if required'), chalk.bold(fileMetadata.relative));
+
 	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedIIFEClassVisitor.initialize(classNamespace);
-
-	visit(fileMetadata.ast, namespacedIIFEClassVisitor);
-
-	this.push(fileMetadata);
-
-	callback();
+	transformASTAndPushToNextStream(fileMetadata, namespacedIIFEClassVisitor, this, callback);
 }
 
 /**
@@ -90,16 +86,12 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenClass(fileMetadata, encoding, callback) {
-	console.log(chalk.green('Flattening class if required', chalk.bold(fileMetadata.relative)));
+	console.log(chalk.green('Flatten class if required'), chalk.bold(fileMetadata.relative));
+
 	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedClassVisitor.initialize(classNamespace);
-
-	visit(fileMetadata.ast, namespacedClassVisitor);
-
-	this.push(fileMetadata);
-
-	callback();
+	transformASTAndPushToNextStream(fileMetadata, namespacedClassVisitor, this, callback);
 }
 
 /**
@@ -110,15 +102,12 @@ function convertGlobalsToRequires(namespaces) {
 	var rootNamespaces = namespaces.split(',');
 
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		console.log(chalk.green('Converting class to module', chalk.bold(fileMetadata.relative)));
+		console.log(chalk.green('Convert class to module'), chalk.bold(fileMetadata.relative));
+
 		var className = getFileNamespaceParts(fileMetadata).pop();
+
 		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className);
-
-		visit(fileMetadata.ast, rootNamespaceVisitor);
-
-		this.push(fileMetadata);
-
-		callback();
+		transformASTAndPushToNextStream(fileMetadata, rootNamespaceVisitor, this, callback);
 	});
 }
 
@@ -131,14 +120,25 @@ function convertGlobalsToRequires(namespaces) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function convertAstToBuffer(fileMetadata, encoding, callback) {
-	console.log(chalk.green('Converting ast to buffer', chalk.bold(fileMetadata.relative)));
+	console.log(chalk.green('Convert AST to Buffer'), chalk.bold(fileMetadata.relative));
+
 	var convertedCode = print(fileMetadata.ast).code;
 	var convertedCodeBuffer = new Buffer(convertedCode);
 
 	fileMetadata.contents = convertedCodeBuffer;
-
 	this.push(fileMetadata);
+	callback();
+}
 
+function transformASTAndPushToNextStream(fileMetadata, visitor, streamTransform, callback) {
+	try {
+		visit(fileMetadata.ast, visitor);
+	} catch (error) {
+		console.error(chalk.red(error));
+		callback(error);
+	}
+
+	streamTransform.push(fileMetadata);
 	callback();
 }
 
