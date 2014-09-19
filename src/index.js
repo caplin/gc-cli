@@ -51,7 +51,7 @@ export function processFile(options) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function parseJsFile(vinylFile, encoding, callback) {
-	console.log(chalk.green('Parsing', vinylFile.path));
+	console.log(chalk.green('Parsing', chalk.bold(vinylFile.relative)));
 	var fileAst = parse(vinylFile.contents.toString());
 
 	vinylFile.ast = fileAst;
@@ -69,6 +69,7 @@ function parseJsFile(vinylFile, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenIIFEClass(fileMetadata, encoding, callback) {
+	console.log(chalk.green('Flattening IIFE if present', chalk.bold(fileMetadata.relative)));
 	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedIIFEClassVisitor.initialize(classNamespace);
@@ -89,6 +90,7 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenClass(fileMetadata, encoding, callback) {
+	console.log(chalk.green('Flattening class if required', chalk.bold(fileMetadata.relative)));
 	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedClassVisitor.initialize(classNamespace);
@@ -108,6 +110,7 @@ function convertGlobalsToRequires(namespaces) {
 	var rootNamespaces = namespaces.split(',');
 
 	return through2.obj(function(fileMetadata, encoding, callback) {
+		console.log(chalk.green('Converting class to module', chalk.bold(fileMetadata.relative)));
 		var className = getFileNamespaceParts(fileMetadata).pop();
 		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className);
 
@@ -128,6 +131,7 @@ function convertGlobalsToRequires(namespaces) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function convertAstToBuffer(fileMetadata, encoding, callback) {
+	console.log(chalk.green('Converting ast to buffer', chalk.bold(fileMetadata.relative)));
 	var convertedCode = print(fileMetadata.ast).code;
 	var convertedCodeBuffer = new Buffer(convertedCode);
 
