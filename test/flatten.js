@@ -14,6 +14,9 @@ var givenObject = fs.readFileSync('test/flatten/given-object.js', {encoding: 'ut
 var expectedObject = fs.readFileSync('test/flatten/expected-object.js', {encoding: 'utf-8'});
 var givenAst = parse(given);
 var givenObjectAst = parse(givenObject);
+var givenTwoLevelObject = fs.readFileSync('test/flatten/given-twolevel.js', {encoding: 'utf-8'});
+var expectedTwoLevelObject = fs.readFileSync('test/flatten/expected-twolevel.js', {encoding: 'utf-8'});
+var givenTwoLevelObjectAst = parse(givenTwoLevelObject);
 
 describe('Namespaced class flattening', function() {
 	it('should remove the class namespace.', function(done) {
@@ -27,6 +30,14 @@ describe('Namespaced class flattening', function() {
 	it('should remove object namespacing.', function(done) {
 		System.import('../index')
 			.then(shouldRemoveObjectNamespace.bind(null, done))
+			.catch(function(error) {
+				done(error);
+			});
+	});
+
+	it('should remove two level object namespacing.', function(done) {
+		System.import('../index')
+			.then(shouldRemoveTwoLevelObjectNamespace.bind(null, done))
 			.catch(function(error) {
 				done(error);
 			});
@@ -62,6 +73,22 @@ function shouldRemoveObjectNamespace(done, flattenModule) {
 	var outputtedCode = print(givenObjectAst).code;
 
 	assert.equal(outputtedCode, expectedObject);
+
+	done();
+}
+
+function shouldRemoveTwoLevelObjectNamespace(done, flattenModule) {
+	//Given.
+	var namespacedClassVisitor = flattenModule.namespacedClassVisitor;
+	namespacedClassVisitor.initialize('my.SimpleUtilityObject');
+
+	//When.
+	visit(givenTwoLevelObjectAst, namespacedClassVisitor);
+
+	//Then.
+	var outputtedCode = print(givenTwoLevelObjectAst).code;
+
+	assert.equal(outputtedCode, expectedTwoLevelObject);
 
 	done();
 }

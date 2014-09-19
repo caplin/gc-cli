@@ -38,12 +38,24 @@ export var namespacedClassVisitor = {
 	visitIdentifier(identifierNodePath) {
 		var parent = identifierNodePath.parent;
 
-		if (isNamespacedExpressionNode(parent.node, this._namespaceSequence)) {
+		if (isRootOfClassNamespace(identifierNodePath, parent, this._namespaceSequence)) {
 			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
 		}
 
 		this.traverse(identifierNodePath);
 	}
+}
+
+/**
+ * @param {NodePath} identifierNodePath - Identifier NodePath.
+ * @param {NodePath} identifierParentNodePath - Identifier parent NodePath.
+ * @param {Sequence} namespaceSequence - Fully qualified class name sequence.
+ */
+function isRootOfClassNamespace(identifierNodePath, identifierParentNodePath, namespaceSequence) {
+	var isRootOfNamespace = (identifierParentNodePath.get('property') === identifierNodePath);
+	var isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceSequence);
+
+	return isInClassNamespace && isRootOfNamespace;
 }
 
 /**
