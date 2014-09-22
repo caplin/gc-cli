@@ -22,4 +22,6 @@ SimpleClass.prototype._initMethod = function() {
 SimpleClass.prototype.callToSuper = function() {
 	my.long.name.space.SuperClass.prototype.callToSuper.call(this);
 	this.duplicateReference = my.other.name.space.duplicate.Factory.someCall();
+
+	this._local = my.other.constant.MyConstants.MyLowerCaseConstant;
 }

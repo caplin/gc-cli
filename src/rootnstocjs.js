@@ -117,7 +117,7 @@ function findAndStoreNodePathToTransform(identifierNodePath, fullyQualifiedNameD
  * @param {string[]} namespaceParts - Namespace parts that make up the namespace.
  */
 function populateNamespacePath(nodePathToCheck, nodesPath, namespaceParts) {
-	if (isAstNodePartOfNamespace(nodePathToCheck.node, nodePathToCheck.parent)) {
+	if (isAstNodePartOfNamespace(nodePathToCheck.node, nodePathToCheck.parent, namespaceParts)) {
 		nodesPath.push(nodePathToCheck);
 		namespaceParts.push(nodePathToCheck.node.property.name);
 
@@ -130,20 +130,44 @@ function populateNamespacePath(nodePathToCheck, nodesPath, namespaceParts) {
  *
  * @param {AstNode} astNode - The ast node to validate.
  * @param {NodePath} parentNodePath - The ast node's parent node path.
+ * @param {string[]} namespaceParts - Namespace parts that make up the namespace.
  * @returns {boolean} is astNode part of a namespace.
  */
-function isAstNodePartOfNamespace(astNode, parentNodePath) {
+function isAstNodePartOfNamespace(astNode, parentNodePath, namespaceParts) {
 	if (namedTypes.MemberExpression.check(astNode) && namedTypes.Identifier.check(astNode.property)) {
 		var identifierName = astNode.property.name;
 		var isPrototype = (identifierName === 'prototype');
-		var isConstant = identifierName.match(/^[A-Z_-]*$/);
 		var isMethodCall = namedTypes.CallExpression.check(parentNodePath.node)
 			&& parentNodePath.get('callee').node === astNode;
 
-		return !(isPrototype || isConstant || isMethodCall);
+		return !(isPrototype || isMethodCall || isAssumedToBeAClassProperty(identifierName, namespaceParts));
 	}
 
 	return false;
+}
+
+/**
+ * Some class properties are difficult to statically verify so we use heuristics instead.
+ * If an identifier is all upper case we consider it a constant and if a property has a preceding node
+ * starting with an upper case letter we consider it a class property.
+ *
+ * @param {string} identifierName - Name of identifier being checked.
+ * @param {string[]} namespaceParts - Namespace parts that make up the namespace.
+ * @returns {boolean} is astNode assumed to be a class property.
+ */
+function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
+	var isConstant = identifierName.match(/^[A-Z_-]*$/);
+	var lastNamespacePart = namespaceParts[namespaceParts.length - 1];
+	var firstCharOfLastNamespacePart = lastNamespacePart.substr(0, 1);
+	var isParentClassLike = (firstCharOfLastNamespacePart === firstCharOfLastNamespacePart.toLocaleUpperCase());
+
+	if (isConstant) {
+		console.log(identifierName, 'assumed to be constant of class', namespaceParts.join('.'));
+	} else if (isParentClassLike) {
+		console.log(identifierName, 'assumed to be property of class', namespaceParts.join('.'));
+	}
+
+	return isConstant || isParentClassLike;
 }
 
 /**

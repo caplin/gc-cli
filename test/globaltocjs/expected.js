@@ -1,3 +1,4 @@
+var MyConstants = require("my/other/constant/MyConstants");
 var Factory__1 = require("my/other/name/space/duplicate/Factory");
 var Reference = require("other/some/Reference");
 var ClassWithConstants = require("my/constant/ClassWithConstants");
@@ -33,5 +34,7 @@ SimpleClass.prototype._initMethod = function() {
 SimpleClass.prototype.callToSuper = function() {
 	SuperClass.prototype.callToSuper.call(this);
 	this.duplicateReference = Factory__1.someCall();
+
+	this._local = MyConstants.MyLowerCaseConstant;
 }
 module.exports = SimpleClass;
