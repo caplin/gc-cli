@@ -9,6 +9,7 @@ var visit = require('ast-types').visit;
 import {
 	rootNamespaceVisitor,
 	namespacedClassVisitor,
+	cjsRequireRemoverVisitor,
 	namespacedIIFEClassVisitor
 } from 'global-compiler';
 
@@ -32,11 +33,13 @@ import {
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function processFile(options) {
+	var moduleIdsToRemove = new Set([(options.removerequires || '').split(',')]);
 	vinylFs.src('src/**/*.js')
 		.pipe(through2.obj(parseJsFile))
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
 		.pipe(convertGlobalsToRequires(options.namespaces))
+		.pipe(removeCjsModuleRequires(moduleIdsToRemove))
 		.pipe(through2.obj(convertAstToBuffer))
 		.pipe(vinylFs.dest('./src'));
 }
@@ -107,6 +110,19 @@ function convertGlobalsToRequires(namespaces) {
 
 		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className);
 		transformASTAndPushToNextStream(fileMetadata, rootNamespaceVisitor, this, callback);
+	});
+}
+
+/**
+ * @param {Set<string>} moduleIdsToRemove - The module Ids to remove.
+ * @returns {Function} Stream transform implementation which removes specified cjs requires.
+ */
+function removeCjsModuleRequires(moduleIdsToRemove) {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		console.log(chalk.green('Remove required modules'), chalk.bold(fileMetadata.relative));
+
+		cjsRequireRemoverVisitor.initialize(moduleIdsToRemove);
+		transformASTAndPushToNextStream(fileMetadata, cjsRequireRemoverVisitor, this, callback);
 	});
 }
 

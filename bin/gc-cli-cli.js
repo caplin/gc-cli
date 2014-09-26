@@ -6,7 +6,12 @@ var parseArgs = require('minimist');
 
 var commandParseOptions = {
 	alias: {
-		n: 'namespaces'
+		n: 'namespaces',
+		r: 'removerequires'
+	},
+	default : {
+		removerequires: 'caplin',
+		namespaces: 'caplin,caplinx,caplinps'
 	}
 };
 
