@@ -38,8 +38,7 @@ export function processFile(options) {
 		.pipe(through2.obj(flattenClass))
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(through2.obj(convertAstToBuffer))
-		//TODO: hardcoded
-		.pipe(vinylFs.dest('./output'));
+		.pipe(vinylFs.dest('./src'));
 }
 
 /**
