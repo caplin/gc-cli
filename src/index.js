@@ -33,7 +33,9 @@ import {
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function processFile(options) {
+	var outputDir = options.output || './src';
 	var moduleIdsToRemove = new Set([(options.removerequires || '').split(',')]);
+
 	vinylFs.src('src/**/*.js')
 		.pipe(through2.obj(parseJsFile))
 		.pipe(through2.obj(flattenIIFEClass))
@@ -41,7 +43,7 @@ export function processFile(options) {
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(removeCjsModuleRequires(moduleIdsToRemove))
 		.pipe(through2.obj(convertAstToBuffer))
-		.pipe(vinylFs.dest('./src'));
+		.pipe(vinylFs.dest(outputDir));
 }
 
 /**
