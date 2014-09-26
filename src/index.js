@@ -137,7 +137,7 @@ function removeCjsModuleRequires(moduleIdsToRemove) {
 function convertAstToBuffer(fileMetadata, encoding, callback) {
 	console.log(chalk.green('Convert AST to Buffer'), chalk.bold(fileMetadata.relative));
 
-	var convertedCode = print(fileMetadata.ast).code;
+	var convertedCode = print(fileMetadata.ast, {wrapColumn: 200}).code;
 	var convertedCodeBuffer = new Buffer(convertedCode);
 
 	fileMetadata.contents = convertedCodeBuffer;
