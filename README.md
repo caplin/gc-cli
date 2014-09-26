@@ -1,4 +1,12 @@
-# gc-cli
+# gc-cli [![Build Status](https://secure.travis-ci.org/briandipalma/gc-cli.png)](http://travis-ci.org/briandipalma/gc-cli) [![Dependency Status](https://david-dm.org/briandipalma/gc-cli.png?theme=shields.io)](https://david-dm.org/briandipalma/gc-cli)
+
+# Testing
+
+Run tests
+
+```bash
+$ npm t
+```
 
 ### Command line flags
 
