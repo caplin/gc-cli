@@ -9,3 +9,5 @@ my.extend(SimpleIIFEClass, SuperClass);
 SimpleIIFEClass.prototype.myMethod = function() {}
 
 SimpleIIFEClass.prototype.anotherMethod = function() {}
+
+module.exports = SimpleIIFEClass;

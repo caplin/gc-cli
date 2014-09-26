@@ -12,7 +12,9 @@ process.chdir('test');
 
 var commandOptions = {
 	_: [],
-	ns: 'my,other',
+	o: './output',
+	n: 'my,other',
+	output: './output',
 	namespaces: 'my,other'
 };
 var expected = fs.readFileSync('expected/expected.js', {encoding: 'utf-8'});
