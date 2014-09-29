@@ -1,5 +1,4 @@
 var SuperClass = require("my/long/name/space/SuperClass");
-var my = require("my");
 'use strict';
 
 function SimpleIIFEClass() {}

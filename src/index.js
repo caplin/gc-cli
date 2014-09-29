@@ -34,7 +34,7 @@ import {
  */
 export function processFile(options) {
 	var outputDir = options.output || './src';
-	var moduleIdsToRemove = new Set([(options.removerequires || '').split(',')]);
+	var moduleIdsToRemove = new Set((options.removerequires || '').split(','));
 
 	vinylFs.src('src/**/*.js')
 		.pipe(through2.obj(parseJsFile))
