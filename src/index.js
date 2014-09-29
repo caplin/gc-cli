@@ -73,8 +73,6 @@ function parseJsFile(vinylFile, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenIIFEClass(fileMetadata, encoding, callback) {
-	console.log(chalk.green('Flatten IIFE if required'), chalk.bold(fileMetadata.relative));
-
 	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedIIFEClassVisitor.initialize(classNamespace);
@@ -90,8 +88,6 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenClass(fileMetadata, encoding, callback) {
-	console.log(chalk.green('Flatten class if required'), chalk.bold(fileMetadata.relative));
-
 	var classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedClassVisitor.initialize(classNamespace);
@@ -106,8 +102,6 @@ function convertGlobalsToRequires(namespaces) {
 	var rootNamespaces = namespaces.split(',');
 
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		console.log(chalk.green('Convert class to module'), chalk.bold(fileMetadata.relative));
-
 		var className = getFileNamespaceParts(fileMetadata).pop();
 
 		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className);
@@ -121,8 +115,6 @@ function convertGlobalsToRequires(namespaces) {
  */
 function removeCjsModuleRequires(moduleIdsToRemove) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		console.log(chalk.green('Remove required modules'), chalk.bold(fileMetadata.relative));
-
 		cjsRequireRemoverVisitor.initialize(moduleIdsToRemove);
 		transformASTAndPushToNextStream(fileMetadata, cjsRequireRemoverVisitor, this, callback);
 	});
@@ -137,8 +129,6 @@ function removeCjsModuleRequires(moduleIdsToRemove) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function convertAstToBuffer(fileMetadata, encoding, callback) {
-	console.log(chalk.green('Convert AST to Buffer'), chalk.bold(fileMetadata.relative));
-
 	var convertedCode = print(fileMetadata.ast, {wrapColumn: 200}).code;
 	var convertedCodeBuffer = new Buffer(convertedCode);
 
