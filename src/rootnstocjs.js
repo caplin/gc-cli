@@ -70,6 +70,17 @@ export var rootNamespaceVisitor = {
 	},
 
 	/**
+	 * @param {NodePath} variableDeclaratorNodePath - VariableDeclarator NodePath.
+	 */
+	visitVariableDeclarator(variableDeclaratorNodePath) {
+		var variableName = variableDeclaratorNodePath.node.id.name;
+
+		this._moduleIdentifiers.add(variableName);
+
+		this.traverse(variableDeclaratorNodePath);
+	},
+
+	/**
 	 * @param {NodePath} programNodePath - Program NodePath.
 	 */
 	visitProgram(programNodePath) {
