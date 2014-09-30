@@ -16,7 +16,7 @@
 var varIsAvailable = true;
 
 /**
- * .
+ * Will verify that a variable name is available to use within a module AST.
  */
 export var verifyVarIsAvailableVisitor = {
 	/**
