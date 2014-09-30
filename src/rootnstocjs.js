@@ -2,7 +2,10 @@ var Sequence = require('immutable').Sequence;
 var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
 
-import {isNamespacedExpressionNode} from './utils/utilities';
+import {
+	isNamespacedExpressionNode,
+	calculateUniqueModuleVariableId
+} from './utils/utilities';
 
 /**
  * SpiderMonkey AST node.
@@ -230,24 +233,6 @@ function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifie
 		moduleIdentifiers.add(uniqueModuleVariableId);
 		namespaceData.moduleVariableId = uniqueModuleVariableId;
 	});
-}
-
-/**
- * Generates a variable name that does not clash with already existing variable names in the module.
- *
- * @param {string} moduleVariableId - variable name seed for required module.
- * @param {Set} moduleIdentifiers - all variable names declared in the module.
- * @returns {string} a unique variable name for the module.
- */
-function calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers) {
-	var referencesWithSameName = 1;
-
-	while (moduleIdentifiers.has(moduleVariableId)) {
-		moduleVariableId += ('__' + referencesWithSameName);
-		referencesWithSameName++;
-	}
-
-	return moduleVariableId;
 }
 
 /**

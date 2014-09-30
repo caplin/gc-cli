@@ -21,3 +21,22 @@ export function isNamespacedExpressionNode(expressionNode, namespaceSequence) {
 
 	return false;
 }
+
+/**
+ * Generates a variable name that does not clash with already existing variable names in the module.
+ *
+ * @param {string} varName - variable name seed to search for a variation.
+ * @param {Set} moduleIdentifiers - all variable names declared in the module.
+ * @returns {string} a unique variable name for the module.
+ */
+export function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
+	var freeVarName = varName;
+	var referencesWithSameName = 1;
+
+	while (moduleIdentifiers.has(freeVarName)) {
+		freeVarName = (varName + '__' + referencesWithSameName);
+		referencesWithSameName++;
+	}
+
+	return freeVarName;
+}
