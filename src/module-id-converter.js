@@ -18,6 +18,7 @@ var namedTypes = require('ast-types').namedTypes;
 
 /**
  * Transforms all CJS module ids in the provided `moduleIdsToConvert` `Map` to their value in the `Map`.
+ * It will also transform the module identifier name.
  */
 export var moduleIdVisitor = {
 	/**
@@ -54,7 +55,10 @@ function replaceModuleIdsToTransform(identifierNode, identifierParentNodePath, m
 		var isRequireCall = identifierParentNodePath.get('callee').node === identifierNode;
 
 		if (isRequireCall && isModuleIdToConvert) {
-			moduleIdNodePath.replace(builders.literal(moduleIdsToConvert.get(moduleIdNodePath.node.value)));
+			var moduleData = moduleIdsToConvert.get(moduleIdNodePath.node.value);
+
+			moduleIdNodePath.replace(builders.literal(moduleData[0]));
+			identifierParentNodePath.parent.get('id').replace(builders.identifier(moduleData[1]));
 		}
 	}
 }

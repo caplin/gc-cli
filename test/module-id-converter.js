@@ -23,7 +23,7 @@ describe('Module Id converter', function() {
 });
 
 function shouldTransformModuleIds(done, transforms) {
-	var moduleIdsToConvert = new Map([['my', 'some/Core']]);
+	var moduleIdsToConvert = new Map([['my', ['some/Core', 'newVarName']]]);
 	//Given.
 	var moduleIdVisitor = transforms.moduleIdVisitor;
 	moduleIdVisitor.initialize(moduleIdsToConvert);

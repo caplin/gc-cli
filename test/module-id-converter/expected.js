@@ -1,4 +1,4 @@
-var my = require("some/Core");
+var newVarName = require("some/Core");
 
 function SimpleClass() {
 }
