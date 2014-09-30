@@ -1,3 +1,5 @@
+import {calculateUniqueModuleVariableId} from './utils/utilities';
+
 /**
  * SpiderMonkey AST node.
  * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
@@ -13,32 +15,32 @@
  * @property {AstNode} node - SpiderMonkey AST node.
  */
 
-var varIsAvailable = true;
-
 /**
- * Will verify that a variable name is available to use within a module AST.
+ * Will find a free variation of a variable name for use within a module AST.
  */
 export var verifyVarIsAvailableVisitor = {
 	/**
 	 * @param {string} varName - The var identifier name to check.
 	 */
 	initialize(varName) {
-		varIsAvailable = true;
-		this._varName = varName;
+		this._identifiersInModuleScope = new Set();
 	},
 
 	/**
-	 * @returns {boolean} true if after visiting AST variable is available.
+	 * Will return a variation on a variable name is free to use inside the module scope.
+	 *
+	 * @param {string} varName - variable name seed to search for a variation.
+	 * @returns {string} a unique variable name for the module.
 	 */
-	get varIsAvailable() {
-		return varIsAvailable;
+	getFreeVariation(varName) {
+		return calculateUniqueModuleVariableId(varName, this._identifiersInModuleScope);
 	},
 
 	/**
 	 * @param {NodePath} functionDeclarationNodePath - Function Declaration NodePath.
 	 */
 	visitFunctionDeclaration(functionDeclarationNodePath) {
-		verifyVarNameIsAvailable(this._varName, functionDeclarationNodePath.node.id.name);
+		this._identifiersInModuleScope.add(functionDeclarationNodePath.node.id.name);
 
 		this.traverse(functionDeclarationNodePath);
 	},
@@ -47,18 +49,8 @@ export var verifyVarIsAvailableVisitor = {
 	 * @param {NodePath} variableDeclaratorNodePath - VariableDeclarator NodePath.
 	 */
 	visitVariableDeclarator(variableDeclaratorNodePath) {
-		verifyVarNameIsAvailable(this._varName, variableDeclaratorNodePath.node.id.name);
+		this._identifiersInModuleScope.add(variableDeclaratorNodePath.node.id.name);
 
 		this.traverse(variableDeclaratorNodePath);
-	}
-}
-
-/**
- * @param {string} varNameToCheck - The var name to check.
- * @param {string} declaratorName - The declarator name.
- */
-function verifyVarNameIsAvailable(varNameToCheck, declaratorName) {
-	if (declaratorName === varNameToCheck) {
-		varIsAvailable = false;
 	}
 }

@@ -13,7 +13,7 @@ var givenAst = parse(given);
 describe('Verify var is available', function() {
 	it('should correctly identify a free var name.', function(done) {
 		System.import('../index')
-			.then(checkIfVarIsAvailable('FreeName', true).bind(null, done))
+			.then(checkIfVarIsAvailable('FreeName', 'FreeName').bind(null, done))
 			.catch(function(error) {
 				done(error);
 			});
@@ -21,7 +21,7 @@ describe('Verify var is available', function() {
 
 	it('should correctly identify a taken var name.', function(done) {
 		System.import('../index')
-			.then(checkIfVarIsAvailable('Factory__1', false).bind(null, done))
+			.then(checkIfVarIsAvailable('Factory', 'Factory__2').bind(null, done))
 			.catch(function(error) {
 				done(error);
 			});
@@ -29,14 +29,14 @@ describe('Verify var is available', function() {
 
 	it('should correctly identify a free var name even if used in expression.', function(done) {
 		System.import('../index')
-			.then(checkIfVarIsAvailable('callToSuper', true).bind(null, done))
+			.then(checkIfVarIsAvailable('callToSuper', 'callToSuper').bind(null, done))
 			.catch(function(error) {
 				done(error);
 			});
 	});
 });
 
-function checkIfVarIsAvailable(varNameToCheck, isFree) {
+function checkIfVarIsAvailable(varNameToCheck, freeVariableName) {
 	return function(done, transforms) {
 		//Given.
 		var verifyVarIsAvailableVisitor = transforms.verifyVarIsAvailableVisitor;
@@ -46,7 +46,7 @@ function checkIfVarIsAvailable(varNameToCheck, isFree) {
 		visit(givenAst, verifyVarIsAvailableVisitor);
 
 		//Then.
-		assert.equal(verifyVarIsAvailableVisitor.varIsAvailable, isFree);
+		assert.equal(verifyVarIsAvailableVisitor.getFreeVariation(varNameToCheck), freeVariableName);
 
 		done();
 	}
