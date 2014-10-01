@@ -7,10 +7,13 @@ var parse = require('recast').parse;
 var print = require('recast').print;
 var visit = require('ast-types').visit;
 import {
+	moduleIdVisitor,
 	rootNamespaceVisitor,
 	namespacedClassVisitor,
+	flattenMemberExpression,
 	cjsRequireRemoverVisitor,
-	namespacedIIFEClassVisitor
+	namespacedIIFEClassVisitor,
+	verifyVarIsAvailableVisitor
 } from 'global-compiler';
 
 /**
@@ -42,6 +45,7 @@ export function processFile(options) {
 		.pipe(through2.obj(flattenClass))
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(removeCjsModuleRequires(moduleIdsToRemove))
+		.pipe(transformI18NUsage())
 		.pipe(through2.obj(convertAstToBuffer))
 		.pipe(vinylFs.dest(outputDir));
 }
@@ -117,6 +121,33 @@ function removeCjsModuleRequires(moduleIdsToRemove) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		cjsRequireRemoverVisitor.initialize(moduleIdsToRemove);
 		transformASTAndPushToNextStream(fileMetadata, cjsRequireRemoverVisitor, this, callback);
+	});
+}
+
+/**
+ * This transform is use case specific in that it replaces use of one i18n library with another.
+ * The transform is multi-stage as it uses more generic transforms.
+ *
+ * @returns {Function} Stream transform implementation which replaces i18n usage with another library.
+ */
+function transformI18NUsage() {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+
+		verifyVarIsAvailableVisitor.initialize();
+		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
+		var freeI18NVariation = verifyVarIsAvailableVisitor.getFreeVariation('i18n');
+
+
+		var moduleIdsToConvert = new Map([['ct', ['br/I18n', freeI18NVariation]]]);
+		moduleIdVisitor.initialize(moduleIdsToConvert);
+		visit(fileMetadata.ast, moduleIdVisitor);
+
+
+		flattenMemberExpression.initialize(['ct', 'i18n'], freeI18NVariation);
+		visit(fileMetadata.ast, flattenMemberExpression);
+
+		this.push(fileMetadata);
+		callback();
 	});
 }
 
