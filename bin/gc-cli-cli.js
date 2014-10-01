@@ -11,7 +11,7 @@ var commandParseOptions = {
 	},
 	default : {
 		removerequires: 'caplin',
-		namespaces: 'caplin,caplinx,caplinps'
+		namespaces: 'caplin,caplinx,caplinps,ct'
 	}
 };
 
