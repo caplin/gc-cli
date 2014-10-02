@@ -27,13 +27,17 @@ B.prototype.initialized = function() {}
 
 Here `B` will be exported and it will `require` `A`.
 
+`singleton` is a module that create an instance of its class and exports that. This is done at the `module.exports` location.
+`singleton, creates` means the singleton creates an instance of its dependency on construction.
+
 ## Results
 
 The results are presented in table form each cell is divided with a `/` character. The first side of the division is the result when `A` is loaded first, the second part is for when `B` is loaded first.
 
-* F => Fail, no export bound
 * P => Pass
-* PNI (X) => Export bound but prototype not initialized (value in brackets specifies which class)
+* F => Fail, no import linked
+* C => Crazy, this code is impossible to support
+* PNI (X) => Import linked but prototype not initialized (value in brackets specifies which class)
 
 ### move `module.exports` to the top of the module.
 
@@ -63,11 +67,11 @@ function B() {}
 B.prototype.initialized = function() {}
 ```
 
-|                       | B extends A | B constructs inline A | B uses at runtime A |
-|:----------------------|:-----------:|:---------------------:|:-------------------:|
-| A extends B           | F / F       |     ?     /   ?       |    P /   PNI (B)    |
-| A constructs inline B | ? / ?       |      ? / ?            |    ? / ?            |
-| A uses at runtime B   | PNI (A) / P |        ? / ?          |     P / P           |
+|                        | B extends A | B singleton, creates A | B uses at runtime A |
+|:-----------------------|:-----------:|:----------------------:|:-------------------:|
+| A extends B            | C / C       |     F     /   F        |    P /   PNI (B)    |
+| A singleton, creates B | F / F       |     F / F              |    F / F            |
+| A uses at runtime B    | PNI (A) / P |        F / F           |     P / P           |
 
 
 ### move `requires` to the bottom of the module.
@@ -99,11 +103,11 @@ module.exports = B;
 var A = require('A');
 ```
 
-|                       | B extends A | B constructs inline A | B uses at runtime A |
-|:----------------------|:-----------:|:---------------------:|:-------------------:|
-| A extends B           | F / F       |     ?     /   ?       |    F /   P          |
-| A constructs inline B | ? / ?       |      ? / ?            |    ? / ?            |
-| A uses at runtime B   | P   /  F    |        ? / ?          |     P / P           |
+|                        | B extends A | B singleton, creates A | B uses at runtime A |
+|:-----------------------|:-----------:|:----------------------:|:-------------------:|
+| A extends B            | F / F       |     F     /   F        |    F /   P          |
+| A singleton, creates B | F / F       |      F / F             |    F / F            |
+| A uses at runtime B    | P   /  F    |        F / F           |     P / P           |
 
 
 ### combine both approaches.
@@ -136,11 +140,11 @@ B.prototype.initialized = function() {}
 var A = require('A');
 ```
 
-|                       | B extends A | B constructs inline A | B uses at runtime A |
-|:----------------------|:-----------:|:---------------------:|:-------------------:|
-| A extends B           | F / F       |     ?     /   ?       |    P /   P          |
-| A constructs inline B | ? / ?       |      ? / ?            |    ? / ?            |
-| A uses at runtime B   | P   /  P    |        ? / ?          |     P / P           |
+|                        | B extends A | B singleton, creates A | B uses at runtime A |
+|:-----------------------|:-----------:|:----------------------:|:-------------------:|
+| A extends B            | F / F       |     F     /   F        |    P /   P          |
+| A singleton, creates B | F / F       |      F / F             |    F / F            |
+| A uses at runtime B    | P   /  P    |        F / F           |     P / P           |
 
 
 ### inline `require`s.
@@ -172,15 +176,15 @@ B.prototype.initialized = function() {}
 module.exports = B;
 ```
 
-|                       | B extends A | B constructs inline A | B uses at runtime A |
-|:----------------------|:-----------:|:---------------------:|:-------------------:|
-| A extends B           | F / F       |     ?     /   ?       |    P /   P          |
-| A constructs inline B | ? / ?       |      ? / ?            |    ? / ?            |
-| A uses at runtime B   | P   /  P    |        ? / ?          |     P / P           |
-
+|                        | B extends A | B singleton, creates A | B uses at runtime A |
+|:-----------------------|:-----------:|:----------------------:|:-------------------:|
+| A extends B            | F / F       |     F     /   F        |    P /   P          |
+| A singleton, creates B | F / F       |      F / F             |    P / P            |
+| A uses at runtime B    | P   /  P    |        P / P           |     P / P           |
 
 ## Summary
 
-The two best approaches appear to be combining the first two approaches and inlining requires.
+The best approach is inlining requires when dealing with circular dependencies.
+It's only the best approach due to the fact that it can handle singletons using a circular dependency at run time (not at construction that case will still fail).
+
 Inlining all requires would result in unpleasant code so we would want to limit inlining to circular dependencies.
-Overall the most robust option seems to be the combining both approaches option.
