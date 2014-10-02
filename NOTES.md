@@ -33,7 +33,7 @@ The results are presented in table form each cell is divided with a `/` characte
 
 * F => Fail, no export bound
 * P => Pass
-* PNI (X) => Export bound but prototype not initialized (which class)
+* PNI (X) => Export bound but prototype not initialized (value in brackets specifies which class)
 
 ### move `module.exports` to the top of the module.
 
