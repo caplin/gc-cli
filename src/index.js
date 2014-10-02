@@ -12,6 +12,7 @@ import {
 	namespacedClassVisitor,
 	flattenMemberExpression,
 	cjsRequireRemoverVisitor,
+	flattenProgramIIFEVisitor,
 	namespacedIIFEClassVisitor,
 	verifyVarIsAvailableVisitor
 } from 'global-compiler';
@@ -36,6 +37,17 @@ import {
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function processFile(options) {
+	if (options.testfiles) {
+		transformTestFiles(options);
+	} else {
+		transformSrcFiles(options);
+	}
+}
+
+/**
+ * @param {OptionsObject} options - Options to configure transforms.
+ */
+function transformSrcFiles(options) {
 	var outputDir = options.output || './src';
 	var moduleIdsToRemove = new Set((options.removerequires || '').split(','));
 
@@ -48,6 +60,22 @@ export function processFile(options) {
 		.pipe(transformI18NUsage())
 		.pipe(through2.obj(convertAstToBuffer))
 		.pipe(vinylFs.dest(outputDir));
+}
+
+/**
+ * @param {OptionsObject} options - Options to configure transforms.
+ */
+function transformTestFiles(options) {
+	var moduleIdsToRemove = new Set((options.removerequires || '').split(','));
+
+	vinylFs.src('tests/**/*.js')
+		.pipe(through2.obj(parseJsFile))
+		.pipe(through2.obj(flattenProgramIIFE))
+		.pipe(convertGlobalsToRequires(options.namespaces))
+		.pipe(removeCjsModuleRequires(moduleIdsToRemove))
+		.pipe(transformI18NUsage())
+		.pipe(through2.obj(convertAstToBuffer))
+		.pipe(vinylFs.dest('tests'));
 }
 
 /**
@@ -149,6 +177,18 @@ function transformI18NUsage() {
 		this.push(fileMetadata);
 		callback();
 	});
+}
+
+/**
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {?} fileMetadata - .
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ */
+function flattenProgramIIFE(fileMetadata, encoding, callback) {
+	transformASTAndPushToNextStream(fileMetadata, flattenProgramIIFEVisitor, this, callback);
 }
 
 /**
