@@ -1,3 +1,6 @@
+var fs = require('fs');
+var path = require('path');
+
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 
@@ -50,7 +53,8 @@ export function compileSourceFiles(options) {
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
 		.pipe(transformI18nUsage())
 		.pipe(convertASTToBuffer())
-		.pipe(vinylFs.dest(options.outputDirectory));
+		.pipe(vinylFs.dest(options.outputDirectory))
+		.on('end', createJSStyleFiles());
 }
 
 /**
@@ -81,4 +85,14 @@ function flattenClass(fileMetadata, encoding, callback) {
 
 	namespacedClassVisitor.initialize(classNamespace);
 	transformASTAndPushToNextStream(fileMetadata, namespacedClassVisitor, this, callback);
+}
+
+/**
+ * Creates files required to notify module loader of file type.
+ */
+function createJSStyleFiles() {
+	return function() {
+		fs.writeFile('.js-style', 'common-js');
+		fs.writeFile(path.join('tests', '.js-style'), 'namespaced-js');
+	}
 }
