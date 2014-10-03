@@ -37,12 +37,10 @@ export function parseJSFile() {
 /**
  * Given namespace roots flatten all classes referenced in those namespaces and require them.
  *
- * @param {String} namespaces - Comma separated list of root namespaces to convert to CJS.
+ * @param {string[]} rootNamespaces - Array of roots of namespaces to convert to CJS modules.
  * @returns {Function} Stream transform implementation which replaces all global namespaced code with module references.
  */
-export function convertGlobalsToRequires(namespaces) {
-	var rootNamespaces = namespaces.split(',');
-
+export function convertGlobalsToRequires(rootNamespaces) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		var className = getFileNamespaceParts(fileMetadata).pop();
 

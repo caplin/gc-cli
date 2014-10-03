@@ -15,9 +15,9 @@ var commandOptions = {
 	r: 'my',
 	o: './output',
 	n: 'my,other',
-	output: './output',
-	removerequires: 'my',
-	namespaces: 'my,other'
+	removeRequires: 'my',
+	namespaces: 'my,other',
+	outputDirectory: './output'
 };
 var expected = fs.readFileSync('expected/expected.js', {encoding: 'utf-8'});
 var expectedIIFE = fs.readFileSync('expected/expected-iife.js', {encoding: 'utf-8'});
@@ -40,13 +40,12 @@ describe('GlobalCompiler conversion', function() {
 
 function shouldConvertNamespacedCode(done, cliModule) {
 	//Given.
-	//Clear the output dir.
+	var optionsObject = cliModule.createOptionsObject(commandOptions);
 
 	//When.
-	cliModule.processFile(commandOptions);
+	cliModule.processFile(optionsObject);
 
 	//Then.
-
 	setTimeout(function() {
 		var output = fs.readFileSync('output/my/long/name/space/SimpleClass.js', {encoding: 'utf-8'});
 		var outputIIFE = fs.readFileSync('output/my/long/name/space/SimpleIIFEClass.js', {encoding: 'utf-8'});

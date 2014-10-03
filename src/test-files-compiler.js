@@ -17,8 +17,10 @@ import {transformASTAndPushToNextStream} from './utils/utilities';
  * Options object.
  *
  * @typedef {Object} OptionsObject
- * @property {String} ns - Alias for namespace.
- * @property {String} namespace - Comma separated list of root namespaces to convert to CJS.
+ * @property {string} outputDirectory - Directory to output transformed files to.
+ * @property {boolean} compileTestFiles - True if files to compile are test files.
+ * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
+ * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
  */
 
 /**

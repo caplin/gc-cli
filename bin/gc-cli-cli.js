@@ -6,13 +6,14 @@ var parseArgs = require('minimist');
 
 var commandParseOptions = {
 	alias: {
-		t: 'testfiles',
 		n: 'namespaces',
-		r: 'removerequires'
+		r: 'removeRequires',
+		o: 'outputDirectory',
+		t: 'compileTestFiles'
 	},
 	default : {
-		testfiles: false,
-		removerequires: 'caplin',
+		compileTestFiles: false,
+		removeRequires: 'caplin',
 		namespaces: 'caplin,caplinx,caplinps,ct'
 	}
 };
@@ -28,8 +29,9 @@ System.config({
 System.import('src/index')
 	.then(function(gcCli) {
 		var options = parseArgs(process.argv.slice(2), commandParseOptions);
+		var optionsObject = gcCli.createOptionsObject(options);
 
-		gcCli.processFile(options);
+		gcCli.processFile(optionsObject);
 	})
 	.catch(function(error) {
 		console.error(error);
