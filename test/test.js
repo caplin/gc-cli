@@ -19,8 +19,20 @@ var commandOptions = {
 	namespaces: 'my,other',
 	outputDirectory: './output'
 };
+var testCommandOptions = {
+	_: [],
+	r: 'my',
+	t: true,
+	n: 'my,other',
+	o: './test-output',
+	removeRequires: 'my',
+	namespaces: 'my,ct,other',
+	compileTestFiles: true,
+	outputDirectory: './test-output',
+};
 var expected = fs.readFileSync('expected/expected.js', {encoding: 'utf-8'});
 var expectedIIFE = fs.readFileSync('expected/expected-iife.js', {encoding: 'utf-8'});
+var expectedTest = fs.readFileSync('expected/expected-test.js', {encoding: 'utf-8'});
 
 System.config({
 	map: {
@@ -32,6 +44,14 @@ describe('GlobalCompiler conversion', function() {
 	it('should convert namespaced code into CJS.', function(done) {
 		System.import('../src/index')
 			.then(shouldConvertNamespacedCode.bind(null, done))
+			.catch(function(error) {
+				done(error);
+			});
+	});
+
+	it('should convert namespaced tests into CJS.', function(done) {
+		System.import('../src/index')
+			.then(shouldConvertNamespacedTests.bind(null, done))
 			.catch(function(error) {
 				done(error);
 			});
@@ -52,6 +72,23 @@ function shouldConvertNamespacedCode(done, cliModule) {
 
 		assert.equal(output, expected);
 		assert.equal(outputIIFE, expectedIIFE);
+
+		done();
+	}, 500);
+}
+
+function shouldConvertNamespacedTests(done, cliModule) {
+	//Given.
+	var optionsObject = cliModule.createOptionsObject(testCommandOptions);
+
+	//When.
+	cliModule.processFile(optionsObject);
+
+	//Then.
+	setTimeout(function() {
+		var output = fs.readFileSync('test-output/test-unit/js-test-driver/tests/MyTest.js', {encoding: 'utf-8'});
+
+		assert.equal(output, expectedTest);
 
 		done();
 	}, 500);
