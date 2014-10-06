@@ -3,6 +3,7 @@ var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
 
 import {
+	createRequireDeclaration,
 	isNamespacedExpressionNode,
 	calculateUniqueModuleVariableId
 } from './utils/utilities';
@@ -249,21 +250,4 @@ function transformAllNamespacedExpressions(fullyQualifiedNameData, programStatem
 		programStatements.unshift(importDeclaration);
 		nodePathsToTransform.forEach((nodePathToTransform) => nodePathToTransform.replace(moduleIdentifier));
 	});
-}
-
-/**
- * Creates a CJS require declaration e.g. 'var <modIden> = require("importedModule");'
- *
- * @param {AstNode} moduleIdentifier - The identifier the require call result is set to.
- * @param {string} importedModule - The module id literal.
- */
-function createRequireDeclaration(moduleIdentifier, importedModule) {
-	var requireCall = builders.callExpression(
-		builders.identifier('require'),	[builders.literal(importedModule)]
-	);
-	var importDeclaration = builders.variableDeclaration(
-		'var', [builders.variableDeclarator(moduleIdentifier, requireCall)]
-	);
-
-	return importDeclaration;
 }

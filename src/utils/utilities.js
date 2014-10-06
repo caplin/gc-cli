@@ -1,4 +1,5 @@
 var Sequence = require('immutable').Sequence;
+var builders = require('ast-types').builders;
 var namedTypes = require('ast-types').namedTypes;
 
 /**
@@ -26,7 +27,7 @@ export function isNamespacedExpressionNode(expressionNode, namespaceSequence) {
  * Generates a variable name that does not clash with already existing variable names in the module.
  *
  * @param {string} varName - variable name seed to search for a variation.
- * @param {Set} moduleIdentifiers - all variable names declared in the module.
+ * @param {Set<string>} moduleIdentifiers - all variable names declared in the module.
  * @returns {string} a unique variable name for the module.
  */
 export function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
@@ -39,4 +40,21 @@ export function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
 	}
 
 	return freeVarName;
+}
+
+/**
+ * Creates a CJS require declaration e.g. 'var <modIden> = require("importedModule");'
+ *
+ * @param {AstNode} moduleIdentifier - The identifier the require call result is set to.
+ * @param {string} importedModule - The module id literal.
+ */
+export function createRequireDeclaration(moduleIdentifier, importedModule) {
+	var requireCall = builders.callExpression(
+		builders.identifier('require'),	[builders.literal(importedModule)]
+	);
+	var importDeclaration = builders.variableDeclaration(
+		'var', [builders.variableDeclarator(moduleIdentifier, requireCall)]
+	);
+
+	return importDeclaration;
 }
