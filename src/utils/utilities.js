@@ -5,7 +5,7 @@ var namedTypes = require('ast-types').namedTypes;
  * Returns true if the provided Expression node is the root of a hierarchy of nodes that match the namespace.
  *
  * @param {AstNode} expressionNode - Expression AstNode.
- * @param {Sequence} namespaceSequence - A sequence of names to match the expressionNode to.
+ * @param {Sequence<string>} namespaceSequence - A sequence of names to match the expressionNode to.
  */
 export function isNamespacedExpressionNode(expressionNode, namespaceSequence) {
 	if (namedTypes.Identifier.check(expressionNode)) {
