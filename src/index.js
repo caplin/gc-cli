@@ -1,3 +1,5 @@
+var Sequence = require('immutable').Sequence;
+
 import {compileTestFiles} from './test-files-compiler';
 import {compileSourceFiles} from './src-files-compiler';
 
@@ -9,6 +11,7 @@ import {compileSourceFiles} from './src-files-compiler';
  * @property {boolean} compileTestFiles - True if files to compile are test files.
  * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
  * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
+ * @property {Map<Sequence<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
  */
 
 /**
@@ -29,6 +32,11 @@ export function createOptionsObject(options) {
 	} else {
 		optionsObject.outputDirectory = (options.outputDirectory || 'src');
 	}
+
+	optionsObject.libraryIdentifiersToRequire = new Map([
+		[Sequence(['emitr']), 'emitr'],
+		[Sequence(['moment', '()', 'tz']), 'moment-timezone']
+	]);
 
 	return optionsObject;
 }

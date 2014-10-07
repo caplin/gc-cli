@@ -14,6 +14,7 @@ import {
 	convertASTToBuffer,
 	transformI18nUsage,
 	removeCJSModuleRequires,
+	addRequiresForLibraries,
 	convertGlobalsToRequires
 } from './common-transforms';
 
@@ -30,6 +31,7 @@ import {
  * @property {boolean} compileTestFiles - True if files to compile are test files.
  * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
  * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
+ * @property {Map<Sequence<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
  */
 
 /**
@@ -51,6 +53,7 @@ export function compileSourceFiles(options) {
 		.pipe(through2.obj(flattenClass))
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
+		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory))
