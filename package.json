@@ -2,15 +2,13 @@
   "name": "global-compiler",
   "version": "0.0.0",
   "scripts": {
-    "test": "mocha",
-    "coveralls": "istanbul cover _mocha -- -R spec && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+    "test": "mocha"
   },
   "dependencies": {
     "ast-types": "^0.5.0",
     "immutable": "^2.1.0"
   },
   "devDependencies": {
-    "coveralls": "^2.11.1",
     "eslint": "^0.8.1",
     "gulp": "^3.8.8",
     "gulp-mocha": "^1.1.0",
