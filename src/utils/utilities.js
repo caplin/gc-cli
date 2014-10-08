@@ -20,7 +20,7 @@ var visit = require('ast-types').visit;
  */
 export function transformASTAndPushToNextStream(fileMetadata, visitor, streamTransform, callback) {
 	try {
-		visit(fileMetadata.ast, visitor);
+		visit(fileMetadata.ast.program, visitor);
 	} catch (error) {
 		console.error(chalk.red(error));
 		callback(error);

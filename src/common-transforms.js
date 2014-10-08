@@ -86,17 +86,17 @@ export function transformI18nUsage() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		//Verify that the i18n variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
-		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
+		visit(fileMetadata.ast.program, verifyVarIsAvailableVisitor);
 		var freeI18NVariation = verifyVarIsAvailableVisitor.getFreeVariation('i18n');
 
 		//Convert all requires with a certain ID to another ID and variable identifer.
 		var moduleIdsToConvert = new Map([['ct', ['br/I18n', freeI18NVariation]]]);
 		moduleIdVisitor.initialize(moduleIdsToConvert);
-		visit(fileMetadata.ast, moduleIdVisitor);
+		visit(fileMetadata.ast.program, moduleIdVisitor);
 
 		//Replace all calls to a certain namespace with calls to the new i18n identifier.
 		flattenMemberExpression.initialize(['ct', 'i18n'], freeI18NVariation);
-		visit(fileMetadata.ast, flattenMemberExpression);
+		visit(fileMetadata.ast.program, flattenMemberExpression);
 
 		this.push(fileMetadata);
 		callback();
