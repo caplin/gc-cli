@@ -12,12 +12,9 @@ export function isNamespacedExpressionNode(expressionNode, namespaceSequence) {
 	if (namedTypes.Identifier.check(expressionNode)) {
 		return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;
 	} else if (namedTypes.MemberExpression.check(expressionNode)) {
-		//TODO: This seems like a workaround for a bug in 'immutable', investigate and fix.
-		var shortenedSequence = Sequence(namespaceSequence.skip(1).toArray());
-
 		return namedTypes.Identifier.check(expressionNode.property)
 			&& expressionNode.property.name === namespaceSequence.first()
-			&& isNamespacedExpressionNode(expressionNode.object, shortenedSequence);
+			&& isNamespacedExpressionNode(expressionNode.object, namespaceSequence.skip(1));
 	}
 
 	return false;

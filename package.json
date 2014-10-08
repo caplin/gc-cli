@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "ast-types": "^0.4.9",
-    "immutable": "^2.0.15"
+    "immutable": "^2.1.0"
   },
   "devDependencies": {
     "coveralls": "^2.11.1",
