@@ -6,7 +6,7 @@ var assert = require('assert');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 var given = fs.readFileSync('test/module-id-converter/given.js', {encoding: 'utf-8'});
 var expected = fs.readFileSync('test/module-id-converter/expected.js', {encoding: 'utf-8'});
@@ -29,7 +29,7 @@ function shouldTransformModuleIds(done, transforms) {
 	moduleIdVisitor.initialize(moduleIdsToConvert);
 
 	//When.
-	visit(givenAst.program, moduleIdVisitor);
+	visit(givenAst, moduleIdVisitor);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;

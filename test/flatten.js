@@ -6,7 +6,7 @@ var assert = require('assert');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 var given = fs.readFileSync('test/flatten/given.js', {encoding: 'utf-8'});
 var expected = fs.readFileSync('test/flatten/expected.js', {encoding: 'utf-8'});
@@ -50,7 +50,7 @@ function shouldRemoveClassNamespace(done, flattenModule) {
 	namespacedClassVisitor.initialize('my.long.name.space.SimpleClass');
 
 	//When.
-	visit(givenAst.program, namespacedClassVisitor);
+	visit(givenAst, namespacedClassVisitor);
 
 	//Then.
 	var expectedCode = expected.replace(/\r/g, '');
@@ -67,7 +67,7 @@ function shouldRemoveObjectNamespace(done, flattenModule) {
 	namespacedClassVisitor.initialize('my.long.name.space.SimpleObject');
 
 	//When.
-	visit(givenObjectAst.program, namespacedClassVisitor);
+	visit(givenObjectAst, namespacedClassVisitor);
 
 	//Then.
 	var outputtedCode = print(givenObjectAst).code;
@@ -83,7 +83,7 @@ function shouldRemoveTwoLevelObjectNamespace(done, flattenModule) {
 	namespacedClassVisitor.initialize('my.SimpleUtilityObject');
 
 	//When.
-	visit(givenTwoLevelObjectAst.program, namespacedClassVisitor);
+	visit(givenTwoLevelObjectAst, namespacedClassVisitor);
 
 	//Then.
 	var outputtedCode = print(givenTwoLevelObjectAst).code;

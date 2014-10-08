@@ -6,7 +6,7 @@ var assert = require('assert');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 var given = fs.readFileSync('test/flatten-member-expression/given.js', {encoding: 'utf-8'});
 var expected = fs.readFileSync('test/flatten-member-expression/expected.js', {encoding: 'utf-8'});
@@ -28,7 +28,7 @@ function shouldTransformModuleIds(done, transforms) {
 	flattenMemberExpression.initialize(['some', 'call'], 'newcall');
 
 	//When.
-	visit(givenAst.program, flattenMemberExpression);
+	visit(givenAst, flattenMemberExpression);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;

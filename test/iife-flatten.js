@@ -6,7 +6,7 @@ var assert = require('assert');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 var given = fs.readFileSync('test/iife-flatten/given.js', {encoding: 'utf-8'});
 var expected = fs.readFileSync('test/iife-flatten/expected.js', {encoding: 'utf-8'});
@@ -39,7 +39,7 @@ function shouldExtractClassFromIIFE(done, compilerModule) {
 	namespacedIIFEClassVisitor.initialize('my.long.name.space.SimpleClass');
 
 	//When.
-	visit(givenAst.program, namespacedIIFEClassVisitor);
+	visit(givenAst, namespacedIIFEClassVisitor);
 
 	//Then.
 	var expectedCode = expected.replace(/\r/g, '');
@@ -56,7 +56,7 @@ function shouldExtractClassFromTwoLevelIIFE(done, compilerModule) {
 	namespacedIIFEClassVisitor.initialize('my.Class');
 
 	//When.
-	visit(givenTwoLevelAst.program, namespacedIIFEClassVisitor);
+	visit(givenTwoLevelAst, namespacedIIFEClassVisitor);
 
 	//Then.
 	var outputtedCode = print(givenTwoLevelAst).code;

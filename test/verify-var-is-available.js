@@ -5,7 +5,7 @@ var assert = require('assert');
 
 var System = require('systemjs');
 var parse = require('recast').parse;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 var given = fs.readFileSync('test/verify-var-is-available/given.js', {encoding: 'utf-8'});
 var givenAst = parse(given);
@@ -43,7 +43,7 @@ function checkIfVarIsAvailable(varNameToCheck, freeVariableName) {
 		verifyVarIsAvailableVisitor.initialize(varNameToCheck);
 
 		//When.
-		visit(givenAst.program, verifyVarIsAvailableVisitor);
+		visit(givenAst, verifyVarIsAvailableVisitor);
 
 		//Then.
 		assert.equal(verifyVarIsAvailableVisitor.getFreeVariation(varNameToCheck), freeVariableName);

@@ -6,7 +6,7 @@ var assert = require('assert');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 var given = fs.readFileSync('test/globaltocjs/given.js', {encoding: 'utf-8'});
 var expected = fs.readFileSync('test/globaltocjs/expected.js', {encoding: 'utf-8'});
@@ -28,7 +28,7 @@ function shouldReplaceGlobalsWithRequires(done, transforms) {
 	rootNamespaceVisitor.initialize(['my', 'other'], givenAst.program.body, 'SimpleClass');
 
 	//When.
-	visit(givenAst.program, rootNamespaceVisitor);
+	visit(givenAst, rootNamespaceVisitor);
 
 	//Then.
 	var expectedCode = expected.replace(/\r/g, '');

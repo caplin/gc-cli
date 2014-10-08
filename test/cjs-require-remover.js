@@ -6,7 +6,7 @@ var assert = require('assert');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 var given = fs.readFileSync('test/cjs-require-remover/given.js', {encoding: 'utf-8'});
 var expected = fs.readFileSync('test/cjs-require-remover/expected.js', {encoding: 'utf-8'});
@@ -29,7 +29,7 @@ function shouldRemoveRequiresForModuleIds(done, transforms) {
 	cjsRequireRemoverVisitor.initialize(requiresToRemove);
 
 	//When.
-	visit(givenAst.program, cjsRequireRemoverVisitor);
+	visit(givenAst, cjsRequireRemoverVisitor);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;

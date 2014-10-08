@@ -6,7 +6,7 @@ var assert = require('assert');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 var Sequence = require('immutable').Sequence;
 
 var given = fs.readFileSync('test/add-require-for-global-identifier/given.js', {encoding: 'utf-8'});
@@ -33,7 +33,7 @@ function shouldAddRequiresForGlobalIdentifiers(done, transforms) {
 	addRequireForGlobalIdentifierVisitor.initialize(identifiersToRequire, givenAst.program.body);
 
 	//When.
-	visit(givenAst.program, addRequireForGlobalIdentifierVisitor);
+	visit(givenAst, addRequireForGlobalIdentifierVisitor);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;
