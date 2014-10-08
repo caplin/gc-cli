@@ -50,7 +50,7 @@ function shouldRemoveClassNamespace(done, flattenModule) {
 	namespacedClassVisitor.initialize('my.long.name.space.SimpleClass');
 
 	//When.
-	visit(givenAst, namespacedClassVisitor);
+	visit(givenAst.program, namespacedClassVisitor);
 
 	//Then.
 	var expectedCode = expected.replace(/\r/g, '');
@@ -67,7 +67,7 @@ function shouldRemoveObjectNamespace(done, flattenModule) {
 	namespacedClassVisitor.initialize('my.long.name.space.SimpleObject');
 
 	//When.
-	visit(givenObjectAst, namespacedClassVisitor);
+	visit(givenObjectAst.program, namespacedClassVisitor);
 
 	//Then.
 	var outputtedCode = print(givenObjectAst).code;
@@ -83,7 +83,7 @@ function shouldRemoveTwoLevelObjectNamespace(done, flattenModule) {
 	namespacedClassVisitor.initialize('my.SimpleUtilityObject');
 
 	//When.
-	visit(givenTwoLevelObjectAst, namespacedClassVisitor);
+	visit(givenTwoLevelObjectAst.program, namespacedClassVisitor);
 
 	//Then.
 	var outputtedCode = print(givenTwoLevelObjectAst).code;

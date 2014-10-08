@@ -28,7 +28,7 @@ function shouldTransformModuleIds(done, transforms) {
 	flattenMemberExpression.initialize(['some', 'call'], 'newcall');
 
 	//When.
-	visit(givenAst, flattenMemberExpression);
+	visit(givenAst.program, flattenMemberExpression);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;

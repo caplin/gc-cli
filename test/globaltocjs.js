@@ -28,7 +28,7 @@ function shouldReplaceGlobalsWithRequires(done, transforms) {
 	rootNamespaceVisitor.initialize(['my', 'other'], givenAst.program.body, 'SimpleClass');
 
 	//When.
-	visit(givenAst, rootNamespaceVisitor);
+	visit(givenAst.program, rootNamespaceVisitor);
 
 	//Then.
 	var expectedCode = expected.replace(/\r/g, '');

@@ -29,7 +29,7 @@ function shouldRemoveRequiresForModuleIds(done, transforms) {
 	cjsRequireRemoverVisitor.initialize(requiresToRemove);
 
 	//When.
-	visit(givenAst, cjsRequireRemoverVisitor);
+	visit(givenAst.program, cjsRequireRemoverVisitor);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;

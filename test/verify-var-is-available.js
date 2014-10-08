@@ -43,7 +43,7 @@ function checkIfVarIsAvailable(varNameToCheck, freeVariableName) {
 		verifyVarIsAvailableVisitor.initialize(varNameToCheck);
 
 		//When.
-		visit(givenAst, verifyVarIsAvailableVisitor);
+		visit(givenAst.program, verifyVarIsAvailableVisitor);
 
 		//Then.
 		assert.equal(verifyVarIsAvailableVisitor.getFreeVariation(varNameToCheck), freeVariableName);

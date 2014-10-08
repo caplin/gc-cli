@@ -27,7 +27,7 @@ function shouldFlattenProgramIIFEs(done, transforms) {
 	var flattenProgramIIFEVisitor = transforms.flattenProgramIIFEVisitor;
 
 	//When.
-	visit(givenAst, flattenProgramIIFEVisitor);
+	visit(givenAst.program, flattenProgramIIFEVisitor);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;

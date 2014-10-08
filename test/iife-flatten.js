@@ -39,7 +39,7 @@ function shouldExtractClassFromIIFE(done, compilerModule) {
 	namespacedIIFEClassVisitor.initialize('my.long.name.space.SimpleClass');
 
 	//When.
-	visit(givenAst, namespacedIIFEClassVisitor);
+	visit(givenAst.program, namespacedIIFEClassVisitor);
 
 	//Then.
 	var expectedCode = expected.replace(/\r/g, '');
@@ -56,7 +56,7 @@ function shouldExtractClassFromTwoLevelIIFE(done, compilerModule) {
 	namespacedIIFEClassVisitor.initialize('my.Class');
 
 	//When.
-	visit(givenTwoLevelAst, namespacedIIFEClassVisitor);
+	visit(givenTwoLevelAst.program, namespacedIIFEClassVisitor);
 
 	//Then.
 	var outputtedCode = print(givenTwoLevelAst).code;

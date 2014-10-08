@@ -33,7 +33,7 @@ function shouldAddRequiresForGlobalIdentifiers(done, transforms) {
 	addRequireForGlobalIdentifierVisitor.initialize(identifiersToRequire, givenAst.program.body);
 
 	//When.
-	visit(givenAst, addRequireForGlobalIdentifierVisitor);
+	visit(givenAst.program, addRequireForGlobalIdentifierVisitor);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;

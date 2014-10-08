@@ -29,7 +29,7 @@ function shouldTransformModuleIds(done, transforms) {
 	moduleIdVisitor.initialize(moduleIdsToConvert);
 
 	//When.
-	visit(givenAst, moduleIdVisitor);
+	visit(givenAst.program, moduleIdVisitor);
 
 	//Then.
 	var outputtedCode = print(givenAst).code;
