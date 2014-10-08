@@ -1,5 +1,5 @@
-var Sequence = require('immutable').Sequence;
-var builders = require('ast-types').builders;
+const Sequence = require('immutable').Sequence;
+const builders = require('ast-types').builders;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 
@@ -21,7 +21,7 @@ import {isNamespacedExpressionNode} from './utils/utilities';
 /**
  * Given the parts of a member expression flatten all occurences of it to the provided identifier.
  */
-export var flattenMemberExpression = {
+export const flattenMemberExpression = {
 	/**
 	 * @param {string[]} memberExpressionParts - The parts of the member expression to flatten.
 	 * @param {string} replacementIdentifier - The name of the identifier to replace the flattened member expression.

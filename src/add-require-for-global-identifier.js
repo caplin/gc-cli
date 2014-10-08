@@ -1,5 +1,5 @@
-var builders = require('ast-types').builders;
-var namedTypes = require('ast-types').namedTypes;
+const builders = require('ast-types').builders;
+const namedTypes = require('ast-types').namedTypes;
 
 import {createRequireDeclaration} from './utils/utilities';
 
@@ -21,7 +21,7 @@ import {createRequireDeclaration} from './utils/utilities';
 /**
  * This transform adds CJS requires for specified global identifiers.
  */
-export var addRequireForGlobalIdentifierVisitor = {
+export const addRequireForGlobalIdentifierVisitor = {
 	/**
 	 * @param {Map<Sequence<string>, string>} identifiersToRequire - The identifiers that should be required.
 	 * @param {AstNode[]} programStatements - Program body statements.
@@ -36,7 +36,7 @@ export var addRequireForGlobalIdentifierVisitor = {
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
 	visitIdentifier(identifierNodePath) {
-		for (var [identifierSequence, libraryID] of this._identifiersToRequire) {
+		for (let [identifierSequence, libraryID] of this._identifiersToRequire) {
 			if (isIdentifierToRequire(identifierNodePath, identifierSequence)) {
 				this._matchedGlobalIdentifiers.set(identifierNodePath, identifierSequence);
 			}
@@ -63,10 +63,10 @@ export var addRequireForGlobalIdentifierVisitor = {
  * @returns {boolean} true if identifier should be required.
  */
 function isIdentifierToRequire(identifierNodePath, identifierSequence) {
-	var isPartOfIdentifierToRequire = (identifierNodePath.node.name === identifierSequence.last());
+	const isPartOfIdentifierToRequire = (identifierNodePath.node.name === identifierSequence.last());
 
 	if (isPartOfIdentifierToRequire && identifierSequence.count() > 1) {
-		var [nextNodePathInSequence, remainingSequence] = getNextNodePath(identifierNodePath, identifierSequence);
+		const [nextNodePathInSequence, remainingSequence] = getNextNodePath(identifierNodePath, identifierSequence);
 
 		if (nextNodePathInSequence) {
 			return isIdentifierToRequire(nextNodePathInSequence, remainingSequence);
@@ -87,11 +87,11 @@ function isIdentifierToRequire(identifierNodePath, identifierSequence) {
  * @returns {([NodePath, Sequence<string>]|undefined)} Next NodePath to check.
  */
 function getNextNodePath(identifierNodePath, identifierSequence) {
-	var remainingSequence = identifierSequence.butLast();
-	var identifierParentNodePath = identifierNodePath.parent;
+	const remainingSequence = identifierSequence.butLast();
+	const identifierParentNodePath = identifierNodePath.parent;
 
 	if (namedTypes.MemberExpression.check(identifierParentNodePath.node)) {
-		var object = identifierParentNodePath.get('object');
+		const object = identifierParentNodePath.get('object');
 
 		if (namedTypes.CallExpression.check(object.node) && remainingSequence.last() === '()') {
 			return [object.get('callee'), remainingSequence.butLast()];
@@ -109,7 +109,7 @@ function getNextNodePath(identifierNodePath, identifierSequence) {
  * @returns {boolean} true if identifier is the root of an expression.
  */
 function isStandaloneIdentifier(identifierNodePath) {
-	var identifierParentNodePath = identifierNodePath.parent;
+	const identifierParentNodePath = identifierNodePath.parent;
 
 	if (namedTypes.CallExpression.check(identifierParentNodePath.node)) {
 		return true;
@@ -126,15 +126,15 @@ function isStandaloneIdentifier(identifierNodePath) {
  * @param {AstNode[]} programStatements - Program body statements.
  */
 function addRequiresForGlobalIdentifiers(matchedGlobalIdentifiers, identifiersToRequire, programStatements) {
-	var moduleIdentifiersToRequire = new Set(matchedGlobalIdentifiers.values());
+	const moduleIdentifiersToRequire = new Set(matchedGlobalIdentifiers.values());
 
 	//TODO: You have a match on the longer and a match on the shorter of two libraries using the same identifiers.
 	//The longer needs the shorter as it's a plugin so all you need to do is require the longer as it should
 	//require the shorter itself. The require statement will have a variable with a name equals to the shorter.
-	for (var sequenceToRequire of moduleIdentifiersToRequire) {
-		var moduleID = identifiersToRequire.get(sequenceToRequire);
-		var moduleIdentifier = builders.identifier(sequenceToRequire.first());
-		var importDeclaration = createRequireDeclaration(moduleIdentifier, moduleID);
+	for (let sequenceToRequire of moduleIdentifiersToRequire) {
+		const moduleID = identifiersToRequire.get(sequenceToRequire);
+		const moduleIdentifier = builders.identifier(sequenceToRequire.first());
+		const importDeclaration = createRequireDeclaration(moduleIdentifier, moduleID);
 
 		console.log('Adding require for', moduleID, 'with variable name', sequenceToRequire.first());
 		programStatements.unshift(importDeclaration);

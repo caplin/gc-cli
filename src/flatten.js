@@ -1,6 +1,6 @@
-var Sequence = require('immutable').Sequence;
-var builders = require('ast-types').builders;
-var namedTypes = require('ast-types').namedTypes;
+const Sequence = require('immutable').Sequence;
+const builders = require('ast-types').builders;
+const namedTypes = require('ast-types').namedTypes;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 
@@ -23,7 +23,7 @@ import {isNamespacedExpressionNode} from './utils/utilities';
  * Converts all Expression trees that match the provided fully qualified class name.
  * They will be mutated to flat Identifiers with the class name as their value.
  */
-export var namespacedClassVisitor = {
+export const namespacedClassVisitor = {
 	/**
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
@@ -36,7 +36,7 @@ export var namespacedClassVisitor = {
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
 	visitIdentifier(identifierNodePath) {
-		var parent = identifierNodePath.parent;
+		const parent = identifierNodePath.parent;
 
 		if (isRootOfClassNamespace(identifierNodePath, parent, this._namespaceSequence)) {
 			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
@@ -52,8 +52,8 @@ export var namespacedClassVisitor = {
  * @param {Sequence} namespaceSequence - Fully qualified class name sequence.
  */
 function isRootOfClassNamespace(identifierNodePath, identifierParentNodePath, namespaceSequence) {
-	var isRootOfNamespace = (identifierParentNodePath.get('property') === identifierNodePath);
-	var isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceSequence);
+	const isRootOfNamespace = (identifierParentNodePath.get('property') === identifierNodePath);
+	const isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceSequence);
 
 	return isInClassNamespace && isRootOfNamespace;
 }
@@ -64,11 +64,11 @@ function isRootOfClassNamespace(identifierNodePath, identifierParentNodePath, na
  * @param {string} className - The class name.
  */
 function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
-	var grandParent = namespacedClassNodePath.parent;
+	const grandParent = namespacedClassNodePath.parent;
 
 	if (namedTypes.AssignmentExpression.check(grandParent.node) &&
 		namedTypes.FunctionExpression.check(grandParent.node.right)) {
-		var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
+		const constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
 
 		grandParent.parent.replace(constructorFunctionDeclaration);
 	} else if (namedTypes.MemberExpression.check(namespacedClassNodePath.node)) {
@@ -85,8 +85,8 @@ function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, className
  * @param {string} className - The class name.
  */
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
-	var {right: functionExpression} = assignmentExpression;
-	var classConstructorDeclaration = builders.functionDeclaration(
+	const {right: functionExpression} = assignmentExpression;
+	const classConstructorDeclaration = builders.functionDeclaration(
 		builders.identifier(className),
 		functionExpression.params,
 		functionExpression.body

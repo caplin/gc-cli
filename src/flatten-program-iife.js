@@ -1,4 +1,4 @@
-var namedTypes = require('ast-types').namedTypes;
+const namedTypes = require('ast-types').namedTypes;
 
 /**
  * SpiderMonkey AST node.
@@ -19,20 +19,19 @@ var namedTypes = require('ast-types').namedTypes;
  * Removes all IIFEs at the Program level.
  * They will have their function lexical scope contents moved to the top module level.
  */
-export var flattenProgramIIFEVisitor = {
+export const flattenProgramIIFEVisitor = {
 	/**
 	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
 	 */
 	visitCallExpression(callExpressionNodePath) {
-		var callee = callExpressionNodePath.get('callee');
-		var grandParent = callExpressionNodePath.parent.parent;
+		const callee = callExpressionNodePath.get('callee');
+		const grandParent = callExpressionNodePath.parent.parent;
 
-
-		var isGrandParentProgram = namedTypes.Program.check(grandParent.node);
-		var isCalleeFunctionExpression = namedTypes.FunctionExpression.check(callee.node);
+		const isGrandParentProgram = namedTypes.Program.check(grandParent.node);
+		const isCalleeFunctionExpression = namedTypes.FunctionExpression.check(callee.node);
 
 		if (isGrandParentProgram && isCalleeFunctionExpression) {
-			var iifeBody = callee.get('body', 'body').value;
+			const iifeBody = callee.get('body', 'body').value;
 
 			callExpressionNodePath.parent.replace(...iifeBody);
 		}

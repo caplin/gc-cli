@@ -1,5 +1,5 @@
-var builders = require('ast-types').builders;
-var namedTypes = require('ast-types').namedTypes;
+const builders = require('ast-types').builders;
+const namedTypes = require('ast-types').namedTypes;
 
 /**
  * SpiderMonkey AST node.
@@ -19,7 +19,7 @@ var namedTypes = require('ast-types').namedTypes;
 /**
  * Removes all CJS module ids in the provided `moduleIdsToRemove` `Set`.
  */
-export var cjsRequireRemoverVisitor = {
+export const cjsRequireRemoverVisitor = {
 	/**
 	 * @param {Set<string>} moduleIdsToRemove - The module requires to remove.
 	 */
@@ -46,17 +46,17 @@ export var cjsRequireRemoverVisitor = {
  * @param {Set<string>} moduleIdsToRemove - The module require Ids to remove.
  */
 function isARequireThatMustBeRemoved(variableDeclarationNodePath, moduleIdsToRemove) {
-	var varDeclarations = variableDeclarationNodePath.get('declarations');
-	var varDeclarator = varDeclarations.get(0);
-	var varInit = varDeclarator.get('init');
+	const varDeclarations = variableDeclarationNodePath.get('declarations');
+	const varDeclarator = varDeclarations.get(0);
+	const varInit = varDeclarator.get('init');
 
 	if (namedTypes.CallExpression.check(varInit.node)) {
-		var varCallee = varInit.get('callee');
-		var moduleIdNodePath = varInit.get('arguments', 0)
+		const varCallee = varInit.get('callee');
+		const moduleIdNodePath = varInit.get('arguments', 0)
 
-		var isRequireCall = varCallee.node.name === 'require';
-		var hasOnlyOneVarDeclarator = varDeclarations.value.length === 1;
-		var isModuleToRemove = moduleIdsToRemove.has(moduleIdNodePath.node.value);
+		const isRequireCall = varCallee.node.name === 'require';
+		const hasOnlyOneVarDeclarator = varDeclarations.value.length === 1;
+		const isModuleToRemove = moduleIdsToRemove.has(moduleIdNodePath.node.value);
 
 		return isRequireCall && hasOnlyOneVarDeclarator && isModuleToRemove;
 	}

@@ -1,5 +1,5 @@
-var builders = require('ast-types').builders;
-var namedTypes = require('ast-types').namedTypes;
+const builders = require('ast-types').builders;
+const namedTypes = require('ast-types').namedTypes;
 
 /**
  * SpiderMonkey AST node.
@@ -20,7 +20,7 @@ var namedTypes = require('ast-types').namedTypes;
  * Transforms all CJS module ids in the provided `moduleIdsToConvert` `Map` to their value in the `Map`.
  * It will also transform the module identifier name.
  */
-export var moduleIdVisitor = {
+export const moduleIdVisitor = {
 	/**
 	 * @param {Map<string, string>} moduleIdsToConvert - The module Ids to convert.
 	 */
@@ -46,16 +46,16 @@ export var moduleIdVisitor = {
  * @param {Map<string, string>} moduleIdsToConvert - The module Ids to convert.
  */
 function replaceModuleIdsToTransform(identifierNode, identifierParentNodePath, moduleIdsToConvert) {
-	var isRequire = (identifierNode.name === 'require');
-	var isParentCallExpression = (namedTypes.CallExpression.check(identifierParentNodePath.node));
+	const isRequire = (identifierNode.name === 'require');
+	const isParentCallExpression = (namedTypes.CallExpression.check(identifierParentNodePath.node));
 
 	if (isRequire && isParentCallExpression) {
-		var moduleIdNodePath = identifierParentNodePath.get('arguments', 0);
-		var isModuleIdToConvert = moduleIdsToConvert.has(moduleIdNodePath.node.value);
-		var isRequireCall = identifierParentNodePath.get('callee').node === identifierNode;
+		const moduleIdNodePath = identifierParentNodePath.get('arguments', 0);
+		const isModuleIdToConvert = moduleIdsToConvert.has(moduleIdNodePath.node.value);
+		const isRequireCall = identifierParentNodePath.get('callee').node === identifierNode;
 
 		if (isRequireCall && isModuleIdToConvert) {
-			var moduleData = moduleIdsToConvert.get(moduleIdNodePath.node.value);
+			const moduleData = moduleIdsToConvert.get(moduleIdNodePath.node.value);
 
 			moduleIdNodePath.replace(builders.literal(moduleData[0]));
 			identifierParentNodePath.parent.get('id').replace(builders.identifier(moduleData[1]));

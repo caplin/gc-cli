@@ -18,7 +18,7 @@ import {calculateUniqueModuleVariableId} from './utils/utilities';
 /**
  * Will find a free variation of a variable name for use within a module AST.
  */
-export var verifyVarIsAvailableVisitor = {
+export const verifyVarIsAvailableVisitor = {
 	/**
 	 * @param {string} varName - The var identifier name to check.
 	 */

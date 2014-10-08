@@ -1,6 +1,6 @@
-var Sequence = require('immutable').Sequence;
-var builders = require('ast-types').builders;
-var namedTypes = require('ast-types').namedTypes;
+const Sequence = require('immutable').Sequence;
+const builders = require('ast-types').builders;
+const namedTypes = require('ast-types').namedTypes;
 
 /**
  * Returns true if the provided Expression node is the root of a hierarchy of nodes that match the namespace.
@@ -28,8 +28,8 @@ export function isNamespacedExpressionNode(expressionNode, namespaceSequence) {
  * @returns {string} a unique variable name for the module.
  */
 export function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
-	var freeVarName = varName;
-	var referencesWithSameName = 1;
+	let freeVarName = varName;
+	let referencesWithSameName = 1;
 
 	while (moduleIdentifiers.has(freeVarName)) {
 		freeVarName = (varName + '__' + referencesWithSameName);
@@ -46,10 +46,10 @@ export function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
  * @param {string} importedModule - The module id literal.
  */
 export function createRequireDeclaration(moduleIdentifier, importedModule) {
-	var requireCall = builders.callExpression(
+	const requireCall = builders.callExpression(
 		builders.identifier('require'),	[builders.literal(importedModule)]
 	);
-	var importDeclaration = builders.variableDeclaration(
+	const importDeclaration = builders.variableDeclaration(
 		'var', [builders.variableDeclarator(moduleIdentifier, requireCall)]
 	);
 

@@ -1,5 +1,5 @@
-var Sequence = require('immutable').Sequence;
-var namedTypes = require('ast-types').namedTypes;
+const Sequence = require('immutable').Sequence;
+const namedTypes = require('ast-types').namedTypes;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 
@@ -22,7 +22,7 @@ import {isNamespacedExpressionNode} from './utils/utilities';
  * Converts all IIFEs that match the provided fully qualified class name.
  * They will have their function lexical scope contents moved to the top module level.
  */
-export var namespacedIIFEClassVisitor = {
+export const namespacedIIFEClassVisitor = {
 	/**
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
@@ -35,7 +35,7 @@ export var namespacedIIFEClassVisitor = {
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
 	visitIdentifier(identifierNodePath) {
-		var parent = identifierNodePath.parent;
+		const parent = identifierNodePath.parent;
 
 		if (isNamespacedExpressionNode(parent.node, this._namespaceSequence)
 			&& isRootPartOfIIFE(parent, identifierNodePath)) {
@@ -50,14 +50,14 @@ export var namespacedIIFEClassVisitor = {
  * @param {NodePath} namespacedNodePath - Root of the fully qualified namespaced NodePath.
  */
 function isRootPartOfIIFE(namespacedNodePath, identifierNodePath) {
-	var grandparent = namespacedNodePath.parent;
-	var assignmentExpressionGrandparent = grandparent.parent.parent;
+	const grandparent = namespacedNodePath.parent;
+	const assignmentExpressionGrandparent = grandparent.parent.parent;
 
-	var namespacedNodeIsOnLeft = (grandparent.get('left') === namespacedNodePath);
-	var isRootOfIIFE = (namespacedNodePath.get('property') === identifierNodePath);
-	var callExpressionIsOnRight = namedTypes.CallExpression.check(grandparent.get('right').node);
-	var namespacedNodeIsInAssignmentExpression = namedTypes.AssignmentExpression.check(grandparent.node);
-	var assignmentGrandparentIsProgram = namedTypes.Program.check(assignmentExpressionGrandparent.node);
+	const namespacedNodeIsOnLeft = (grandparent.get('left') === namespacedNodePath);
+	const isRootOfIIFE = (namespacedNodePath.get('property') === identifierNodePath);
+	const callExpressionIsOnRight = namedTypes.CallExpression.check(grandparent.get('right').node);
+	const namespacedNodeIsInAssignmentExpression = namedTypes.AssignmentExpression.check(grandparent.node);
+	const assignmentGrandparentIsProgram = namedTypes.Program.check(assignmentExpressionGrandparent.node);
 
 	if (namespacedNodeIsOnLeft && namespacedNodeIsInAssignmentExpression
 		&& assignmentGrandparentIsProgram && callExpressionIsOnRight && isRootOfIIFE) {
@@ -72,9 +72,9 @@ function isRootPartOfIIFE(namespacedNodePath, identifierNodePath) {
  * @param {string} className - The class name.
  */
 function replaceIIFEWithItsContents(assignmentNodePath, className) {
-	var iifeBody = assignmentNodePath.get('right', 'callee', 'body', 'body');
-	var iifeStatementsWithoutFinalReturn = iifeBody.value.filter((iifeStatement) => {
-		var isNotFinalReturnStatement = !(namedTypes.ReturnStatement.check(iifeStatement) === true
+	const iifeBody = assignmentNodePath.get('right', 'callee', 'body', 'body');
+	const iifeStatementsWithoutFinalReturn = iifeBody.value.filter((iifeStatement) => {
+		const isNotFinalReturnStatement = !(namedTypes.ReturnStatement.check(iifeStatement) === true
 										&& iifeStatement.argument.name === className);
 
 		return isNotFinalReturnStatement;

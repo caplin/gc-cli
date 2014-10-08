@@ -1,6 +1,6 @@
-var Sequence = require('immutable').Sequence;
-var builders = require('ast-types').builders;
-var namedTypes = require('ast-types').namedTypes;
+const Sequence = require('immutable').Sequence;
+const builders = require('ast-types').builders;
+const namedTypes = require('ast-types').namedTypes;
 
 import {
 	createRequireDeclaration,
@@ -36,7 +36,7 @@ import {
  * Converts all Expressions under the specified root namespaces.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
-export var rootNamespaceVisitor = {
+export const rootNamespaceVisitor = {
 	/**
 	 * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
 	 * @param {AstNode[]} programStatements - Program body statements.
@@ -67,7 +67,7 @@ export var rootNamespaceVisitor = {
 	 * @param {NodePath} functionDeclarationNodePath - Function Declaration NodePath.
 	 */
 	visitFunctionDeclaration(functionDeclarationNodePath) {
-		var functionName = functionDeclarationNodePath.node.id.name;
+		const functionName = functionDeclarationNodePath.node.id.name;
 
 		this._moduleIdentifiers.add(functionName);
 		this.traverse(functionDeclarationNodePath);
@@ -77,7 +77,7 @@ export var rootNamespaceVisitor = {
 	 * @param {NodePath} variableDeclaratorNodePath - VariableDeclarator NodePath.
 	 */
 	visitVariableDeclarator(variableDeclaratorNodePath) {
-		var variableName = variableDeclaratorNodePath.node.id.name;
+		const variableName = variableDeclaratorNodePath.node.id.name;
 
 		this._moduleIdentifiers.add(variableName);
 
@@ -104,8 +104,8 @@ export var rootNamespaceVisitor = {
  * @returns {boolean} true if this namespaced expression should be flattened.
  */
 function isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoot) {
-	var isNodeNamespaced = isNamespacedExpressionNode(identifierNodePath.node, namespaceRoot);
-	var isRootOfExpressionTree = identifierNodePath.parent.get('object') === identifierNodePath;
+	const isNodeNamespaced = isNamespacedExpressionNode(identifierNodePath.node, namespaceRoot);
+	const isRootOfExpressionTree = identifierNodePath.parent.get('object') === identifierNodePath;
 
 	return isNodeNamespaced && isRootOfExpressionTree;
 }
@@ -117,8 +117,8 @@ function isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoo
  * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
  */
 function findAndStoreNodePathToTransform(identifierNodePath, fullyQualifiedNameData) {
-	var nodesPath = [identifierNodePath];
-	var namespaceParts = [identifierNodePath.node.name];
+	const nodesPath = [identifierNodePath];
+	const namespaceParts = [identifierNodePath.node.name];
 
 	populateNamespacePath(identifierNodePath.parent, nodesPath, namespaceParts);
 	storeNodePathInFQNameData(namespaceParts, nodesPath.pop(), fullyQualifiedNameData);
@@ -150,9 +150,9 @@ function populateNamespacePath(nodePathToCheck, nodesPath, namespaceParts) {
  */
 function isAstNodePartOfNamespace(astNode, parentNodePath, namespaceParts) {
 	if (namedTypes.MemberExpression.check(astNode) && namedTypes.Identifier.check(astNode.property)) {
-		var identifierName = astNode.property.name;
-		var isPrototype = (identifierName === 'prototype');
-		var isMethodCall = namedTypes.CallExpression.check(parentNodePath.node)
+		const identifierName = astNode.property.name;
+		const isPrototype = (identifierName === 'prototype');
+		const isMethodCall = namedTypes.CallExpression.check(parentNodePath.node)
 			&& parentNodePath.get('callee').node === astNode;
 
 		return !(isPrototype || isMethodCall || isAssumedToBeAClassProperty(identifierName, namespaceParts));
@@ -171,10 +171,10 @@ function isAstNodePartOfNamespace(astNode, parentNodePath, namespaceParts) {
  * @returns {boolean} is astNode assumed to be a class property.
  */
 function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
-	var isConstant = identifierName.match(/^[A-Z_-]*$/);
-	var lastNamespacePart = namespaceParts[namespaceParts.length - 1];
-	var firstCharOfLastNamespacePart = lastNamespacePart.substr(0, 1);
-	var isParentClassLike = (firstCharOfLastNamespacePart === firstCharOfLastNamespacePart.toLocaleUpperCase());
+	const isConstant = identifierName.match(/^[A-Z_-]*$/);
+	const lastNamespacePart = namespaceParts[namespaceParts.length - 1];
+	const firstCharOfLastNamespacePart = lastNamespacePart.substr(0, 1);
+	const isParentClassLike = (firstCharOfLastNamespacePart === firstCharOfLastNamespacePart.toLocaleUpperCase());
 
 	if (isConstant) {
 		console.log(identifierName, 'assumed to be constant of class', namespaceParts.join('.'));
@@ -193,8 +193,8 @@ function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
  * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
  */
 function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameData) {
-	var namespace = namespaceParts.join('/');
-	var namespaceData = fullyQualifiedNameData.get(namespace);
+	const namespace = namespaceParts.join('/');
+	let namespaceData = fullyQualifiedNameData.get(namespace);
 
 	if (namespaceData === undefined) {
 		namespaceData = { namespaceParts, nodePathsToTransform: [], moduleVariableId: '' };
@@ -209,13 +209,13 @@ function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameD
  * @param {AstNode[]} programStatements - Program body statements.
  */
 function insertExportsStatement(className, programStatements) {
-	var exportsExpression = builders.memberExpression(
+	const exportsExpression = builders.memberExpression(
 		builders.identifier('module'), builders.identifier('exports'), false
 	);
-	var assignmentExpression = builders.assignmentExpression(
+	const assignmentExpression = builders.assignmentExpression(
 		'=', exportsExpression, builders.identifier(className)
 	);
-	var exportsStatement = builders.expressionStatement(assignmentExpression);
+	const exportsStatement = builders.expressionStatement(assignmentExpression);
 
 	programStatements.push(exportsStatement);
 }
@@ -228,8 +228,8 @@ function insertExportsStatement(className, programStatements) {
  */
 function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifiers) {
 	fullyQualifiedNameData.forEach((namespaceData) => {
-		var moduleVariableId = namespaceData.namespaceParts.pop();
-		var uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers);
+		const moduleVariableId = namespaceData.namespaceParts.pop();
+		const uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers);
 
 		moduleIdentifiers.add(uniqueModuleVariableId);
 		namespaceData.moduleVariableId = uniqueModuleVariableId;
@@ -244,8 +244,8 @@ function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifie
  */
 function transformAllNamespacedExpressions(fullyQualifiedNameData, programStatements) {
 	fullyQualifiedNameData.forEach(({moduleVariableId, nodePathsToTransform}, namespace) => {
-		var moduleIdentifier = builders.identifier(moduleVariableId);
-		var importDeclaration = createRequireDeclaration(moduleIdentifier, namespace);
+		const moduleIdentifier = builders.identifier(moduleVariableId);
+		const importDeclaration = createRequireDeclaration(moduleIdentifier, namespace);
 
 		programStatements.unshift(importDeclaration);
 		nodePathsToTransform.forEach((nodePathToTransform) => nodePathToTransform.replace(moduleIdentifier));
