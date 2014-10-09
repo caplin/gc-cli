@@ -8,7 +8,6 @@ var del = require('del');
 var System = require('systemjs');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
 
 process.chdir('test');
 
@@ -28,9 +27,9 @@ var testCommandOptions = {
 	n: 'my,other',
 	o: './test-output',
 	removeRequires: 'my',
-	namespaces: 'my,ct,other',
 	compileTestFiles: true,
-	outputDirectory: './test-output',
+	namespaces: 'my,ct,other',
+	outputDirectory: './test-output'
 };
 var expected = fs.readFileSync('expected/expected.js', {encoding: 'utf-8'});
 var expectedIIFE = fs.readFileSync('expected/expected-iife.js', {encoding: 'utf-8'});

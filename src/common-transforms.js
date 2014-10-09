@@ -2,7 +2,7 @@ var chalk = require('chalk');
 var through2 = require('through2');
 var parse = require('recast').parse;
 var print = require('recast').print;
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 import {
 	moduleIdVisitor,
@@ -86,17 +86,17 @@ export function transformI18nUsage() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		//Verify that the i18n variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
-		visit(fileMetadata.ast.program, verifyVarIsAvailableVisitor);
+		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
 		var freeI18NVariation = verifyVarIsAvailableVisitor.getFreeVariation('i18n');
 
 		//Convert all requires with a certain ID to another ID and variable identifer.
 		var moduleIdsToConvert = new Map([['ct', ['br/I18n', freeI18NVariation]]]);
 		moduleIdVisitor.initialize(moduleIdsToConvert);
-		visit(fileMetadata.ast.program, moduleIdVisitor);
+		visit(fileMetadata.ast, moduleIdVisitor);
 
 		//Replace all calls to a certain namespace with calls to the new i18n identifier.
 		flattenMemberExpression.initialize(['ct', 'i18n'], freeI18NVariation);
-		visit(fileMetadata.ast.program, flattenMemberExpression);
+		visit(fileMetadata.ast, flattenMemberExpression);
 
 		this.push(fileMetadata);
 		callback();

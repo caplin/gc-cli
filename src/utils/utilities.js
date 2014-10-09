@@ -1,7 +1,7 @@
 var path = require('path');
 
 var chalk = require('chalk');
-var visit = require('ast-types').visit;
+var visit = require('recast').visit;
 
 /**
  * File metadata consists of a Vinyl file and an AST property.
@@ -20,7 +20,7 @@ var visit = require('ast-types').visit;
  */
 export function transformASTAndPushToNextStream(fileMetadata, visitor, streamTransform, callback) {
 	try {
-		visit(fileMetadata.ast.program, visitor);
+		visit(fileMetadata.ast, visitor);
 	} catch (error) {
 		console.error(chalk.red(error));
 		callback(error);
