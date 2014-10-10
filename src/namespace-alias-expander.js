@@ -77,18 +77,32 @@ export const namespaceAliasExpanderVisitor = {
  * If the provided identifier is the root of a member expression it could be a namespace alias.
  *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
- * @param {Set<NodePath>} identifiersThatCouldBeExpanded - Set of identifiers .
+ * @param {Set<NodePath>} identifiersThatCouldBeExpanded - Set of identifiers.
  */
 function registerIdentifierIfPossibleNamespaceAlias(identifierNodePath, identifiersThatCouldBeExpanded) {
 	const parentNodePath = identifierNodePath.parent;
 
-	if (namedTypes.MemberExpression.check(parentNodePath.node) && parentNodePath.get('object') === identifierNodePath) {
-		const identifierName = identifierNodePath.node.name;
-		const identifiers = identifiersThatCouldBeExpanded.get(identifierName) || [];
-
-		identifiers.push(identifierNodePath);
-		identifiersThatCouldBeExpanded.set(identifierName, identifiers);
+	if (namedTypes.MemberExpression.check(parentNodePath.node)) {
+		if (parentNodePath.get('object') === identifierNodePath) {
+			registerIdentifier(identifierNodePath, identifiersThatCouldBeExpanded);
+		}
+	} else if (namedTypes.VariableDeclarator.check(parentNodePath.node) === false) {
+		registerIdentifier(identifierNodePath, identifiersThatCouldBeExpanded);
 	}
+}
+
+/**
+ * Record the provided identifier for future comparison against the namespace aliases.
+ *
+ * @param {NodePath} identifierNodePath - Identifier NodePath.
+ * @param {Set<NodePath>} identifiersThatCouldBeExpanded - Set of identifiers.
+ */
+function registerIdentifier(identifierNodePath, identifiersThatCouldBeExpanded) {
+	const identifierName = identifierNodePath.node.name;
+	const identifiers = identifiersThatCouldBeExpanded.get(identifierName) || [];
+
+	identifiers.push(identifierNodePath);
+	identifiersThatCouldBeExpanded.set(identifierName, identifiers);
 }
 
 /**
@@ -107,6 +121,8 @@ function registerNewNamespaceAliases(varNameNodePath, varValueNodePath, namespac
 	if (isAlias && _namespaceAliases.has(varNameNodePath.node.name) === false) {
 		_namespaceAliases.set(varNameNodePath.node.name, varValueNodePath);
 	} else if (isAlias) {
+		console.log('The alias', varNameNodePath.node.name, 'will not be expanded, it is set multiple times.');
+
 		_excludedAliases.add(varNameNodePath.node.name);
 	}
 }
@@ -154,14 +170,35 @@ function expandNamespaceAliases(namespaceAliases, excludedAliases, identifiersTh
 	for (let [alias, namespaceExpression] of namespaceAliases) {
 		if (excludedAliases.has(alias) === false) {
 			const aliasIdentifiers = identifiersThatCouldBeExpanded.get(alias) || [];
+			const namespace = getNamespacePath(namespaceExpression.node, []).reverse().join('.');
 
 			for (let identifier of aliasIdentifiers) {
 				identifier.replace(namespaceExpression.node);
 			}
 
 			removeNamespaceAlias(namespaceExpression);
+
+			console.log(aliasIdentifiers.length, 'References to', alias, 'have been expanded to', namespace);
 		}
 	}
+}
+
+/**
+ * Given a namespaced expression AST node it will return the parts for that node.
+ *
+ * @param {AstNode} namespaceExpressionNode - AST node part of namespaced expression.
+ * @param {string[]} namespaceParts - used to build up the labels that make up a fully qualified namespace.
+ * @returns {string[]} the labels that make up a fully qualified namespace.
+ */
+function getNamespacePath(namespaceExpressionNode, namespaceParts) {
+	if (namedTypes.Identifier.check(namespaceExpressionNode)) {
+		namespaceParts.push(namespaceExpressionNode.name);
+	} else if (namedTypes.MemberExpression.check(namespaceExpressionNode)) {
+		namespaceParts.push(namespaceExpressionNode.property.name);
+		return getNamespacePath(namespaceExpressionNode.object, namespaceParts);
+	}
+
+	return namespaceParts;
 }
 
 /**

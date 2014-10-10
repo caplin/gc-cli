@@ -31,3 +31,15 @@ my.name.space.feature.SomeClass = function() {
 	this.type = new INPUT_FIELDS.TypeField(this._member.get(LEG_FIELDS.TRADING_TYPE));
 	this.direction = new INPUT_FIELDS.Field(new caplin.presenter.property.EditableProperty(this.nearDirection.getValue()));
 };
+
+my.name.space.feature.SomeClass.prototype.getSomeValue = function() {
+
+	var sep = my.name.space.with.Constants.DIRECTION_SEPARATOR,
+		value = this.get(this.TRADE_LEG_FIELDS.NEAR_BUY_SELL);
+
+	if (this.get('Yo') === "Yo" && this.getNo()) {
+		value = value + sep + this.getMoreGet();
+	}
+
+	return value;
+};
