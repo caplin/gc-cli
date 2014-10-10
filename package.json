@@ -14,7 +14,7 @@
     "global-compiler": "git://github.com/briandipalma/global-compiler",
     "immutable": "^2.0.17",
     "minimist": "^1.1.0",
-    "recast": "^0.7.0",
+    "recast": "^0.8.0",
     "systemjs": "^0.9.1",
     "through2": "^0.6.1",
     "vinyl-fs": "^0.3.7"
