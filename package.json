@@ -17,7 +17,6 @@
     "recast": "^0.7.0",
     "systemjs": "^0.9.1",
     "through2": "^0.6.1",
-    "traceur": "0.0.60",
     "vinyl-fs": "^0.3.7"
   },
   "devDependencies": {
