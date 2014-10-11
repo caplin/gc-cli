@@ -13,6 +13,7 @@ import {
 	parseJSFile,
 	convertASTToBuffer,
 	transformI18nUsage,
+	expandNamespaceAliases,
 	removeCJSModuleRequires,
 	addRequiresForLibraries,
 	convertGlobalsToRequires
@@ -49,6 +50,7 @@ import {
 export function compileSourceFiles(options) {
 	vinylFs.src('src/**/*.js')
 		.pipe(parseJSFile())
+		.pipe(expandNamespaceAliases(options.namespaces))
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
 		.pipe(convertGlobalsToRequires(options.namespaces))
