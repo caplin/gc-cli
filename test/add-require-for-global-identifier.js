@@ -25,8 +25,8 @@ describe('Add require for global identifier', function() {
 
 function shouldAddRequiresForGlobalIdentifiers(done, transforms) {
 	var identifiersToRequire = new Map([
-		[Sequence(['globalLibrary']), 'globallibrary'],
-		[Sequence(['aLibrary', '()', 'plugin']), 'a-library']
+		[Sequence.from(['globalLibrary']), 'globallibrary'],
+		[Sequence.from(['aLibrary', '()', 'plugin']), 'a-library']
 	]);
 	//Given.
 	var addRequireForGlobalIdentifierVisitor = transforms.addRequireForGlobalIdentifierVisitor;

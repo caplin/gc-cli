@@ -49,5 +49,5 @@ function checkIfVarIsAvailable(varNameToCheck, freeVariableName) {
 		assert.equal(verifyVarIsAvailableVisitor.getFreeVariation(varNameToCheck), freeVariableName);
 
 		done();
-	}
+	};
 }
