@@ -38,7 +38,7 @@ export const namespacedClassVisitor = {
 	visitIdentifier(identifierNodePath) {
 		const parent = identifierNodePath.parent;
 
-		if (isRootOfClassNamespace(identifierNodePath, parent, this._namespaceSequence)) {
+		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceSequence)) {
 			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
 		}
 
@@ -47,11 +47,14 @@ export const namespacedClassVisitor = {
 }
 
 /**
+ * Checks if identifier is the root of class namespaced expression.
+ *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
  * @param {NodePath} identifierParentNodePath - Identifier parent NodePath.
- * @param {Sequence} namespaceSequence - Fully qualified class name sequence.
+ * @param {Sequence<string>} namespaceSequence - Fully qualified class name sequence.
+ * @returns {boolean} true if identifier is root of a class namespaced expression.
  */
-function isRootOfClassNamespace(identifierNodePath, identifierParentNodePath, namespaceSequence) {
+function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceSequence) {
 	const isRootOfNamespace = (identifierParentNodePath.get('property') === identifierNodePath);
 	const isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceSequence);
 
