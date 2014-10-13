@@ -1,6 +1,5 @@
-const Sequence = require('immutable').Sequence;
-const builders = require('ast-types').builders;
-const namedTypes = require('ast-types').namedTypes;
+const {Sequence} = require('immutable');
+const {builders, namedTypes} = require('ast-types');
 
 import {
 	createRequireDeclaration,
@@ -47,7 +46,7 @@ export const rootNamespaceVisitor = {
 		this._moduleIdentifiers = new Set();
 		this._fullyQualifiedNameData = new Map();
 		this._programStatements = programStatements;
-		this._namespaceRoots = namespaceRoots.map(rootNamespace => Sequence(rootNamespace));
+		this._namespaceRoots = namespaceRoots.map(rootNamespace => Sequence([rootNamespace]));
 	},
 
 	/**
