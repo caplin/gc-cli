@@ -7,4 +7,5 @@ export {flattenProgramIIFEVisitor} from './src/flatten-program-iife';
 export {flattenMemberExpression} from './src/flatten-member-expression';
 export {verifyVarIsAvailableVisitor} from './src/verify-var-is-available';
 export {namespaceAliasExpanderVisitor} from './src/namespace-alias-expander';
+export {varNamespaceAliasExpanderVisitor} from './src/var-namespace-alias-expander';
 export {addRequireForGlobalIdentifierVisitor} from './src/add-require-for-global-identifier';
