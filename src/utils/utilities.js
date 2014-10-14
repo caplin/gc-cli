@@ -60,6 +60,24 @@ export function createRequireDeclaration(moduleIdentifier, importedModule) {
 }
 
 /**
+ * Given a namespaced expression AST node it will return the parts for that node.
+ *
+ * @param {AstNode} namespaceExpressionNode - AST node part of namespaced expression.
+ * @param {string[]} namespaceParts - used to build up the labels that make up a fully qualified namespace.
+ * @returns {string[]} the labels that make up a fully qualified namespace.
+ */
+export function getNamespacePath(namespaceExpressionNode, namespaceParts) {
+	if (namedTypes.Identifier.check(namespaceExpressionNode)) {
+		namespaceParts.push(namespaceExpressionNode.name);
+	} else if (namedTypes.MemberExpression.check(namespaceExpressionNode)) {
+		namespaceParts.push(namespaceExpressionNode.property.name);
+		return getNamespacePath(namespaceExpressionNode.object, namespaceParts);
+	}
+
+	return namespaceParts;
+}
+
+/**
  * Checks if variable parts make up a namespace alias.
  *
  * @param {NodePath} varNameNodePath - a variable name NodePath.

@@ -1,6 +1,9 @@
 const {namedTypes} = require('ast-types');
 
-import {isNamespaceAlias} from './utils/utilities';
+import {
+	getNamespacePath,
+	isNamespaceAlias
+} from './utils/utilities';
 
 /**
  * SpiderMonkey AST node.
@@ -47,14 +50,7 @@ export const varNamespaceAliasExpanderVisitor = {
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
-		for (let namespaceAliasValue of this._namespaceAliasBindingsToRemove) {
-			var parent = namespaceAliasValue.parent;
-			namespaceAliasValue.replace();
-
-			if (parent.get('declarations').value.length === 0) {
-				parent.replace();
-			}
-		}
+		removeNamespaceAliases(this._namespaceAliasBindingsToRemove);
 	}
 }
 
@@ -130,5 +126,26 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 				return varValueNodePath;
 			}
 		}
+	}
+}
+
+/**
+ * Once namespace aliases have been expanded to a namespace we can remove the alias bindings.
+ *
+ * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to remove on completion.
+ */
+function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
+	for (let namespaceAlias of namespaceAliasBindingsToRemove) {
+		const parent = namespaceAlias.parent;
+		const aliasName = namespaceAlias.get('id', 'name').value;
+		const namespace = getNamespacePath(namespaceAlias.get('init').node, []).reverse().join('.');
+
+		namespaceAlias.replace();
+
+		if (parent.get('declarations').value.length === 0) {
+			parent.replace();
+		}
+
+		console.log('References to', aliasName, 'have been expanded to', namespace);
 	}
 }
