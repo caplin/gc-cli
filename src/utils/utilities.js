@@ -58,3 +58,35 @@ export function createRequireDeclaration(moduleIdentifier, importedModule) {
 
 	return importDeclaration;
 }
+
+/**
+ * Checks if variable parts make up a namespace alias.
+ *
+ * @param {NodePath} varNameNodePath - a variable name NodePath.
+ * @param {(NodePath|null)} varValueNodePath - a variable value NodePath.
+ * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
+ * @returns {boolean} true if variable parts are a namespace alias.
+ */
+export function isNamespaceAlias(varNameNodePath, varValueNodePath, namespaceRoots) {
+	const isVariableNameIdentifier = namedTypes.Identifier.check(varNameNodePath.node);
+	const isVarValueNamespaced = varValueNodePath && isNamespacedExpression(varValueNodePath, namespaceRoots);
+
+	return isVariableNameIdentifier && isVarValueNamespaced;
+}
+
+/**
+ * Checks if expression is rooted by an identifier with a namespace root name.
+ *
+ * @param {NodePath} expressionNodePath - NodePath to check.
+ * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
+ * @returns {boolean} true if provided expression is part of namespace.
+ */
+function isNamespacedExpression(expressionNodePath, namespaceRoots) {
+	if (namedTypes.Identifier.check(expressionNodePath.node)) {
+		return namespaceRoots.indexOf(expressionNodePath.node.name) > -1;
+	} else if (namedTypes.MemberExpression.check(expressionNodePath.node)) {
+		return isNamespacedExpression(expressionNodePath.get('object'), namespaceRoots);
+	}
+
+	return false;
+}
