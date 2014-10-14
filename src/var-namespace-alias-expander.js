@@ -27,6 +27,7 @@ export const varNamespaceAliasExpanderVisitor = {
 	 */
 	initialize(namespaceRoots) {
 		this._namespaceRoots = namespaceRoots;
+		this._namespaceAliasBindingsToRemove = new Set();
 	},
 
 	/**
@@ -34,10 +35,26 @@ export const varNamespaceAliasExpanderVisitor = {
 	 */
 	visitIdentifier(identifierNodePath) {
 		if (couldIdentifierBeBoundToANamespaceAlias(identifierNodePath)) {
-			expandIdentifierIfItsANamespaceAlias(identifierNodePath, this._namespaceRoots);
+			expandIdentifierIfItsANamespaceAlias(identifierNodePath, this._namespaceRoots, this._namespaceAliasBindingsToRemove);
 		}
 
 		this.traverse(identifierNodePath);
+	},
+
+	/**
+	 * @param {NodePath} programNodePath - Program NodePath.
+	 */
+	visitProgram(programNodePath) {
+		this.traverse(programNodePath);
+
+		for (let namespaceAliasValue of this._namespaceAliasBindingsToRemove) {
+			var parent = namespaceAliasValue.parent;
+			namespaceAliasValue.replace();
+
+			if (parent.get('declarations').value.length === 0) {
+				parent.replace();
+			}
+		}
 	}
 }
 
@@ -64,13 +81,15 @@ function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
  *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
  * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
+ * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to remove on completion.
  */
-function expandIdentifierIfItsANamespaceAlias(identifierNodePath, namespaceRoots) {
+function expandIdentifierIfItsANamespaceAlias(identifierNodePath, namespaceRoots, namespaceAliasBindingsToRemove) {
 	const identifierBindings = getIdentifierBindings(identifierNodePath);
 	const namespaceAliasValue = getNamespaceAliasValue(identifierBindings, namespaceRoots);
 
 	if (namespaceAliasValue) {
 		identifierNodePath.replace(namespaceAliasValue.node);
+		namespaceAliasBindingsToRemove.add(namespaceAliasValue.parent);
 	}
 }
 

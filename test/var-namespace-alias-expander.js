@@ -13,7 +13,7 @@ var expected = fs.readFileSync('test/var-namespace-alias-expander/expected.js', 
 var givenAst = parse(given);
 
 describe('var namespace alias expander', function() {
-	it('should expand namespace aliases with namespaces.', function(done) {
+	it('should expand var namespace aliases with namespaces.', function(done) {
 		System.import('../index')
 			.then(shouldExpandNamespaceAliases.bind(null, done))
 			.catch(function(error) {
