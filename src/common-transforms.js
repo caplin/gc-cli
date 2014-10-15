@@ -11,6 +11,7 @@ import {
 	cjsRequireRemoverVisitor,
 	verifyVarIsAvailableVisitor,
 	namespaceAliasExpanderVisitor,
+	varNamespaceAliasExpanderVisitor,
 	addRequireForGlobalIdentifierVisitor
 } from 'global-compiler';
 
@@ -33,6 +34,19 @@ export function parseJSFile() {
 		vinylFile.ast = fileAST;
 		this.push(vinylFile);
 		callback();
+	});
+}
+
+/**
+ * Expand any var namespace aliases used in the module.
+ *
+ * @param {string[]} rootNamespaces - Array of roots of namespaces.
+ * @returns {Function} Stream transform implementation which .
+ */
+export function expandVarNamespaceAliases(rootNamespaces) {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		varNamespaceAliasExpanderVisitor.initialize(rootNamespaces);
+		transformASTAndPushToNextStream(fileMetadata, varNamespaceAliasExpanderVisitor, this, callback);
 	});
 }
 
