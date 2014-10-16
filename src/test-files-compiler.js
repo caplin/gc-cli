@@ -7,9 +7,9 @@ import {
 	parseJSFile,
 	convertASTToBuffer,
 	transformI18nUsage,
-	expandNamespaceAliases,
 	removeCJSModuleRequires,
-	convertGlobalsToRequires
+	convertGlobalsToRequires,
+	expandVarNamespaceAliases
 } from './common-transforms';
 
 import {transformASTAndPushToNextStream} from './utils/utilities';
@@ -41,7 +41,7 @@ export function compileTestFiles(options) {
 	vinylFs.src('tests/**/*.js')
 		.pipe(parseJSFile())
 		.pipe(through2.obj(flattenProgramIIFE))
-		.pipe(expandNamespaceAliases(options.namespaces))
+		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
 		.pipe(transformI18nUsage())
