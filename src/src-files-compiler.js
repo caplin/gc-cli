@@ -1,12 +1,17 @@
 var fs = require('fs');
 var path = require('path');
 
+var {visit} = require('recast');
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
+var {Sequence} = require('immutable');
 
 import {
 	namespacedClassVisitor,
-	namespacedIIFEClassVisitor
+	flattenMemberExpression,
+	namespacedIIFEClassVisitor,
+	verifyVarIsAvailableVisitor,
+	addRequireForGlobalIdentifierVisitor
 } from 'global-compiler';
 
 import {
@@ -53,6 +58,7 @@ export function compileSourceFiles(options) {
 		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
+		.pipe(transformSLJSUsage())
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
@@ -60,6 +66,36 @@ export function compileSourceFiles(options) {
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', createJSStyleFiles());
+}
+
+/**
+ * This transform is use case specific in that it replaces global references to SLJS with required ones.
+ * The transform is multi-stage as it uses more generic transforms.
+ *
+ * @returns {Function} Stream transform implementation which transforms SLJS usage.
+ */
+export function transformSLJSUsage() {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		//Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
+		verifyVarIsAvailableVisitor.initialize();
+		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
+		var freeSLJSVariation = verifyVarIsAvailableVisitor.getFreeVariation('streamlink');
+
+		//Replace all calls to a certain namespace with calls to the new SLJS identifier.
+		flattenMemberExpression.initialize(['caplin', 'streamlink'], freeSLJSVariation);
+		visit(fileMetadata.ast, flattenMemberExpression);
+
+		//Add a require that requires SLJS into the module.
+		var libraryIdentifiersToRequire = new Map([
+			[Sequence([freeSLJSVariation]), 'sljs']
+		]);
+
+		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
+		visit(fileMetadata.ast, addRequireForGlobalIdentifierVisitor);
+
+		this.push(fileMetadata);
+		callback();
+	});
 }
 
 /**
