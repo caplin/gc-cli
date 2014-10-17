@@ -4,6 +4,7 @@ var my = require("my");
 
 function SimpleClass() {
 	aLibrary().plugin(42);
+	this.member = new otherGlobal.AClass();
 
 	globalLibrary.makeOfTypeGL(this);
 }

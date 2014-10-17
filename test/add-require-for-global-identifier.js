@@ -25,6 +25,7 @@ describe('Add require for global identifier', function() {
 
 function shouldAddRequiresForGlobalIdentifiers(done, transforms) {
 	var identifiersToRequire = new Map([
+		[Sequence.from(['otherGlobal']), 'otherglobal'],
 		[Sequence.from(['globalLibrary']), 'globallibrary'],
 		[Sequence.from(['aLibrary', '()', 'plugin']), 'a-library']
 	]);

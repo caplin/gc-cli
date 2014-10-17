@@ -1,4 +1,5 @@
 var globalLibrary = require("globallibrary");
+var otherGlobal = require("otherglobal");
 var aLibrary = require("a-library");
 var Reference = require("other/some/Reference");
 var SuperClass = require("my/long/name/space/SuperClass");
@@ -6,6 +7,7 @@ var my = require("my");
 
 function SimpleClass() {
 	aLibrary().plugin(42);
+	this.member = new otherGlobal.AClass();
 
 	globalLibrary.makeOfTypeGL(this);
 }
