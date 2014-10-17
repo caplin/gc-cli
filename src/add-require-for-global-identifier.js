@@ -102,7 +102,7 @@ function getNextNodePath(identifierNodePath, identifierSequence) {
 }
 
 /**
- * We don't want to match an identifier if by concidence it's part of a larger expression.
+ * We don't want to match an identifier if by coincidence it's part of a larger expression.
  * i.e. my.expression.jQuery.shouldnt.match.
  *
  * @param {NodePath} identifierNodePath - An identifier NodePath.
@@ -113,6 +113,8 @@ function isStandaloneIdentifier(identifierNodePath) {
 
 	if (namedTypes.CallExpression.check(identifierParentNodePath.node)) {
 		return true;
+	} else if (namedTypes.MemberExpression.check(identifierParentNodePath.node)) {
+		return identifierParentNodePath.get('object') === identifierNodePath;
 	}
 
 	return false;
