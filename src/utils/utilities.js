@@ -52,11 +52,14 @@ export function createRequireDeclaration(moduleIdentifier, importedModule) {
 	const requireCall = builders.callExpression(
 		builders.identifier('require'),	[builders.literal(importedModule)]
 	);
-	const importDeclaration = builders.variableDeclaration(
-		'var', [builders.variableDeclarator(moduleIdentifier, requireCall)]
-	);
 
-	return importDeclaration;
+	if (moduleIdentifier) {
+		return builders.variableDeclaration(
+			'var', [builders.variableDeclarator(moduleIdentifier, requireCall)]
+		);
+	}
+
+	return requireCall;
 }
 
 /**

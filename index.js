@@ -9,3 +9,4 @@ export {verifyVarIsAvailableVisitor} from './src/verify-var-is-available';
 export {namespaceAliasExpanderVisitor} from './src/namespace-alias-expander';
 export {varNamespaceAliasExpanderVisitor} from './src/var-namespace-alias-expander';
 export {addRequireForGlobalIdentifierVisitor} from './src/add-require-for-global-identifier';
+export {replaceLibraryIncludesWithRequiresVisitor} from './src/replace-library-includes-with-requires';
