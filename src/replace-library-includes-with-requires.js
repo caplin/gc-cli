@@ -36,7 +36,7 @@ export const replaceLibraryIncludesWithRequiresVisitor = {
 		this._libraryIncludesInModule = new Map();
 		this._moduleIDsRequiredInModule = new Set();
 		this._moduleIDsToRequire = moduleIDsToRequire;
-		this._libraryIncludeSequence = Sequence(libraryIncludeSequence.toArray().reverse());
+		this._libraryIncludeSequence = Sequence(libraryIncludeSequence.reverse());
 	},
 
 	/**
