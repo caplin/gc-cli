@@ -11,7 +11,8 @@ import {
 	cjsRequireRemoverVisitor,
 	verifyVarIsAvailableVisitor,
 	varNamespaceAliasExpanderVisitor,
-	addRequireForGlobalIdentifierVisitor
+	addRequireForGlobalIdentifierVisitor,
+	replaceLibraryIncludesWithRequiresVisitor
 } from 'global-compiler';
 
 import {
@@ -114,6 +115,20 @@ export function transformI18nUsage() {
 
 		this.push(fileMetadata);
 		callback();
+	});
+}
+
+/**
+ * This transform replaces non standard library includes with standard CJS module requires.
+ *
+ * @param {Set<string>} libraryIncludesToRequire - The library includes to replace with requires when found.
+ * @param {Sequence<string>} libraryIncludeSequence - A sequence of names that correspond to a library include.
+ * @returns {Function} Stream transform implementation which replaces library includes with module requires.
+ */
+export function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, libraryIncludeSequence) {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeSequence);
+		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, this, callback);
 	});
 }
 
