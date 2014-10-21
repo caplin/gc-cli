@@ -6,9 +6,9 @@ import {varNamespaceAliasExpanderVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'test/var-namespace-alias-expander/';
-const givenFile = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedFile = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
-const givenAST = parse(givenFile);
+const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
+const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
+const givenAST = parse(givenCode);
 
 describe('var namespace alias expander', () => {
 	it('should expand var namespace aliases to namespaces.', () => {
@@ -19,6 +19,6 @@ describe('var namespace alias expander', () => {
 		visit(givenAST, varNamespaceAliasExpanderVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedFile);
+		assert.equal(print(givenAST).code, expectedCode);
 	});
 });

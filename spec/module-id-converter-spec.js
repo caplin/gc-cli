@@ -1,15 +1,14 @@
 const fs = require('fs');
 const assert = require('assert');
 
-const {Sequence} = require('immutable');
 const {parse, print, visit} = require('recast');
 import {moduleIdVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'test/module-id-converter/';
-const givenFile = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedFile = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
-const givenAST = parse(givenFile);
+const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
+const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
+const givenAST = parse(givenCode);
 
 describe('Module ID converter', function() {
 	it('should transform specified module IDs.', function() {
@@ -22,6 +21,6 @@ describe('Module ID converter', function() {
 		visit(givenAST, moduleIdVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedFile);
+		assert.equal(print(givenAST).code, expectedCode);
 	});
 });

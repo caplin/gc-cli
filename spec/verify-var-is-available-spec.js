@@ -6,8 +6,8 @@ import {verifyVarIsAvailableVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'test/verify-var-is-available/';
-const givenFile = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const givenAST = parse(givenFile);
+const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
+const givenAST = parse(givenCode);
 
 describe('verify var is available', function() {
 	it('should correctly identify a free var name.', function() {

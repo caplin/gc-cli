@@ -1,7 +1,6 @@
 const fs = require('fs');
 const assert = require('assert');
 
-const {Sequence} = require('immutable');
 const {parse, print, visit} = require('recast');
 import {cjsRequireRemoverVisitor} from '../index';
 

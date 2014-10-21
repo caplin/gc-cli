@@ -7,9 +7,9 @@ import {replaceLibraryIncludesWithRequiresVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'test/replace-library-includes-with-requires/';
-const givenFile = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedFile = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
-const givenAST = parse(givenFile);
+const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
+const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
+const givenAST = parse(givenCode);
 
 describe('replace library includes with requires', function() {
 	it('should remove library includes and add requires.', function() {
@@ -23,6 +23,6 @@ describe('replace library includes with requires', function() {
 		visit(givenAST, replaceLibraryIncludesWithRequiresVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedFile);
+		assert.equal(print(givenAST).code, expectedCode);
 	});
 });
