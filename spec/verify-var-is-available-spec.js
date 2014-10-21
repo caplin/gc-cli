@@ -5,7 +5,7 @@ const {parse, visit} = require('recast');
 import {verifyVarIsAvailableVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'test/verify-var-is-available/';
+const testResourcesLocation = 'spec/resources/verify-var-is-available/';
 const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
 const givenAST = parse(givenCode);
 

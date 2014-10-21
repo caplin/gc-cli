@@ -5,7 +5,7 @@ const {parse, print, visit} = require('recast');
 import {namespacedClassVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'test/flatten/';
+const testResourcesLocation = 'spec/resources/flatten/';
 
 const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
 const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);

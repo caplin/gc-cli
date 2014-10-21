@@ -5,7 +5,7 @@ const {parse, print, visit} = require('recast');
 import {namespacedIIFEClassVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'test/iife-flatten/';
+const testResourcesLocation = 'spec/resources/iife-flatten/';
 const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
 const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
 const givenAST = parse(givenCode);

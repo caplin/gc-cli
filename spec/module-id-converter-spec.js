@@ -5,7 +5,7 @@ const {parse, print, visit} = require('recast');
 import {moduleIdVisitor} from '../index';
 
 const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'test/module-id-converter/';
+const testResourcesLocation = 'spec/resources/module-id-converter/';
 const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
 const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
 const givenAST = parse(givenCode);
