@@ -6,5 +6,5 @@
   "helpers": [
     "helpers/**/*.js"
   ],
-  "loader": "./resources/loader.js"
+  "loader": "./spec/support/loader.js"
 }
