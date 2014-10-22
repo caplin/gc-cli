@@ -1,10 +1,4 @@
-const System = require('systemjs');
-
-System.config({
-	map: {
-		'global-compiler': 'node_modules/global-compiler/index'
-	}
-});
+"format es6";
 
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +9,7 @@ const {parse, print} = require('recast');
 import {
 	processFile,
 	createOptionsObject
-} from '../index';
+} from '../src/index';
 
 const commandOptions = {
 	_: [],
