@@ -32,7 +32,7 @@ const testCommandOptions = {
 	outputDirectory: './test-output'
 };
 
-process.chdir('test');
+process.chdir('spec/resources');
 
 const expectedDirectory = 'expected/';
 const fileOptions = {encoding: 'utf-8'};
@@ -44,7 +44,7 @@ const expectedTestStyleFile = fs.readFileSync(expectedDirectory + 'expected-test
 const filesToCleanUp = ['output', 'test-output', '.js-style', path.join('tests', '.js-style')];
 
 describe('GlobalCompiler conversion', () => {
-	beforeEach((done) => del(filesToCleanUp, (error) => done(error)));
+	afterEach((done) => del(filesToCleanUp, (error) => done(error)));
 
 	it('should convert namespaced code into CJS.', (done) => {
 		//Given.
