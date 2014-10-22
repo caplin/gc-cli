@@ -89,6 +89,7 @@ export const rootNamespaceVisitor = {
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
+		preventClashesWithGlobals(this._moduleIdentifiers);
 		insertExportsStatement(this._className, this._programStatements);
 		findUniqueIdentifiersForModules(this._fullyQualifiedNameData, this._moduleIdentifiers);
 		transformAllNamespacedExpressions(this._fullyQualifiedNameData, this._programStatements);
@@ -249,4 +250,13 @@ function transformAllNamespacedExpressions(fullyQualifiedNameData, programStatem
 		programStatements.unshift(importDeclaration);
 		nodePathsToTransform.forEach((nodePathToTransform) => nodePathToTransform.replace(moduleIdentifier));
 	});
+}
+
+/**
+ * Ensure module identifiers don't clash with global identifiers.
+ *
+ * @param {Set} moduleIdentifiers - all variable names declared in the module.
+ */
+function preventClashesWithGlobals(moduleIdentifiers) {
+	moduleIdentifiers.add('Number').add('Error');
 }

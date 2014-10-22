@@ -1,6 +1,7 @@
 var MyConstants = require("my/other/constant/MyConstants");
 var Factory__1 = require("my/other/name/space/duplicate/Factory");
 var Reference = require("other/some/Reference");
+var Number__1 = require("my/class/that/clashes/Number");
 var ClassWithConstants = require("my/constant/ClassWithConstants");
 var SomeController__1 = require("other/spaced/class/SomeController");
 var SimpleClass__1 = require("my/long/different/space/SimpleClass");
@@ -26,6 +27,7 @@ SimpleClass.prototype._initMethod = function() {
 	var SomeController = SomeController__1;
 	var SomeConstants = ClassWithConstants.CONSTANTS_REFERENCE;
 
+	this.usingClassNameThatClashesWithGlobalNumber = new Number__1();
 	this.controller = new SomeController(SomeConstants.A_CONSTANT, Reference.SOME_CONSTANT);
 
 	this.controller.someCall(Reference.ANOTHER_CONSTANT);

@@ -14,6 +14,7 @@ SimpleClass.prototype._initMethod = function() {
 	var SomeController = other.spaced.class.SomeController;
 	var SomeConstants = my.constant.ClassWithConstants.CONSTANTS_REFERENCE;
 
+	this.usingClassNameThatClashesWithGlobalNumber = new my.class.that.clashes.Number();
 	this.controller = new SomeController(SomeConstants.A_CONSTANT, other.some.Reference.SOME_CONSTANT);
 
 	this.controller.someCall(other.some.Reference.ANOTHER_CONSTANT);

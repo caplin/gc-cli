@@ -1,5 +1,4 @@
 const fs = require('fs');
-const assert = require('assert');
 
 const {parse, print, visit} = require('recast');
 import {rootNamespaceVisitor} from '../index';
@@ -19,6 +18,6 @@ describe('Global to CJS conversion', function() {
 		visit(givenAST, rootNamespaceVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		expect(print(givenAST).code).toBe(expectedCode);
 	});
 });
