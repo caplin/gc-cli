@@ -22,6 +22,8 @@ export function transformASTAndPushToNextStream(fileMetadata, visitor, streamTra
 	try {
 		visit(fileMetadata.ast, visitor);
 	} catch (error) {
+		console.error(visitor);
+		console.error(fileMetadata);
 		console.error(chalk.red(error));
 		callback(error);
 	}
