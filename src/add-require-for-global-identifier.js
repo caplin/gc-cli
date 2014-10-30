@@ -1,5 +1,4 @@
-const builders = require('ast-types').builders;
-const namedTypes = require('ast-types').namedTypes;
+const {builders, namedTypes} = require('ast-types');
 
 import {createRequireDeclaration} from './utils/utilities';
 
