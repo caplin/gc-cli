@@ -1,6 +1,5 @@
 const {Sequence} = require('immutable');
-const {builders} = require('ast-types');
-const {namedTypes} = require('ast-types');
+const {builders, namedTypes} = require('ast-types');
 
 import {
 	createRequireDeclaration,
