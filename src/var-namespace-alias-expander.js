@@ -96,8 +96,8 @@ function expandIdentifierIfItsANamespaceAlias(identifierNodePath, namespaceRoots
  * @returns {NodePath[]} Array of all identifier's bindings in the scope it's bound in.
  */
 function getIdentifierBindings(identifierNodePath) {
-	var identifierName = identifierNodePath.node.name;
-	var identifierScope = identifierNodePath.scope.lookup(identifierName);
+	const identifierName = identifierNodePath.node.name;
+	const identifierScope = identifierNodePath.scope.lookup(identifierName);
 
 	if (identifierScope) {
 		return identifierScope.getBindings()[identifierName];
@@ -116,7 +116,7 @@ function getIdentifierBindings(identifierNodePath) {
  */
 function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 	if (identifierBindings.length === 1) {
-		var identifierBinding = identifierBindings[0];
+		const identifierBinding = identifierBindings[0];
 
 		if (namedTypes.VariableDeclarator.check(identifierBinding.parent.node)) {
 			const varNameNodePath = identifierBinding.parent.get("id");
