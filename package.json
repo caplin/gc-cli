@@ -10,7 +10,6 @@
     "immutable": "^2.5.0"
   },
   "devDependencies": {
-    "eslint": "^0.8.1",
     "jasmine": "git://github.com/briandipalma/jasmine-npm",
     "mocha": "^2.0.1",
     "recast": "^0.8.0",
