@@ -12,7 +12,7 @@
   "devDependencies": {
     "jasmine": "git://github.com/briandipalma/jasmine-npm",
     "mocha": "^2.0.1",
-    "recast": "^0.8.0",
+    "recast": "^0.9.2",
     "systemjs": "^0.9.1",
     "through2": "^0.6.1"
   }
