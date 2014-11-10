@@ -1,4 +1,4 @@
-const {Sequence} = require('immutable');
+const {Iterable} = require('immutable');
 const {builders, namedTypes} = require('ast-types');
 
 import {
@@ -46,7 +46,7 @@ export const rootNamespaceVisitor = {
 		this._moduleIdentifiers = new Set();
 		this._fullyQualifiedNameData = new Map();
 		this._programStatements = programStatements;
-		this._namespaceRoots = namespaceRoots.map(rootNamespace => Sequence([rootNamespace]));
+		this._namespaceRoots = namespaceRoots.map(rootNamespace => Iterable([rootNamespace]));
 	},
 
 	/**

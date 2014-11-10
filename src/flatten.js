@@ -1,4 +1,4 @@
-const Sequence = require('immutable').Sequence;
+const {Iterable} = require('immutable');
 const builders = require('ast-types').builders;
 const namedTypes = require('ast-types').namedTypes;
 
@@ -28,8 +28,8 @@ export const namespacedClassVisitor = {
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
 	initialize(fullyQualifiedName) {
-		this._namespaceSequence = Sequence(fullyQualifiedName.split('.').reverse());
-		this._className = this._namespaceSequence.first();
+		this._namespaceIterable = Iterable(fullyQualifiedName.split('.').reverse());
+		this._className = this._namespaceIterable.first();
 	},
 
 	/**
@@ -38,7 +38,7 @@ export const namespacedClassVisitor = {
 	visitIdentifier(identifierNodePath) {
 		const parent = identifierNodePath.parent;
 
-		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceSequence)) {
+		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceIterable)) {
 			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
 		}
 
@@ -51,12 +51,12 @@ export const namespacedClassVisitor = {
  *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
  * @param {NodePath} identifierParentNodePath - Identifier parent NodePath.
- * @param {Sequence<string>} namespaceSequence - Fully qualified class name sequence.
+ * @param {Iterable<string>} namespaceIterable - Fully qualified class name iterable.
  * @returns {boolean} true if identifier is root of a class namespaced expression.
  */
-function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceSequence) {
+function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceIterable) {
 	const isRootOfNamespace = (identifierParentNodePath.get('property') === identifierNodePath);
-	const isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceSequence);
+	const isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceIterable);
 
 	return isInClassNamespace && isRootOfNamespace;
 }

@@ -1,4 +1,4 @@
-const {Sequence} = require('immutable');
+const {Iterable} = require('immutable');
 const {builders, namedTypes} = require('ast-types');
 
 import {
@@ -29,13 +29,13 @@ import {
 export const replaceLibraryIncludesWithRequiresVisitor = {
 	/**
 	 * @param {Set<string>} moduleIDsToRequire - The module IDs to require if included by non standard means.
-	 * @param {Sequence<string>} libraryIncludeSequence - A sequence of names that correspond to a library include.
+	 * @param {Iterable<string>} libraryIncludeIterable - A Iterable of names that correspond to a library include.
 	 */
-	initialize(moduleIDsToRequire, libraryIncludeSequence) {
+	initialize(moduleIDsToRequire, libraryIncludeIterable) {
 		this._libraryIncludesInModule = new Map();
 		this._moduleIDsRequiredInModule = new Set();
 		this._moduleIDsToRequire = moduleIDsToRequire;
-		this._libraryIncludeSequence = Sequence(libraryIncludeSequence.reverse());
+		this._libraryIncludeIterable = libraryIncludeIterable.reverse();
 	},
 
 	/**
@@ -45,7 +45,7 @@ export const replaceLibraryIncludesWithRequiresVisitor = {
 		if (isRequire(callExpressionNodePath)) {
 			const requireArgument = callExpressionNodePath.get('arguments', 0, 'value');
 			this._moduleIDsRequiredInModule.add(requireArgument.value);
-		} else if (isALibraryInclude(callExpressionNodePath, this._libraryIncludeSequence)) {
+		} else if (isALibraryInclude(callExpressionNodePath, this._libraryIncludeIterable)) {
 			const requireArgument = callExpressionNodePath.get('arguments', 0, 'value');
 			this._libraryIncludesInModule.set(callExpressionNodePath, requireArgument.value);
 		}
@@ -93,11 +93,11 @@ function isRequire(callExpression) {
  * Checks if the given Node Path is a library include CallExpression.
  *
  * @param {NodePath} callExpression - CallExpression NodePath.
- * @param {Sequence<string>} libraryIncludeSequence - A sequence of names that correspond to a library include.
+ * @param {Iterable<string>} libraryIncludeIterable - A Iterable of names that correspond to a library include.
  * @returns {boolean} true if the call expression is a library include.
  */
-function isALibraryInclude(callExpression, libraryIncludeSequence) {
+function isALibraryInclude(callExpression, libraryIncludeIterable) {
 	const callee = callExpression.get('callee');
 
-	return isNamespacedExpressionNode(callee.node, libraryIncludeSequence);
+	return isNamespacedExpressionNode(callee.node, libraryIncludeIterable);
 }

@@ -1,4 +1,4 @@
-const Sequence = require('immutable').Sequence;
+const {Iterable} = require('immutable');
 const namedTypes = require('ast-types').namedTypes;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
@@ -27,8 +27,8 @@ export const namespacedIIFEClassVisitor = {
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
 	initialize(fullyQualifiedName) {
-		this._namespaceSequence = Sequence(fullyQualifiedName.split('.').reverse());
-		this._className = this._namespaceSequence.first();
+		this._namespaceIterable = Iterable(fullyQualifiedName.split('.').reverse());
+		this._className = this._namespaceIterable.first();
 	},
 
 	/**
@@ -37,7 +37,7 @@ export const namespacedIIFEClassVisitor = {
 	visitIdentifier(identifierNodePath) {
 		const parent = identifierNodePath.parent;
 
-		if (isNamespacedExpressionNode(parent.node, this._namespaceSequence)
+		if (isNamespacedExpressionNode(parent.node, this._namespaceIterable)
 			&& isRootPartOfIIFE(parent, identifierNodePath)) {
 			replaceIIFEWithItsContents(parent.parent, this._className);
 		}

@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "ast-types": "^0.6.0",
-    "immutable": "^2.5.0"
+    "immutable": "^3.0.3"
   },
   "devDependencies": {
     "jasmine": "git://github.com/briandipalma/jasmine-npm",

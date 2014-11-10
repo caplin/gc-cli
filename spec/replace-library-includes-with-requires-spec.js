@@ -1,7 +1,7 @@
 const fs = require('fs');
 const assert = require('assert');
 
-const {Sequence} = require('immutable');
+const {Iterable} = require('immutable');
 const {parse, print, visit} = require('recast');
 import {replaceLibraryIncludesWithRequiresVisitor} from '../index';
 
@@ -15,9 +15,9 @@ describe('replace library includes with requires', function() {
 	it('should remove library includes and add requires.', function() {
 		//Given.
 		const moduleIDsToRequire = new Set(['libraryplugin']);
-		const libraryIncludeSequence = Sequence.from(['my', 'libraryinclude']);
+		const libraryIncludeIterable = Iterable(['my', 'libraryinclude']);
 
-		replaceLibraryIncludesWithRequiresVisitor.initialize(moduleIDsToRequire, libraryIncludeSequence);
+		replaceLibraryIncludesWithRequiresVisitor.initialize(moduleIDsToRequire, libraryIncludeIterable);
 
 		//When.
 		visit(givenAST, replaceLibraryIncludesWithRequiresVisitor);

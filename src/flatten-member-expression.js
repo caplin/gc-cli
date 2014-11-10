@@ -1,4 +1,4 @@
-const Sequence = require('immutable').Sequence;
+const {Iterable} = require('immutable');
 const builders = require('ast-types').builders;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
@@ -27,7 +27,7 @@ export const flattenMemberExpression = {
 	 * @param {string} replacementIdentifier - The name of the identifier to replace the flattened member expression.
 	 */
 	initialize(memberExpressionParts, replacementIdentifier) {
-		this._memberExpressionParts = Sequence(memberExpressionParts.reverse());
+		this._memberExpressionParts = Iterable(memberExpressionParts.reverse());
 		this._replacementIdentifier = builders.identifier(replacementIdentifier);
 	},
 

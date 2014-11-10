@@ -1,23 +1,23 @@
-const {Sequence} = require('immutable');
+const {Iterable} = require('immutable');
 const {builders, namedTypes} = require('ast-types');
 
 /**
  * Returns true if the provided Expression node is a leaf node of a namespace.
  *
  * @param {AstNode} expressionNode - Expression AstNode.
- * @param {Sequence<string>} namespaceSequence - A sequence of names to match the expressionNode to.
+ * @param {Iterable<string>} namespaceIterable - An Iterable of names to match the expressionNode to.
  * @returns {boolean} true if the node is a leaf namespace node.
  */
-export function isNamespacedExpressionNode(expressionNode, namespaceSequence) {
+export function isNamespacedExpressionNode(expressionNode, namespaceIterable) {
 	if (namedTypes.Identifier.check(expressionNode)) {
-		return expressionNode.name === namespaceSequence.first() && namespaceSequence.count() === 1;
+		return expressionNode.name === namespaceIterable.first() && namespaceIterable.count() === 1;
 	} else if (namedTypes.MemberExpression.check(expressionNode)) {
-		const shortenedSequence = Sequence(namespaceSequence.skip(1).toArray());
+		const shortenedIterable = Iterable(namespaceIterable.skip(1).toArray());
 		const isPropertyIdentifier = namedTypes.Identifier.check(expressionNode.property);
-		const isIdentifierANamespaceLeaf = expressionNode.property.name === namespaceSequence.first();
+		const isIdentifierANamespaceLeaf = expressionNode.property.name === namespaceIterable.first();
 
 		return isPropertyIdentifier && isIdentifierANamespaceLeaf &&
-			  isNamespacedExpressionNode(expressionNode.object, shortenedSequence);
+			  isNamespacedExpressionNode(expressionNode.object, shortenedIterable);
 	}
 
 	return false;
