@@ -8,7 +8,7 @@
     "ast-types": "^0.5.0",
     "chalk": "^0.5.1",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
-    "immutable": "^2.0.17",
+    "immutable": "^3.0.3",
     "minimist": "^1.1.0",
     "recast": "^0.8.0",
     "systemjs": "^0.9.1",

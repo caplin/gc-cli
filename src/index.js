@@ -1,4 +1,4 @@
-var Sequence = require('immutable').Sequence;
+const {Iterable} = require('immutable');
 
 import {compileTestFiles} from './test-files-compiler';
 import {compileSourceFiles} from './src-files-compiler';
@@ -11,9 +11,9 @@ import {compileSourceFiles} from './src-files-compiler';
  * @property {boolean} compileTestFiles - True if files to compile are test files.
  * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
  * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
- * @property {Map<Sequence<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
+ * @property {Map<Iterable<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
  * @property {Set<string>} libraryIncludesToRequire - Library includes that should be transformed to requires when found.
- * @property {Sequence<string>} libraryIncludeSequence - The MemberExpression sequence that corresponds to a library include.
+ * @property {Iterable<string>} libraryIncludeIterable - The MemberExpression sequence that corresponds to a library include.
  */
 
 /**
@@ -36,12 +36,12 @@ export function createOptionsObject(options) {
 	}
 
 	optionsObject.libraryIdentifiersToRequire = new Map([
-		[Sequence(['emitr']), 'emitr'],
-		[Sequence(['moment', '()', 'tz']), 'moment-timezone']
+		[Iterable(['emitr']), 'emitr'],
+		[Iterable(['moment', '()', 'tz']), 'moment-timezone']
 	]);
 
 	optionsObject.libraryIncludesToRequire = new Set(['chosen']);
-	optionsObject.libraryIncludeSequence = Sequence.from(['caplin', 'thirdparty']);
+	optionsObject.libraryIncludeIterable = Iterable(['caplin', 'thirdparty']);
 
 	return optionsObject;
 }

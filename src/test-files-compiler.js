@@ -22,9 +22,9 @@ import {transformASTAndPushToNextStream} from './utils/utilities';
  * @property {boolean} compileTestFiles - True if files to compile are test files.
  * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
  * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
- * @property {Map<Sequence<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
+ * @property {Map<Iterable<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
  * @property {Set<string>} libraryIncludesToRequire - Library includes that should be transformed to requires when found.
- * @property {Sequence<string>} libraryIncludeSequence - The MemberExpression sequence that corresponds to a library include.
+ * @property {Iterable<string>} libraryIncludeIterable - The MemberExpression sequence that corresponds to a library include.
  */
 
 /**

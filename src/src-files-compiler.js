@@ -4,7 +4,7 @@ var path = require('path');
 var {visit} = require('recast');
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
-var {Sequence} = require('immutable');
+var {Iterable} = require('immutable');
 
 import {
 	namespacedClassVisitor,
@@ -38,9 +38,9 @@ import {
  * @property {boolean} compileTestFiles - True if files to compile are test files.
  * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
  * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
- * @property {Map<Sequence<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
+ * @property {Map<Iterable<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
  * @property {Set<string>} libraryIncludesToRequire - Library includes that should be transformed to requires when found.
- * @property {Sequence<string>} libraryIncludeSequence - The MemberExpression sequence that corresponds to a library include.
+ * @property {Iterable<string>} libraryIncludeIterable - The MemberExpression sequence that corresponds to a library include.
  */
 
 /**
@@ -66,7 +66,7 @@ export function compileSourceFiles(options) {
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
-		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeSequence))
+		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', createJSStyleFiles());
@@ -91,7 +91,7 @@ export function transformSLJSUsage() {
 
 		//Add a require that requires SLJS into the module.
 		var libraryIdentifiersToRequire = new Map([
-			[Sequence([freeSLJSVariation]), 'sljs']
+			[Iterable([freeSLJSVariation]), 'sljs']
 		]);
 
 		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);

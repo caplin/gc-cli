@@ -82,7 +82,7 @@ export function removeCJSModuleRequires(moduleIDsToRemove) {
  * This transform adds requires to a module based on it finding certain identifiers in the module.
  * It is meant to allow discoverability of global references to libraries in modules and conversion to module imports.
  *
- * @param {Map<Sequence<string>, string>} libraryIdentifiersToRequire - The identifiers that should be required.
+ * @param {Map<Iterable<string>, string>} libraryIdentifiersToRequire - The identifiers that should be required.
  */
 export function addRequiresForLibraries(libraryIdentifiersToRequire) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
@@ -122,12 +122,12 @@ export function transformI18nUsage() {
  * This transform replaces non standard library includes with standard CJS module requires.
  *
  * @param {Set<string>} libraryIncludesToRequire - The library includes to replace with requires when found.
- * @param {Sequence<string>} libraryIncludeSequence - A sequence of names that correspond to a library include.
+ * @param {Iterable<string>} libraryIncludeIterable - A sequence of names that correspond to a library include.
  * @returns {Function} Stream transform implementation which replaces library includes with module requires.
  */
-export function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, libraryIncludeSequence) {
+export function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, libraryIncludeIterable) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeSequence);
+		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeIterable);
 		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, this, callback);
 	});
 }
