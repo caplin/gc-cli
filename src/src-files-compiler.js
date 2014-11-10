@@ -136,8 +136,21 @@ function flattenClass(fileMetadata, encoding, callback) {
  * Creates files required to notify module loader of file type.
  */
 function createJSStyleFiles() {
+	let failedWrites = 0;
+
+	function failedToWriteTestJsStyleFile (error) {
+		if (error) {
+			failedWrites++;
+		}
+
+		if (failedWrites === 2) {
+			console.warn('\nNo tests/test .js-style file was created, this may be due to the fact there are no tests');
+		}
+	}
+
 	return function() {
 		fs.writeFile('.js-style', 'common-js');
-		fs.writeFile(path.join('tests', '.js-style'), 'namespaced-js');
+		fs.writeFile(path.join('test', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
+		fs.writeFile(path.join('tests', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
 	}
 }
