@@ -40,9 +40,11 @@ export const rootNamespaceVisitor = {
 	 * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
 	 * @param {AstNode[]} programStatements - Program body statements.
 	 * @param {string} className - The class name to export.
+	 * @param {boolean} [insertExport=true] - Should an export statement be added.
 	 */
-	initialize(namespaceRoots, programStatements, className) {
+	initialize(namespaceRoots, programStatements, className, insertExport=true) {
 		this._className = className;
+		this._insertExport = insertExport;
 		this._moduleIdentifiers = new Set();
 		this._fullyQualifiedNameData = new Map();
 		this._programStatements = programStatements;
@@ -90,7 +92,9 @@ export const rootNamespaceVisitor = {
 		this.traverse(programNodePath);
 
 		preventClashesWithGlobals(this._moduleIdentifiers);
-		insertExportsStatement(this._className, this._programStatements);
+		if (this._insertExport) {
+			insertExportsStatement(this._className, this._programStatements);
+		}
 		findUniqueIdentifiersForModules(this._fullyQualifiedNameData, this._moduleIdentifiers);
 		transformAllNamespacedExpressions(this._fullyQualifiedNameData, this._programStatements);
 	}
