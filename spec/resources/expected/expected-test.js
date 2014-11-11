@@ -27,4 +27,3 @@ var testCase = {
 };
 
 TestCase("MyTest", sinon.testCase(testCase));
-module.exports = MyTest;

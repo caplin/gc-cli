@@ -44,7 +44,7 @@ export function compileTestFiles(options) {
 		.pipe(parseJSFile())
 		.pipe(through2.obj(flattenProgramIIFE))
 		.pipe(expandVarNamespaceAliases(options.namespaces))
-		.pipe(convertGlobalsToRequires(options.namespaces))
+		.pipe(convertGlobalsToRequires(options.namespaces, false))
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
 		.pipe(transformI18nUsage())
 		.pipe(convertASTToBuffer())

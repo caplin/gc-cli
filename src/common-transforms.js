@@ -54,13 +54,14 @@ export function expandVarNamespaceAliases(rootNamespaces) {
  * Given namespace roots flatten all classes referenced in those namespaces and require them.
  *
  * @param {string[]} rootNamespaces - Array of roots of namespaces to convert to CJS modules.
+ * @param {boolean} [insertExport=true] - Should an export statement be added.
  * @returns {Function} Stream transform implementation which replaces all global namespaced code with module references.
  */
-export function convertGlobalsToRequires(rootNamespaces) {
+export function convertGlobalsToRequires(rootNamespaces, insertExport) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		var className = getFileNamespaceParts(fileMetadata).pop();
 
-		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className);
+		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className, insertExport);
 		transformASTAndPushToNextStream(fileMetadata, rootNamespaceVisitor, this, callback);
 	});
 }
