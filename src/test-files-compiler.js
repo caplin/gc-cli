@@ -10,7 +10,8 @@ import {
 	addRequiresForLibraries,
 	removeCJSModuleRequires,
 	convertGlobalsToRequires,
-	expandVarNamespaceAliases
+	expandVarNamespaceAliases,
+	replaceLibraryIncludesWithRequires
 } from './common-transforms';
 
 import {transformASTAndPushToNextStream} from './utils/utilities';
@@ -49,6 +50,7 @@ export function compileTestFiles(options) {
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
+		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory));
 }
