@@ -1,3 +1,4 @@
+var sinon = require("sinonjs");
 var i18n = require("br/I18n");
 my.lib("sinonjs");
 
