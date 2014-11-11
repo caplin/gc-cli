@@ -7,6 +7,7 @@ import {
 	parseJSFile,
 	convertASTToBuffer,
 	transformI18nUsage,
+	addRequiresForLibraries,
 	removeCJSModuleRequires,
 	convertGlobalsToRequires,
 	expandVarNamespaceAliases
@@ -46,6 +47,7 @@ export function compileTestFiles(options) {
 		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(convertGlobalsToRequires(options.namespaces, false))
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
+		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory));

@@ -37,6 +37,7 @@ export function createOptionsObject(options) {
 
 	optionsObject.libraryIdentifiersToRequire = new Map([
 		[Iterable(['emitr']), 'emitr'],
+		[Iterable(['sinon']), 'sinonjs'],
 		[Iterable(['moment', '()', 'tz']), 'moment-timezone']
 	]);
 
