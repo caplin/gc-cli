@@ -15,3 +15,9 @@ $ npm t
 ```bash
 $ gc-cli --namespaces myroot,otherroot,someroot
 ```
+
+* `--compileTestFiles` or `-t` convert `tests`, use a transform pipeline configured for tests.
+
+```bash
+$ gc-cli --compileTestFiles
+```
