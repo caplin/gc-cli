@@ -1,7 +1,10 @@
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 
-import {flattenProgramIIFEVisitor} from 'global-compiler';
+import {
+	wrapModuleInIIFEVisitor,
+	flattenProgramIIFEVisitor
+} from 'global-compiler';
 
 import {
 	parseJSFile,
@@ -51,6 +54,7 @@ export function compileTestFiles(options) {
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
+		.pipe(through2.obj(wrapModuleInIIFE))
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory));
 }
@@ -65,4 +69,16 @@ export function compileTestFiles(options) {
  */
 function flattenProgramIIFE(fileMetadata, encoding, callback) {
 	transformASTAndPushToNextStream(fileMetadata, flattenProgramIIFEVisitor, this, callback);
+}
+
+/**
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {FileMetadata} fileMetadata - File meta data for file being transformed.
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ */
+function wrapModuleInIIFE(fileMetadata, encoding, callback) {
+	transformASTAndPushToNextStream(fileMetadata, wrapModuleInIIFEVisitor, this, callback);
 }
