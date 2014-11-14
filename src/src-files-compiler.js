@@ -16,6 +16,7 @@ import {
 
 import {
 	parseJSFile,
+	transformSLJSUsage,
 	convertASTToBuffer,
 	transformI18nUsage,
 	removeCJSModuleRequires,
@@ -70,36 +71,6 @@ export function compileSourceFiles(options) {
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', createJSStyleFiles());
-}
-
-/**
- * This transform is use case specific in that it replaces global references to SLJS with required ones.
- * The transform is multi-stage as it uses more generic transforms.
- *
- * @returns {Function} Stream transform implementation which transforms SLJS usage.
- */
-export function transformSLJSUsage() {
-	return through2.obj(function(fileMetadata, encoding, callback) {
-		//Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
-		verifyVarIsAvailableVisitor.initialize();
-		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
-		var freeSLJSVariation = verifyVarIsAvailableVisitor.getFreeVariation('streamlink');
-
-		//Replace all calls to a certain namespace with calls to the new SLJS identifier.
-		flattenMemberExpression.initialize(['caplin', 'streamlink'], freeSLJSVariation);
-		visit(fileMetadata.ast, flattenMemberExpression);
-
-		//Add a require that requires SLJS into the module.
-		var libraryIdentifiersToRequire = new Map([
-			[Iterable([freeSLJSVariation]), 'sljs']
-		]);
-
-		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
-		visit(fileMetadata.ast, addRequireForGlobalIdentifierVisitor);
-
-		this.push(fileMetadata);
-		callback();
-	});
 }
 
 /**

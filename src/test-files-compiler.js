@@ -8,6 +8,7 @@ import {
 
 import {
 	parseJSFile,
+	transformSLJSUsage,
 	convertASTToBuffer,
 	transformI18nUsage,
 	addRequiresForLibraries,
@@ -49,6 +50,7 @@ export function compileTestFiles(options) {
 		.pipe(parseJSFile())
 		.pipe(through2.obj(flattenProgramIIFE))
 		.pipe(expandVarNamespaceAliases(options.namespaces))
+		.pipe(transformSLJSUsage())
 		.pipe(convertGlobalsToRequires(options.namespaces, false))
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
