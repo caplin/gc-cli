@@ -5,6 +5,7 @@ var {visit} = require('recast');
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 var {Iterable} = require('immutable');
+const esformatter = require('esformatter');
 
 import {
 	namespacedClassVisitor,
@@ -69,6 +70,7 @@ export function compileSourceFiles(options) {
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
 		.pipe(convertASTToBuffer())
+		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', createJSStyleFiles());
 }
@@ -101,6 +103,24 @@ function flattenClass(fileMetadata, encoding, callback) {
 
 	namespacedClassVisitor.initialize(classNamespace);
 	transformASTAndPushToNextStream(fileMetadata, namespacedClassVisitor, this, callback);
+}
+
+/**
+ * Formats code based on provided formatter options.
+ *
+ * @param   {Object} formatterOptions - Options to configure formatting.
+ * @returns {Function} Stream transform implementation which formats JS files.
+ */
+function formatCode(formatterOptions) {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		const codeToFormat = fileMetadata.contents.toString();
+		const formattedCode = esformatter.format(codeToFormat, formatterOptions);
+		const convertedCodeBuffer = new Buffer(formattedCode);
+
+		fileMetadata.contents = convertedCodeBuffer;
+		this.push(fileMetadata);
+		callback();
+	})
 }
 
 /**

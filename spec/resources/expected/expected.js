@@ -1,5 +1,6 @@
-var SuperClass = require("my/long/name/space/SuperClass");
-function SimpleClass() {}
+var SuperClass = require('my/long/name/space/SuperClass');
+function SimpleClass() {
+}
 
 my.extend(SimpleClass, SuperClass);
 

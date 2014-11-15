@@ -43,6 +43,19 @@ export function createOptionsObject(options) {
 
 	optionsObject.libraryIncludesToRequire = new Set(['chosen']);
 	optionsObject.libraryIncludeIterable = Iterable(['caplin', 'thirdparty']);
+	optionsObject.formatterOptions = {
+		preset : 'default',
+		plugins: [
+			"esformatter-quotes"
+		],
+		quotes: {
+			"type": "single",
+			"avoidEscape": true
+		},
+		indent : {
+			value : '\t'
+		}
+	};
 
 	return optionsObject;
 }

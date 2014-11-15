@@ -7,6 +7,8 @@
   "dependencies": {
     "ast-types": "^0.5.0",
     "chalk": "^0.5.1",
+    "esformatter": "^0.4.3",
+    "esformatter-quotes": "^1.0.0",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
     "immutable": "^3.0.3",
     "minimist": "^1.1.0",
