@@ -46,11 +46,12 @@ export function createOptionsObject(options) {
 	optionsObject.formatterOptions = {
 		preset : 'default',
 		plugins: [
-			"esformatter-quotes"
+			'esformatter-quotes',
+			'esformatter-eol-last'
 		],
 		quotes: {
-			"type": "single",
-			"avoidEscape": true
+			type: 'single',
+			avoidEscape: true
 		},
 		indent : {
 			value : '\t'
