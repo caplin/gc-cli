@@ -12,12 +12,11 @@ export function isNamespacedExpressionNode(expressionNode, namespaceIterable) {
 	if (namedTypes.Identifier.check(expressionNode)) {
 		return expressionNode.name === namespaceIterable.first() && namespaceIterable.count() === 1;
 	} else if (namedTypes.MemberExpression.check(expressionNode)) {
-		const shortenedIterable = Iterable(namespaceIterable.skip(1).toArray());
 		const isPropertyIdentifier = namedTypes.Identifier.check(expressionNode.property);
 		const isIdentifierANamespaceLeaf = expressionNode.property.name === namespaceIterable.first();
 
 		return isPropertyIdentifier && isIdentifierANamespaceLeaf &&
-			  isNamespacedExpressionNode(expressionNode.object, shortenedIterable);
+			isNamespacedExpressionNode(expressionNode.object, namespaceIterable.skip(1));
 	}
 
 	return false;
