@@ -5,6 +5,7 @@ export {namespacedIIFEClassVisitor} from './src/iife-flatten';
 export {wrapModuleInIIFEVisitor} from './src/wrap-module-in-iife';
 export {cjsRequireRemoverVisitor} from './src/cjs-require-remover';
 export {flattenProgramIIFEVisitor} from './src/flatten-program-iife';
+export {addModuleUseStrictVisitor} from './src/add-module-use-strict';
 export {flattenMemberExpression} from './src/flatten-member-expression';
 export {verifyVarIsAvailableVisitor} from './src/verify-var-is-available';
 export {namespaceAliasExpanderVisitor} from './src/namespace-alias-expander';
