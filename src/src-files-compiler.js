@@ -20,6 +20,7 @@ import {
 	transformSLJSUsage,
 	convertASTToBuffer,
 	transformI18nUsage,
+	addModuleUseStrict,
 	removeCJSModuleRequires,
 	addRequiresForLibraries,
 	convertGlobalsToRequires,
@@ -69,6 +70,7 @@ export function compileSourceFiles(options) {
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
+		.pipe(addModuleUseStrict())
 		.pipe(convertASTToBuffer())
 		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))

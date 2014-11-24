@@ -10,6 +10,7 @@ import {
 	rootNamespaceVisitor,
 	flattenMemberExpression,
 	cjsRequireRemoverVisitor,
+	addModuleUseStrictVisitor,
 	verifyVarIsAvailableVisitor,
 	varNamespaceAliasExpanderVisitor,
 	addRequireForGlobalIdentifierVisitor,
@@ -161,6 +162,17 @@ export function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, lib
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeIterable);
 		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, this, callback);
+	});
+}
+
+/**
+ * This transform adds 'use strict' as the first line of a module and removes any other instances.
+ *
+ * @returns {Function} Stream transform implementation which makes a module strict mode.
+ */
+export function addModuleUseStrict() {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		transformASTAndPushToNextStream(fileMetadata, addModuleUseStrictVisitor, this, callback);
 	});
 }
 
