@@ -16,9 +16,9 @@ export function composeMatchers(...matchers) {
  *
  */
 export function literal(value) {
-	return (possibleLiteralNodePath) => {
-		if (Literal.check(possibleLiteralNodePath.node) && possibleLiteralNodePath.node.value === value) {
-			return possibleLiteralNodePath.parent;
+	return ({node, parent}) => {
+		if (Literal.check(node) && node.value === value) {
+			return parent;
 		}
 	}
 }
@@ -33,10 +33,9 @@ export function callExpression(callExpressionPattern) {
 }
 
 export function identifier(name) {
-	return function(possibleIdentifierNodePath) {
-		if (Identifier.check(possibleIdentifierNodePath.node) &&
-			possibleIdentifierNodePath.node.name === name) {
-			return possibleIdentifierNodePath.parent;
+	return ({node, parent}) => {
+		if (Identifier.check(node) && node.name === name) {
+			return parent;
 		}
 	}
 }
