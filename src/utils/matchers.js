@@ -1,12 +1,13 @@
 const {namedTypes} = require('ast-types');
+const {Literal, CallExpression, Identifier} = namedTypes;
 
 /**
  *
  */
 export function composeMatchers(...matchers) {
-	return function(nodePath) {
-		return matchers.reduce((nodePathToTest, matcher) => nodePathToTest && matcher(nodePathToTest), nodePath);
-	}
+	return (nodePath) => matchers.reduce(
+			(nodePathToTest, matcher) => nodePathToTest && matcher(nodePathToTest), nodePath
+	);
 }
 
 //	MATCHERS
@@ -15,17 +16,16 @@ export function composeMatchers(...matchers) {
  *
  */
 export function literal(value) {
-	return function(possibleLiteralNodePath) {
-		if (namedTypes.Literal.check(possibleLiteralNodePath.node) && possibleLiteralNodePath.node.value === value) {
+	return (possibleLiteralNodePath) => {
+		if (Literal.check(possibleLiteralNodePath.node) && possibleLiteralNodePath.node.value === value) {
 			return possibleLiteralNodePath.parent;
 		}
 	}
 }
 
-//callExpression({'callee': identifier('require')})
 export function callExpression(callExpressionPattern) {
 	return function(possibleCallExpressionNodePath) {
-		if (namedTypes.CallExpression.check(possibleCallExpressionNodePath.node) &&
+		if (CallExpression.check(possibleCallExpressionNodePath.node) &&
 			callExpressionPattern.callee(possibleCallExpressionNodePath.get('callee'))) {
 			return possibleCallExpressionNodePath.parent;
 		}
@@ -34,7 +34,8 @@ export function callExpression(callExpressionPattern) {
 
 export function identifier(name) {
 	return function(possibleIdentifierNodePath) {
-		if (namedTypes.Identifier.check(possibleIdentifierNodePath.node) && possibleIdentifierNodePath.node.name === name) {
+		if (Identifier.check(possibleIdentifierNodePath.node) &&
+			possibleIdentifierNodePath.node.name === name) {
 			return possibleIdentifierNodePath.parent;
 		}
 	}
