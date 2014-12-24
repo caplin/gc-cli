@@ -48,11 +48,19 @@ export function identifier(name) {
 	}
 }
 
-export function callExpression(callExpressionPattern) {
-	return function(possibleCallExpressionNodePath) {
-		if (CallExpression.check(possibleCallExpressionNodePath.node) &&
-			callExpressionPattern.callee(possibleCallExpressionNodePath.get('callee'))) {
-			return possibleCallExpressionNodePath.parent;
+/**
+ * Creates a predicate function that checks if a NodePath is a CallExpression with the
+ * provided callee. Will return the NodePath's parent if it matches.
+ *
+ * @param   {Object} callExpressionPattern - Expected callee of the call expression.
+ * @returns {Function} Returns the NodePath parent if it fits search criteria.
+ */
+export function callExpression({callee}) {
+	return (nodePath) => {
+		const {node, parent} = nodePath;
+
+		if (CallExpression.check(node) && callee(nodePath.get('callee'))) {
+			return parent;
 		}
 	}
 }
