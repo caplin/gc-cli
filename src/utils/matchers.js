@@ -2,12 +2,18 @@ const {namedTypes} = require('ast-types');
 const {Literal, CallExpression, Identifier} = namedTypes;
 
 /**
+ * Creates a function that checks if a NodePath matches the provided matchers.
+ * The node is first matched against the first matcher provided and then its parent is checked
+ * against the next matcher and so on. If a node satisfies a matcher the matcher returns the node's
+ * parent.
  *
+ * @param   {...Function} matchers - Matchers that a node must satisfy to be classed as matching.
+ * @returns {Function} Function that checks if provided NodePath satifies matchers.
  */
 export function composeMatchers(...matchers) {
-	return (nodePath) => matchers.reduce(
-			(nodePathToTest, matcher) => nodePathToTest && matcher(nodePathToTest), nodePath
-	);
+	const testNodePath = (nodePathToTest, matcher) => nodePathToTest && matcher(nodePathToTest);
+
+	return (nodePath) => matchers.reduce(testNodePath, nodePath);
 }
 
 //	MATCHERS
