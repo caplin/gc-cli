@@ -1,5 +1,5 @@
 const {namedTypes} = require('ast-types');
-const {Literal, CallExpression, Identifier} = namedTypes;
+const {Literal, CallExpression, Identifier, VariableDeclarator} = namedTypes;
 
 /**
  * Creates a function that checks if a NodePath matches the provided matchers.
@@ -60,6 +60,23 @@ export function callExpression({callee}) {
 		const {node, parent} = nodePath;
 
 		if (CallExpression.check(node) && callee(nodePath.get('callee'))) {
+			return parent;
+		}
+	}
+}
+
+/**
+ * Creates a predicate function that checks if a NodePath is a VariableDeclarator with the
+ * provided id. Will return the NodePath's parent if it matches.
+ *
+ * @param   {Object} variableDeclaratorPattern - Expected id of the variable declarator.
+ * @returns {Function} Returns the NodePath parent if it fits search criteria.
+ */
+export function variableDeclarator({id}) {
+	return (nodePath) => {
+		const {node, parent} = nodePath;
+
+		if (VariableDeclarator.check(node) && id(nodePath.get('id'))) {
 			return parent;
 		}
 	}
