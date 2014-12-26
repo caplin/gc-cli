@@ -8,7 +8,8 @@ import {
 	literal,
 	identifier,
 	callExpression,
-	composeMatchers
+	composeMatchers,
+	variableDeclarator
 } from '../src/utils/matchers';
 
 const fileOptions = {encoding: 'utf-8'};
@@ -23,7 +24,8 @@ describe('node path locator', function() {
 		const matchers = new Map();
 		const matcher = composeMatchers(
 			literal('lib'),
-			callExpression({'callee': identifier('require')})
+			callExpression({'callee': identifier('require')}),
+			variableDeclarator({'id': identifier('lib')})
 		);
 		function matchedNodesReceiver(matchedNodePaths) {
 			actualMatches = matchedNodePaths;
