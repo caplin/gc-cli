@@ -42,6 +42,19 @@ export const nodePathLocatorVisitor = {
 	},
 
 	/**
+	 * @param {NodePath} identifierNodePath - Identifier NodePath.
+	 */
+	visitIdentifier(identifierNodePath) {
+		const matcher = this._matchers.get('Identifier');
+
+		if (matcher && matcher(identifierNodePath)) {
+			addToValueArray('Identifier', identifierNodePath, this._matchedNodePaths);
+		}
+
+		this.traverse(identifierNodePath);
+	},
+
+	/**
 	 * @param {NodePath} programNodePath - Program NodePath.
 	 */
 	visitProgram(programNodePath) {
