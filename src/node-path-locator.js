@@ -32,26 +32,14 @@ export const nodePathLocatorVisitor = {
 	 * @param {NodePath} literalNodePath - Literal NodePath.
 	 */
 	visitLiteral(literalNodePath) {
-		const matcher = this._matchers.get('Literal');
-
-		if (matcher(literalNodePath)) {
-			addToValueArray('Literal', literalNodePath, this._matchedNodePaths);
-		}
-
-		this.traverse(literalNodePath);
+		this._testNodePath('Literal', literalNodePath);
 	},
 
 	/**
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
 	visitIdentifier(identifierNodePath) {
-		const matcher = this._matchers.get('Identifier');
-
-		if (matcher && matcher(identifierNodePath)) {
-			addToValueArray('Identifier', identifierNodePath, this._matchedNodePaths);
-		}
-
-		this.traverse(identifierNodePath);
+		this._testNodePath('Identifier', identifierNodePath);
 	},
 
 	/**
@@ -61,6 +49,20 @@ export const nodePathLocatorVisitor = {
 		this.traverse(programNodePath);
 
 		this._matchedNodesReceiver(this._matchedNodePaths);
+	},
+
+	/**
+	 * @param {string} nodeType - The type of the Node wrapped by the NodePath.
+	 * @param {NodePath} nodePath - NodePath to test for a match.
+	 */
+	_testNodePath(nodeType, nodePath) {
+		const matcher = this._matchers.get(nodeType);
+
+		if (matcher && matcher(nodePath)) {
+			addToValueArray(nodeType, nodePath, this._matchedNodePaths);
+		}
+
+		this.traverse(nodePath);
 	}
 }
 
