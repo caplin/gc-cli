@@ -17,21 +17,23 @@ const testResourcesLocation = 'spec/resources/node-path-locator/';
 const givenCode = fs.readFileSync(testResourcesLocation + 'given-requires.js', fileOptions);
 const givenAST = parse(givenCode);
 
+const literalMatcher = composeMatchers(
+	literal('lib'),
+	callExpression({'callee': identifier('require')}),
+	variableDeclarator({'id': identifier('lib')})
+);
+
 describe('node path locator', function() {
+	let actualMatches;
+	function matchedNodesReceiver(matchedNodePaths) {
+		actualMatches = matchedNodePaths;
+	}
+
 	it('should find matching require statements.', function() {
 		//Given.
-		let actualMatches;
 		const matchers = new Map();
-		const matcher = composeMatchers(
-			literal('lib'),
-			callExpression({'callee': identifier('require')}),
-			variableDeclarator({'id': identifier('lib')})
-		);
-		function matchedNodesReceiver(matchedNodePaths) {
-			actualMatches = matchedNodePaths;
-		}
 
-		matchers.set('Literal', matcher);
+		matchers.set('Literal', literalMatcher);
 		nodePathLocatorVisitor.initialize(matchedNodesReceiver, matchers);
 
 		//When.
