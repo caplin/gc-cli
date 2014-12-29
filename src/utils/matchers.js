@@ -1,5 +1,5 @@
 const {namedTypes} = require('ast-types');
-const {Literal, CallExpression, Identifier, VariableDeclarator} = namedTypes;
+const {Literal, CallExpression, Identifier, VariableDeclarator, MemberExpression} = namedTypes;
 
 /**
  * Creates a function that checks if a NodePath matches the provided matchers.
@@ -77,6 +77,23 @@ export function variableDeclarator({id}) {
 		const {node, parent} = nodePath;
 
 		if (VariableDeclarator.check(node) && id(nodePath.get('id'))) {
+			return parent;
+		}
+	}
+}
+
+/**
+ * Creates a predicate function that checks if a NodePath is a MemberExpression with the
+ * provided property. Will return the NodePath's parent if it matches.
+ *
+ * @param   {Object} memberExpressionPattern - Expected property of the member expression.
+ * @returns {Function} Returns the NodePath parent if it fits search criteria.
+ */
+export function memberExpression({property}) {
+	return (nodePath) => {
+		const {node, parent} = nodePath;
+
+		if (MemberExpression.check(node) && property(nodePath.get('property'))) {
 			return parent;
 		}
 	}
