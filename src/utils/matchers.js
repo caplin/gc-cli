@@ -16,6 +16,23 @@ export function composeMatchers(...matchers) {
 	return (nodePath) => matchers.reduce(testNodePath, nodePath);
 }
 
+/**
+ * Creates a function that checks if a NodePath matches any of the provided matchers.
+ * If a node satisfies any of the matchers the node's parent is returned.
+ *
+ * @param   {...Function} matchers - Matchers that a node may be tested against.
+ * @returns {Function}    Function that checks if provided NodePath satifies matchers.
+ */
+export function or(...matchers) {
+	return (nodePath) => {
+		const testNodePath = (matcher) => nodePath && matcher(nodePath);
+
+		if (matchers.some(testNodePath)) {
+			return nodePath.parent
+		}
+	};
+}
+
 //	MATCHERS
 
 /**
