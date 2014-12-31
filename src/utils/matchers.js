@@ -1,4 +1,6 @@
 const {namedTypes} = require('ast-types');
+
+const NOOP = () => true;
 const {Literal, CallExpression, Identifier, VariableDeclarator, MemberExpression} = namedTypes;
 
 /**
@@ -72,7 +74,7 @@ export function identifier(name) {
  * @param   {Object} callExpressionPattern - Expected callee of the call expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-export function callExpression({callee}) {
+export function callExpression({callee} = {callee: NOOP}) {
 	return (nodePath) => {
 		const {node, parent} = nodePath;
 
