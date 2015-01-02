@@ -8,10 +8,10 @@ export function parent() {
 
 /**
  * Returns a function that when provided with a NodePath will extract the
- * requested node property.
+ * requested child NodePath.
  *
- * @param {string} property - Property to extract.
- * @returns {Function} Property extractor.
+ * @param {string} property - Child NodePath to extract.
+ * @returns {Function} Child NodePath extractor.
  */
 export function extract(property) {
 	return nodePath => nodePath.get(property);
