@@ -8,9 +8,9 @@ import {
 
 //const variableDeclaratorTransformer = composeTransformers(
 //	literal('newlib'),
-//	parent,
-//	parent,
-//	extract({property: 'id'}),
+//	parent(),
+//	parent(),
+//	extract('id'),
 //	identifier('newlib')
 //);
 

@@ -1,6 +1,9 @@
-
-export function parent(nodePath) {
-	return nodePath.parent;
+/**
+ * Returns a function that when provided with a NodePath will return it's parent.
+ * @returns {Function} Will return a NodePath's parent.
+ */
+export function parent() {
+	return nodePath => nodePath.parent;
 }
 
 /**
