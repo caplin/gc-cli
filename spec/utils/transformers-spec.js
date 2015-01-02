@@ -21,7 +21,7 @@ describe('transformers', function() {
 		const stubNodePath = {parent: stubParent};
 
 		//When.
-		const returnedNodePath = parent(stubNodePath);
+		const returnedNodePath = parent()(stubNodePath);
 
 		//Then.
 		assert.equal(returnedNodePath, stubParent);
