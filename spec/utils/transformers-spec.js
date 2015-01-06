@@ -1,19 +1,23 @@
 const assert = require('assert');
 
-//const {builders: {literal, identifier}} = require('ast-types');
+const {parse, print, visit} = require('recast');
+const {builders} = require('ast-types');
 
 import {
 	parent,
-	extract
+	extract,
+	composeTransformers
 } from '../../src/utils/transformers';
 
-//const variableDeclaratorTransformer = composeTransformers(
-//	literal('newlib'),
-//	parent(),
-//	parent(),
-//	extract('id'),
-//	identifier('newlib')
-//);
+const {literal, identifier} = builders;
+
+const variableDeclaratorTransformer = composeTransformers(
+	literal('newlib'),
+	parent(),
+	parent(),
+	extract('id'),
+	identifier('newlib')
+);
 
 describe('transformers', function() {
 	it('parent should return a parent NodePath when given a NodePath.', function() {
@@ -43,4 +47,25 @@ describe('transformers', function() {
 		//Then.
 		assert.equal(returnedNodePath, stubChildNodePath);
 	});
+
+	it('composeTransformers should transform a NodePath.', function() {
+		//Given.
+		const ast = parse('var lib = require("lib")');
+
+		//When.
+		visit(ast, {
+			visitLiteral(literalNodePath) {
+				variableDeclaratorTransformer(literalNodePath);
+
+				return false;
+			}
+		});
+
+		//Then.
+		const transformedCode = print(ast).code;
+		const expectedTransformedCode = 'var newlib = require("newlib")';
+
+		assert.equal(transformedCode, expectedTransformedCode);
+	});
+
 });
