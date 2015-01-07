@@ -2,7 +2,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 const {parse, print, visit} = require('recast');
-import {wrapModuleInIIFEVisitor} from '../index';
+import {wrapModuleInIIFEVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'spec/resources/wrap-module-in-iife/';

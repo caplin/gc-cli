@@ -2,7 +2,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 const {parse, print, visit} = require('recast');
-import {namespaceAliasExpanderVisitor} from '../index';
+import {namespaceAliasExpanderVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'spec/resources/namespace-alias-expander/';

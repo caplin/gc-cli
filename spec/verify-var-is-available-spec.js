@@ -2,7 +2,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 const {parse, visit} = require('recast');
-import {verifyVarIsAvailableVisitor} from '../index';
+import {verifyVarIsAvailableVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'spec/resources/verify-var-is-available/';

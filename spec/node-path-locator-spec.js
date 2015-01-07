@@ -3,12 +3,14 @@ const assert = require('assert');
 
 const {parse, visit} = require('recast');
 
-import {nodePathLocatorVisitor} from '../index';
+import {nodePathLocatorVisitor} from '../src/index';
 import {
+	or,
 	literal,
 	identifier,
 	callExpression,
 	composeMatchers,
+	memberExpression,
 	variableDeclarator
 } from '../src/utils/matchers';
 
@@ -23,6 +25,12 @@ const literalMatcher = composeMatchers(
 	variableDeclarator({'id': identifier('lib')})
 );
 
+const identifierMatcher = composeMatchers(
+	identifier('lib'),
+	or(memberExpression({property: identifier('extend')}), memberExpression({property: identifier('implement')})),
+	callExpression()
+);
+
 describe('node path locator', function() {
 	let actualMatches;
 	function matchedNodesReceiver(matchedNodePaths) {
@@ -34,13 +42,19 @@ describe('node path locator', function() {
 		const matchers = new Map();
 
 		matchers.set('Literal', literalMatcher);
+		matchers.set('Identifier', identifierMatcher);
 		nodePathLocatorVisitor.initialize(matchedNodesReceiver, matchers);
 
 		//When.
 		visit(givenAST, nodePathLocatorVisitor);
 
 		//Then.
-		assert.equal(actualMatches.size, 1);
+		assert.equal(actualMatches.size, 2);
 		assert(actualMatches.has('Literal'));
+		assert(actualMatches.has('Identifier'));
+
+		const matchedIdentifiers = actualMatches.get('Identifier');
+
+		assert.equal(matchedIdentifiers.length, 2);
 	});
 });

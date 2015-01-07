@@ -3,7 +3,7 @@ const assert = require('assert');
 
 const {Iterable} = require('immutable');
 const {parse, print, visit} = require('recast');
-import {replaceLibraryIncludesWithRequiresVisitor} from '../index';
+import {replaceLibraryIncludesWithRequiresVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'spec/resources/replace-library-includes-with-requires/';

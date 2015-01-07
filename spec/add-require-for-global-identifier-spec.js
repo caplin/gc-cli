@@ -3,7 +3,7 @@ const assert = require('assert');
 
 const {Iterable} = require('immutable');
 const {parse, print, visit} = require('recast');
-import {addRequireForGlobalIdentifierVisitor} from '../index';
+import {addRequireForGlobalIdentifierVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'spec/resources/add-require-for-global-identifier/';
