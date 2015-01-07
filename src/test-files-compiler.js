@@ -4,7 +4,7 @@ var through2 = require('through2');
 import {
 	wrapModuleInIIFEVisitor,
 	flattenProgramIIFEVisitor
-} from 'global-compiler';
+} from 'global-compiler/index';
 
 import {
 	parseJSFile,

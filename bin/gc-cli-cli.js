@@ -22,7 +22,7 @@ System.config({
 	baseURL: __dirname.replace('bin', ''),
 
 	map: {
-		'global-compiler': 'node_modules/global-compiler/index'
+		'global-compiler': 'node_modules/global-compiler/src'
 	}
 });
 
