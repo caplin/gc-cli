@@ -3,7 +3,7 @@ my.long.name.space.SimpleIIFEClass = (function() {
 
 	function SimpleIIFEClass() {}
 
-	my.extend(SimpleIIFEClass, my.long.name.space.SuperClass);
+	caplin.extend(SimpleIIFEClass, my.long.name.space.SuperClass);
 
 	SimpleIIFEClass.prototype.myMethod = function() {
 		this._member = new caplin.streamlink.SLJSClass();

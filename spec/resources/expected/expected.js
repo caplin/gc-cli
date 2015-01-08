@@ -1,9 +1,12 @@
 'use strict';
+var Interface = require('my/long/Interface');
 var SuperClass = require('my/long/name/space/SuperClass');
+var topiarist = require('topiarist');
 function SimpleClass() {
 }
 
-my.extend(SimpleClass, SuperClass);
+topiarist.extend(SimpleClass, SuperClass);
+topiarist.inherit(SimpleClass, Interface);
 
 SimpleClass.prototype.myMethod = function() {}
 

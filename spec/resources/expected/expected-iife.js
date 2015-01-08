@@ -1,11 +1,12 @@
 'use strict';
 var SuperClass = require('my/long/name/space/SuperClass');
+var topiarist = require('topiarist');
 var streamlink = require('sljs');
 
 function SimpleIIFEClass() {
 }
 
-my.extend(SimpleIIFEClass, SuperClass);
+topiarist.extend(SimpleIIFEClass, SuperClass);
 
 SimpleIIFEClass.prototype.myMethod = function() {
 	this._member = new streamlink.SLJSClass();

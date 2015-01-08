@@ -4,10 +4,12 @@ var parse = require('recast').parse;
 var print = require('recast').print;
 var visit = require('recast').visit;
 const {Iterable} = require('immutable');
+const {builders} = require('ast-types');
 
 import {
 	moduleIdVisitor,
 	rootNamespaceVisitor,
+	nodePathLocatorVisitor,
 	flattenMemberExpression,
 	cjsRequireRemoverVisitor,
 	addModuleUseStrictVisitor,
@@ -18,9 +20,81 @@ import {
 } from 'global-compiler/index';
 
 import {
+	parent,
+	extract,
+	composeTransformers
+} from 'global-compiler/utils/transformers';
+
+import {
+	or,
+	composeMatchers,
+	literal as literalMatcher,
+	identifier as identifierMatcher,
+	callExpression as callExpressionMatcher,
+	memberExpression as memberExpressionMatcher,
+	variableDeclarator as variableDeclaratorMatcher
+} from 'global-compiler/utils/matchers';
+
+import {
 	getFileNamespaceParts,
 	transformASTAndPushToNextStream
 } from './utils/utilities';
+
+const caplinRequireMatcher = composeMatchers(
+	literalMatcher('caplin'),
+	callExpressionMatcher({callee: identifierMatcher('require')}),
+	variableDeclaratorMatcher({id: identifierMatcher('caplin')})
+);
+
+const caplinInheritanceMatcher = composeMatchers(
+	identifierMatcher('caplin'),
+	or(
+		memberExpressionMatcher({property: identifierMatcher('extend')}),
+		memberExpressionMatcher({property: identifierMatcher('implement')})
+	),
+	callExpressionMatcher()
+);
+
+const caplinInheritanceMatchers = new Map();
+
+caplinInheritanceMatchers.set('Literal', caplinRequireMatcher);
+caplinInheritanceMatchers.set('Identifier', caplinInheritanceMatcher);
+
+const {literal, identifier} = builders;
+
+const caplinRequireTransformer = composeTransformers(
+	literal('topiarist'),
+	parent(),
+	parent(),
+	extract('id'),
+	identifier('topiarist')
+);
+
+const caplinInheritanceToExtendTransformer = composeTransformers(
+	identifier('topiarist'),
+	parent(),
+	extract('property'),
+	identifier('extend')
+);
+
+const caplinInheritanceToInheritTransformer = composeTransformers(
+	identifier('topiarist'),
+	parent(),
+	extract('property'),
+	identifier('inherit')
+);
+
+function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
+	caplinRequireTransformer(matchedNodePaths.get('Literal')[0]);
+
+	matchedNodePaths.get('Identifier').forEach((identifierNodePath, index) => {
+		if (index === 0) {
+			caplinInheritanceToExtendTransformer(identifierNodePath);
+		} else {
+			caplinInheritanceToInheritTransformer(identifierNodePath);
+		}
+	});
+}
 
 /**
  * Parses every streamed file and provides its AST.
@@ -95,6 +169,22 @@ export function convertGlobalsToRequires(rootNamespaces, insertExport) {
 
 		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className, insertExport);
 		transformASTAndPushToNextStream(fileMetadata, rootNamespaceVisitor, this, callback);
+	});
+}
+
+/**
+ * Replace use of caplin.extend/implement with topiarist.
+ *
+ * @returns {Function} Stream transform implementation which replaces caplin with topiarist classes.
+ */
+export function transformClassesToUseTopiarist() {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		nodePathLocatorVisitor.initialize(caplinInheritanceMatchedNodesReceiver, caplinInheritanceMatchers);
+
+		visit(fileMetadata.ast, nodePathLocatorVisitor);
+
+		this.push(fileMetadata);
+		callback();
 	});
 }
 

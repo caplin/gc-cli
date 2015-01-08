@@ -21,10 +21,10 @@ import {
 	convertASTToBuffer,
 	transformI18nUsage,
 	addModuleUseStrict,
-	removeCJSModuleRequires,
 	addRequiresForLibraries,
 	convertGlobalsToRequires,
 	expandVarNamespaceAliases,
+	transformClassesToUseTopiarist,
 	replaceLibraryIncludesWithRequires
 } from './common-transforms';
 
@@ -66,7 +66,7 @@ export function compileSourceFiles(options) {
 		.pipe(through2.obj(flattenClass))
 		.pipe(transformSLJSUsage())
 		.pipe(convertGlobalsToRequires(options.namespaces))
-		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
+		.pipe(transformClassesToUseTopiarist())
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))

@@ -15,9 +15,9 @@ const commandOptions = {
 	_: [],
 	r: 'my',
 	o: './output',
-	n: 'my,other',
+	n: 'my,other,caplin',
 	removeRequires: 'my',
-	namespaces: 'my,other',
+	namespaces: 'my,other,caplin',
 	outputDirectory: './output'
 };
 const testCommandOptions = {
