@@ -187,11 +187,7 @@ export function convertGlobalsToRequires(rootNamespaces, insertExport) {
 export function transformClassesToUseTopiarist() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		nodePathLocatorVisitor.initialize(caplinInheritanceMatchedNodesReceiver, caplinInheritanceMatchers);
-
-		visit(fileMetadata.ast, nodePathLocatorVisitor);
-
-		this.push(fileMetadata);
-		callback();
+		transformASTAndPushToNextStream(fileMetadata, nodePathLocatorVisitor, this, callback);
 	});
 }
 
