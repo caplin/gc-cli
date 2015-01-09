@@ -85,9 +85,16 @@ const caplinInheritanceToInheritTransformer = composeTransformers(
 );
 
 function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
-	caplinRequireTransformer(matchedNodePaths.get('Literal')[0]);
+	const [caplinRequireVarDeclaration] = matchedNodePaths.get('Literal');
+	const caplinInheritanceExpressions = matchedNodePaths.get('Identifier') || [];
 
-	matchedNodePaths.get('Identifier').forEach((identifierNodePath, index) => {
+	if (caplinInheritanceExpressions.length > 0) {
+		caplinRequireTransformer(caplinRequireVarDeclaration);
+	} else if (caplinRequireVarDeclaration) {
+		caplinRequireVarDeclaration.parent.parent.prune();
+	}
+
+	caplinInheritanceExpressions.forEach((identifierNodePath, index) => {
 		if (index === 0) {
 			caplinInheritanceToExtendTransformer(identifierNodePath);
 		} else {
