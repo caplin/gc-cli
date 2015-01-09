@@ -85,7 +85,7 @@ const caplinInheritanceToInheritTransformer = composeTransformers(
 );
 
 function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
-	const [caplinRequireVarDeclaration] = matchedNodePaths.get('Literal');
+	const [caplinRequireVarDeclaration] = matchedNodePaths.get('Literal') || [];
 	const caplinInheritanceExpressions = matchedNodePaths.get('Identifier') || [];
 
 	if (caplinInheritanceExpressions.length > 0) {
