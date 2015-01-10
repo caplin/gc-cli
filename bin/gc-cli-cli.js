@@ -19,7 +19,7 @@ var commandParseOptions = {
 };
 
 System.config({
-	baseURL: __dirname.replace('bin', ''),
+	baseURL: 'file:' + __dirname.replace('bin', ''),
 
 	map: {
 		'global-compiler': 'node_modules/global-compiler/src'
