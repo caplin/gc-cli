@@ -47,7 +47,8 @@ export function createOptionsObject(options) {
 		preset : 'default',
 		plugins: [
 			'esformatter-quotes',
-			'esformatter-eol-last'
+			'esformatter-eol-last',
+			'esformatter-semicolons'
 		],
 		quotes: {
 			type: 'single',

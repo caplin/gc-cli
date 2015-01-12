@@ -8,7 +8,7 @@ function SimpleClass() {
 topiarist.extend(SimpleClass, SuperClass);
 topiarist.inherit(SimpleClass, Interface);
 
-SimpleClass.prototype.myMethod = function() {}
+SimpleClass.prototype.myMethod = function() {};
 
-SimpleClass.prototype.anotherMethod = function() {}
+SimpleClass.prototype.anotherMethod = function() {};
 module.exports = SimpleClass;
