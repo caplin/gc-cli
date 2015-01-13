@@ -233,7 +233,7 @@ function insertExportsStatement(className, programStatements) {
 function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifiers) {
 	fullyQualifiedNameData.forEach((namespaceData) => {
 		const moduleVariableId = namespaceData.namespaceParts.pop();
-		const uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers);
+		const uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers, namespaceData.namespaceParts);
 
 		moduleIdentifiers.add(uniqueModuleVariableId);
 		namespaceData.moduleVariableId = uniqueModuleVariableId;

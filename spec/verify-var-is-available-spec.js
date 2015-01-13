@@ -15,7 +15,7 @@ describe('verify var is available', function() {
 	});
 
 	it('should correctly identify a taken var name.', function() {
-		checkIfVarIsAvailable('Factory', 'Factory__2');
+		checkIfVarIsAvailable('Factory', 'Factory2');
 	});
 
 	it('should correctly identify a free var name even if used in expression.', function() {

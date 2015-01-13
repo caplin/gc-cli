@@ -1,4 +1,5 @@
 const {Iterable} = require('immutable');
+const capitalize = require('capitalize');
 const {builders, namedTypes} = require('ast-types');
 
 /**
@@ -29,13 +30,19 @@ export function isNamespacedExpressionNode(expressionNode, namespaceIterable) {
  * @param {Set<string>} moduleIdentifiers - all variable names declared in the module.
  * @returns {string} a unique variable name for the module.
  */
-export function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
+export function calculateUniqueModuleVariableId(varName, moduleIdentifiers, namespaceParts=[]) {
 	let freeVarName = varName;
 	let referencesWithSameName = 1;
+	let namespacePartToPrepend = namespaceParts.length;
 
 	while (moduleIdentifiers.has(freeVarName)) {
-		freeVarName = (varName + '__' + referencesWithSameName);
-		referencesWithSameName++;
+		if (namespacePartToPrepend > 0) {
+			namespacePartToPrepend--;
+			freeVarName = (capitalize(namespaceParts[namespacePartToPrepend]) + varName);
+		} else {
+			freeVarName = (varName + referencesWithSameName);
+			referencesWithSameName++;
+		}
 	}
 
 	return freeVarName;
