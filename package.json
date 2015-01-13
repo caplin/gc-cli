@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "ast-types": "^0.6.7",
+    "capitalize": "^0.5.0",
     "chalk": "^0.5.1",
     "esformatter": "^0.4.3",
     "esformatter-eol-last": "git://github.com/briandipalma/esformatter-eol-last",
