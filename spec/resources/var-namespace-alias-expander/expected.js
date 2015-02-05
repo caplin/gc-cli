@@ -17,6 +17,22 @@ my.name.space.feature.SomeClass = function() {
 
 my.extend(my.name.space.feature.SomeClass, my.name.event.SuperClass);
 
+my.name.space.feature.SomeClass.prototype.dropPrice = function(isBuy) {
+	var side, orderType = my.order.model.OrderType.LIMIT;
+
+	if (isBuy) {
+		orderType = my.order.model.OrderType.STOP;
+	} else {
+		orderType = my.order.model.OrderType.STOP;
+	}
+
+	var mAttributes = {
+		orderType: orderType,
+		price: (orderType == my.order.model.OrderType.LIMIT ? this.draggedPrice.toString() : null),
+		stopPrice: (orderType == my.order.model.OrderType.STOP ? this.draggedPrice.toString() : null)
+	};
+};
+
 my.name.space.feature.SomeClass.prototype.getSomeValue = function() {
 	var value = this.get(this.TRADE_LEG_FIELDS.NEAR_BUY_SELL);
 

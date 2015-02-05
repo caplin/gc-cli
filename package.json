@@ -6,6 +6,7 @@
     "m": "mocha --compilers js:./spec/support/loader.js spec/*spec.js"
   },
   "dependencies": {
+    "array-includes": "^1.0.5",
     "ast-types": "^0.6.0",
     "capitalize": "^0.5.0",
     "immutable": "^3.0.3"

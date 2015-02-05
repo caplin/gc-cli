@@ -1,9 +1,15 @@
-const {namedTypes} = require('ast-types');
+const {
+	visit,
+	namedTypes
+} = require('ast-types');
+const {shim} = require('array-includes');
 
 import {
 	getNamespacePath,
 	isNamespaceAlias
 } from './utils/utilities';
+
+shim();
 
 /**
  * SpiderMonkey AST node.
@@ -100,7 +106,11 @@ function getIdentifierBindings(identifierNodePath) {
 	const identifierScope = identifierNodePath.scope.lookup(identifierName);
 
 	if (identifierScope) {
-		return identifierScope.getBindings()[identifierName];
+		const identifierBindings = identifierScope.getBindings()[identifierName].slice();
+
+		addIdentifierAssignments(identifierBindings, identifierScope.path, identifierName);
+
+		return identifierBindings;
 	}
 
 	return [];
@@ -148,4 +158,31 @@ function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
 
 		console.log('References to', aliasName, 'have been expanded to', namespace);
 	}
+}
+
+/**
+ * Add any assignments to an identifier that occur within the subtree of its scope.
+ * The identifier bindings aren't enough to perform a safe transformation. We need to also make sure
+ * there are no assignments to the identifier following it being bound to the scope. So if any
+ * assignments occur to the identifier in the scope subtree which are not the original binding we
+ * add them to the `identifierBindings` array.
+ *
+ * @param {Array}    identifierBindings - Bindings for the identifier.
+ * @param {NodePath} identifierScopeNodePath - Scope identifier is declared in.
+ * @param {string} identifierName - Name of identifier.
+ */
+function addIdentifierAssignments(identifierBindings, identifierScopeNodePath, identifierName) {
+	const assignmentVisitor = {
+		visitAssignmentExpression(assignmentExpressionNodePath) {
+			const leftSide = assignmentExpressionNodePath.value.left;
+
+			if (leftSide.name === identifierName && !identifierBindings.includes(leftSide)) {
+				identifierBindings.push(leftSide);
+			}
+
+			this.traverse(assignmentExpressionNodePath);
+		}
+	};
+
+	visit(identifierScopeNodePath, assignmentVisitor);
 }
