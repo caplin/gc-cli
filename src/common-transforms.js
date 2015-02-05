@@ -276,7 +276,7 @@ export function addModuleUseStrict() {
  */
 export function convertASTToBuffer() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		var convertedCode = print(fileMetadata.ast, {wrapColumn: 200}).code;
+		var convertedCode = print(fileMetadata.ast, {wrapColumn: 120}).code;
 		var convertedCodeBuffer = new Buffer(convertedCode);
 
 		fileMetadata.contents = convertedCodeBuffer;
