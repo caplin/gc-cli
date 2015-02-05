@@ -115,11 +115,7 @@ function flattenClass(fileMetadata, encoding, callback) {
  */
 function formatCode(formatterOptions) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		const codeToFormat = fileMetadata.contents.toString();
-		const formattedCode = esformatter.format(codeToFormat, formatterOptions);
-		const convertedCodeBuffer = new Buffer(formattedCode);
-
-		fileMetadata.contents = convertedCodeBuffer;
+		fileMetadata.contents = formatCodeIfValid(fileMetadata, formatterOptions);
 		this.push(fileMetadata);
 		callback();
 	})
@@ -145,5 +141,30 @@ function createJSStyleFiles() {
 		fs.writeFile('.js-style', 'common-js');
 		fs.writeFile(path.join('test', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
 		fs.writeFile(path.join('tests', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
+	}
+}
+
+/**
+ * Format code into a consistent style if the code is valid top leve script code.
+ * It might not be valid if it has an early return statement which is valid to have in function level code.
+ *
+ * @param   {Object}   fileMetadata     Description of file data.
+ * @param   {Object} formatterOptions - Options to configure formatting.
+ * @returns {Buffer} Formatted code.
+ */
+function formatCodeIfValid(fileMetadata, formatterOptions) {
+	const codeToFormat = fileMetadata.contents.toString();
+
+	try {
+		const formattedCode = esformatter.format(codeToFormat, formatterOptions);
+
+		return new Buffer(formattedCode);
+	} catch (error) {
+		console.error(codeToFormat);
+		console.error(fileMetadata);
+		console.error(error);
+		console.error('Error formatting file following conversion, skipping formatting.');
+
+		return fileMetadata.contents;
 	}
 }
