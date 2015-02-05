@@ -1,3 +1,10 @@
+my.name('name');
+
+/**
+ * Some docs.
+ *
+ * @returns {[[Type]]} [[Description]]
+ */
 my.Class = (function() {
 	'use strict';
 

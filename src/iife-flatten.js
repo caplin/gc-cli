@@ -72,6 +72,7 @@ function isRootPartOfIIFE(namespacedNodePath, identifierNodePath) {
  * @param {string} className - The class name.
  */
 function replaceIIFEWithItsContents(assignmentNodePath, className) {
+	const comments = assignmentNodePath.parent.node.comments;
 	const iifeBody = assignmentNodePath.get('right', 'callee', 'body', 'body');
 	const iifeStatementsWithoutFinalReturn = iifeBody.value.filter((iifeStatement) => {
 		const isNotFinalReturnStatement = !(namedTypes.ReturnStatement.check(iifeStatement) === true
@@ -81,4 +82,5 @@ function replaceIIFEWithItsContents(assignmentNodePath, className) {
 	});
 
 	assignmentNodePath.parent.replace(...iifeStatementsWithoutFinalReturn);
+	assignmentNodePath.parent.node.comments = comments;
 }
