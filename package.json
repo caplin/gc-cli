@@ -9,12 +9,12 @@
     "array-includes": "^1.0.5",
     "ast-types": "^0.6.0",
     "capitalize": "^0.5.0",
-    "immutable": "^3.0.3"
+    "immutable": "^3.0.3",
+    "recast": "^0.9.17"
   },
   "devDependencies": {
     "jasmine": "git://github.com/briandipalma/jasmine-npm",
     "mocha": "^2.1.0",
-    "recast": "^0.9.12",
     "systemjs": "^0.11.0",
     "through2": "^0.6.1"
   }

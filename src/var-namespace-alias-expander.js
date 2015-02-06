@@ -1,7 +1,5 @@
-const {
-	visit,
-	namedTypes
-} = require('ast-types');
+const {namedTypes} = require('ast-types');
+const {visit} = require('recast');
 const {shim} = require('array-includes');
 
 import {
