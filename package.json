@@ -5,6 +5,7 @@
     "test": "jasmine"
   },
   "dependencies": {
+    "array-includes": "^1.0.5",
     "ast-types": "^0.6.7",
     "capitalize": "^0.5.0",
     "chalk": "^0.5.1",
