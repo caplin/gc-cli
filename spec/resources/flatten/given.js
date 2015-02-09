@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @implements {my.interface.Interface}
+ */
 my.long.name.space.SimpleClass = function() {}
 
 my.extend(my.long.name.space.SimpleClass, my.long.name.space.SuperClass);
