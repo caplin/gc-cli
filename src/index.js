@@ -9,7 +9,6 @@ export {flattenProgramIIFEVisitor} from './flatten-program-iife';
 export {addModuleUseStrictVisitor} from './add-module-use-strict';
 export {flattenMemberExpression} from './flatten-member-expression';
 export {verifyVarIsAvailableVisitor} from './verify-var-is-available';
-export {namespaceAliasExpanderVisitor} from './namespace-alias-expander';
 export {varNamespaceAliasExpanderVisitor} from './var-namespace-alias-expander';
 export {addRequireForGlobalIdentifierVisitor} from './add-require-for-global-identifier';
 export {replaceLibraryIncludesWithRequiresVisitor} from './replace-library-includes-with-requires';
