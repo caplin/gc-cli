@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "test": "jasmine",
+    "test:debug": "node --debug-brk node_modules/.bin/jasmine",
     "m": "mocha --compilers js:./spec/support/loader.js spec/*spec.js"
   },
   "dependencies": {
