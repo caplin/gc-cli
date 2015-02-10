@@ -14,6 +14,10 @@ const givenNoExportCode = fs.readFileSync(testResourcesLocation + 'given-no-expo
 const expectedNoExportCode = fs.readFileSync(testResourcesLocation + 'expected-no-export.js', fileOptions);
 const givenNoExportAST = parse(givenNoExportCode);
 
+const givenIIFEConstructorCode = fs.readFileSync(testResourcesLocation + 'given-iife-constructor.js', fileOptions);
+const expectedIIFEConstructorCode = fs.readFileSync(testResourcesLocation + 'expected-iife-constructor.js', fileOptions);
+const givenIIFEConstructorAST = parse(givenIIFEConstructorCode);
+
 describe('Global to CJS conversion', function() {
 	it('should replace globals with CJS requires.', function() {
 		//Given.
@@ -35,5 +39,16 @@ describe('Global to CJS conversion', function() {
 
 		//Then.
 		assert.equal(print(givenNoExportAST).code, expectedNoExportCode);
+	});
+
+	it('should replace globals with CJS requires and export class instance.', function() {
+		// Given.
+		rootNamespaceVisitor.initialize(['my', 'other'], givenIIFEConstructorAST.program.body, 'SimpleClass');
+
+		// When.
+		visit(givenIIFEConstructorAST, rootNamespaceVisitor);
+
+		// Then.
+//		assert.equal(print(givenIIFEConstructorAST).code, expectedIIFEConstructorCode);
 	});
 });

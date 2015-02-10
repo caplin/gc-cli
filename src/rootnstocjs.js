@@ -93,7 +93,7 @@ export const rootNamespaceVisitor = {
 
 		preventClashesWithGlobals(this._moduleIdentifiers);
 		if (this._insertExport) {
-			insertExportsStatement(this._className, this._programStatements);
+			insertExportsStatement(this._className, programNodePath.get('body'));
 		}
 		findUniqueIdentifiersForModules(this._fullyQualifiedNameData, this._moduleIdentifiers);
 		transformAllNamespacedExpressions(this._fullyQualifiedNameData, this._programStatements);
@@ -210,18 +210,48 @@ function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameD
 
 /**
  * @param {string} className - The class name to export.
- * @param {AstNode[]} programStatements - Program body statements.
+ * @param {NodePath} programBodyNodePath - Program body statements.
  */
-function insertExportsStatement(className, programStatements) {
+function insertExportsStatement(className, programBodyNodePath) {
+	const lastStatement = programBodyNodePath.get(programBodyNodePath.value.length - 1);
+	const exportExpression = retrieveExportExpression(lastStatement, className);
+	const exportStatement = createExportStatement(exportExpression);
+
+	programBodyNodePath.push(exportStatement);
+}
+
+/**
+ * Retrieve the expression to export, if the module ends in a return statement export that node.
+ *
+ * @param   {NodePath} lastStatement - Last statement in the module.
+ * @param   {string} className - The class name to export.
+ * @returns {AstNode} node to export.
+ */
+function retrieveExportExpression(lastStatement, className) {
+	if (namedTypes.ReturnStatement.check(lastStatement.node)) {
+		const returnArgument = lastStatement.node.argument;
+
+		lastStatement.replace();
+
+		return returnArgument;
+	}
+
+	return builders.identifier(className);
+}
+
+/**
+ * Create the module export expression.
+ *
+ * @param   {AstNode} exportedExpression - expression to export.
+ * @returns {AstNode} module exports node.
+ */
+function createExportStatement(exportedExpression) {
 	const exportsExpression = builders.memberExpression(
 		builders.identifier('module'), builders.identifier('exports'), false
 	);
-	const assignmentExpression = builders.assignmentExpression(
-		'=', exportsExpression, builders.identifier(className)
-	);
-	const exportsStatement = builders.expressionStatement(assignmentExpression);
+	const assignmentExpression = builders.assignmentExpression('=', exportsExpression, exportedExpression);
 
-	programStatements.push(exportsStatement);
+	return builders.expressionStatement(assignmentExpression);
 }
 
 /**
