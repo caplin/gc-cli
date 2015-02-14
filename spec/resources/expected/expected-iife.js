@@ -1,4 +1,5 @@
 'use strict';
+
 var Class = require('caplin/other/Class');
 var streamlink = require('sljs');
 

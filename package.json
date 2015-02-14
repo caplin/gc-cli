@@ -16,7 +16,7 @@
     "esformatter-quotes": "^1.0.0",
     "esformatter-semicolons": "^1.0.3",
     "esformatter-spaced-lined-comment": "git://github.com/briandipalma/esformatter-spaced-lined-comment",
-    "esformatter-use-strict": "^1.0.0",
+    "esformatter-use-strict": "^2.0.0",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
     "immutable": "^3.0.3",
     "minimist": "^1.1.0",
