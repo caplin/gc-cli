@@ -51,7 +51,8 @@ export function createOptionsObject(options) {
 			'esformatter-quotes',
 			'esformatter-eol-last',
 			'esformatter-semicolons',
-			'esformatter-use-strict'
+			'esformatter-use-strict',
+			'esformatter-quote-props'
 		],
 		quotes: {
 			type: 'single',
