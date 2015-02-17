@@ -4,6 +4,10 @@
   "scripts": {
     "test": "jasmine"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/briandipalma/gc-cli.git"
+  },
   "dependencies": {
     "array-includes": "^1.0.5",
     "ast-types": "^0.6.7",
