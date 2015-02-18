@@ -1,3 +1,5 @@
+my.include('old');
+
 /**
  * @constructor
  * @implements {my.interface.Interface}

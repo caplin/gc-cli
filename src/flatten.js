@@ -73,6 +73,8 @@ function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, className
 		namedTypes.FunctionExpression.check(grandParent.node.right)) {
 		const constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
 
+		// Move the constructor comments onto the function declaration that replaces it
+		constructorFunctionDeclaration.comments = grandParent.parent.node.comments;
 		grandParent.parent.replace(constructorFunctionDeclaration);
 	} else if (namedTypes.MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
