@@ -91,6 +91,7 @@ export const rootNamespaceVisitor = {
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
+		moveProgramCommentsIntoBody(programNodePath);
 		preventClashesWithGlobals(this._moduleIdentifiers);
 		if (this._insertExport) {
 			insertExportsStatement(this._className, programNodePath.get('body'));
@@ -268,6 +269,23 @@ function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifie
 		moduleIdentifiers.add(uniqueModuleVariableId);
 		namespaceData.moduleVariableId = uniqueModuleVariableId;
 	});
+}
+
+/**
+ * Move any comments from the program node to the body of the program if the first statement
+ * has no comments attached to it.
+ *
+ * @param {NodePath} programNodePath Program node path
+ */
+function moveProgramCommentsIntoBody(programNodePath) {
+	const programComments = programNodePath.node.comments;
+	const programStatements = programNodePath.get('body');
+
+	// If the program node has comments and the first program statement has no comments
+	if (programComments && programStatements.value[0].comments === undefined) {
+		programNodePath.node.comments = undefined;
+		programStatements.value[0].comments = programComments;
+	}
 }
 
 /**

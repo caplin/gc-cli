@@ -11,6 +11,9 @@ var ClassName = require("other/name/space/ClassName");
 var Factory = require("my/other/name/space/Factory");
 var Field = require("my/long/name/space/Field");
 var SimpleUtility = require("my/simple/Utility");
+/**
+ * Some docs.
+ */
 var Utility;
 
 function SimpleClass() {

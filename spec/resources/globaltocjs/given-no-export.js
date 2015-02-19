@@ -1,3 +1,6 @@
+/**
+ * Some docs.
+ */
 var Utility;
 
 function SimpleClass() {
