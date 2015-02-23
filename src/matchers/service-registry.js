@@ -15,8 +15,6 @@ const getServiceMatcher = composeMatchers(
 );
 
 // Map<string, Function> matchers to test NodePaths against
-const getServiceMatchers = new Map();
+export const getServiceMatchers = new Map();
 
 getServiceMatchers.set('Identifier', getServiceMatcher);
-
-export getServiceMatchers;
