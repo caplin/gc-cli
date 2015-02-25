@@ -14,7 +14,7 @@ var commandParseOptions = {
 	default : {
 		compileTestFiles: false,
 		removeRequires: 'caplin',
-		namespaces: 'caplin,caplinx,caplinps,ct'
+		namespaces: 'caplin,caplinx,caplinps,ct,br'
 	}
 };
 
