@@ -40,6 +40,14 @@ import {
 	transformASTAndPushToNextStream
 } from './utils/utilities';
 
+import {
+	getServiceMatchers
+} from './matchers/service-registry';
+
+import {
+	getServiceNodesReceiver
+} from './receivers/service-registry';
+
 const caplinRequireMatcher = composeMatchers(
 	literalMatcher('caplin'),
 	callExpressionMatcher({callee: identifierMatcher('require')}),
@@ -187,6 +195,19 @@ export function convertGlobalsToRequires(rootNamespaces, insertExport) {
 export function transformClassesToUseTopiarist() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		nodePathLocatorVisitor.initialize(caplinInheritanceMatchedNodesReceiver, caplinInheritanceMatchers);
+		transformASTAndPushToNextStream(fileMetadata, nodePathLocatorVisitor, this, callback);
+	});
+}
+
+/**
+ * Replace use of caplin.core.ServiceRegistry.getService() with require('service!');
+ *
+ * @returns {Function} Stream transform implementation
+ */
+export function transformGetServiceToRequire() {
+	// This transform expects all namespace aliases to be expanded.
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		nodePathLocatorVisitor.initialize(getServiceNodesReceiver, getServiceMatchers);
 		transformASTAndPushToNextStream(fileMetadata, nodePathLocatorVisitor, this, callback);
 	});
 }
