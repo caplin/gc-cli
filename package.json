@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "test": "jasmine",
-    "test:debug": "node --debug-brk node_modules/.bin/jasmine",
+    "test:debug": "node --debug node_modules/.bin/jasmine",
     "m": "mocha --compilers js:./spec/support/loader.js spec/*spec.js"
   },
   "repository": {
@@ -20,7 +20,7 @@
   "devDependencies": {
     "jasmine": "git://github.com/briandipalma/jasmine-npm",
     "mocha": "^2.1.0",
-    "systemjs": "^0.11.0",
+    "systemjs": "^0.13.2",
     "through2": "^0.6.1"
   }
 }
