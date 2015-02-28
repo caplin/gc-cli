@@ -52,7 +52,10 @@ export function createOptionsObject(options) {
 			'esformatter-eol-last',
 			'esformatter-semicolons',
 			'esformatter-use-strict',
-			'esformatter-quote-props'
+			'esformatter-quote-props',
+			'esformatter-dot-notation',
+			'esformatter-module-exports',
+			'esformatter-spaced-lined-comment'
 		],
 		quotes: {
 			type: 'single',
@@ -60,6 +63,27 @@ export function createOptionsObject(options) {
 		},
 		indent : {
 			value : '\t'
+		},
+		lineBreak: {
+			before: {
+				BlockComment: 2,
+				ForStatementClosingBrace: 1,
+				FunctionDeclarationClosingBrace: 1,
+				FunctionExpressionClosingBrace: 1,
+				IfStatementClosingBrace: 1,
+				TryClosingBrace: 1
+			},
+			after: {
+				CatchOpeningBrace: 1,
+				IfStatementOpeningBrace: 1,
+				ElseStatementOpeningBrace: 1,
+				ForStatementClosingBrace: 2,
+				ForStatementOpeningBrace: 1,
+				ForInStatementOpeningBrace: 1,
+				FunctionExpressionOpeningBrace: 1,
+				FunctionDeclarationOpeningBrace: 1,
+				TryOpeningBrace: 1
+			}
 		}
 	};
 
