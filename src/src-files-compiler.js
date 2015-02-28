@@ -23,6 +23,7 @@ import {
 	addRequiresForLibraries,
 	convertGlobalsToRequires,
 	expandVarNamespaceAliases,
+	transformGetServiceToRequire,
 	transformClassesToUseTopiarist,
 	replaceLibraryIncludesWithRequires
 } from './common-transforms';
@@ -64,6 +65,7 @@ export function compileSourceFiles(options) {
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
 		.pipe(transformSLJSUsage())
+		.pipe(transformGetServiceToRequire())
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(transformClassesToUseTopiarist())
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
