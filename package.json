@@ -16,6 +16,7 @@
     "esformatter": "^0.4.3",
     "esformatter-dot-notation": "^1.1.0",
     "esformatter-eol-last": "git://github.com/briandipalma/esformatter-eol-last",
+    "esformatter-module-exports": "git://github.com/briandipalma/esformatter-module-exports",
     "esformatter-quote-props": "git://github.com/briandipalma/esformatter-quote-props",
     "esformatter-quotes": "^1.0.0",
     "esformatter-semicolons": "^1.0.3",
@@ -25,7 +26,7 @@
     "immutable": "^3.0.3",
     "minimist": "^1.1.0",
     "recast": "^0.10.0",
-    "systemjs": "^0.11.1",
+    "systemjs": "^0.14.1",
     "through2": "^0.6.1",
     "vinyl-fs": "^0.3.7"
   },
