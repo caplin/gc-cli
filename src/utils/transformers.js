@@ -25,7 +25,7 @@ export function composeTransformers(...transforms) {
  *
  * @returns {Function} Will return a NodePath's parent.
  */
-export function parent() {
+export function extractParent() {
 	return nodePath => nodePath.parent;
 }
 
@@ -36,6 +36,6 @@ export function parent() {
  * @param   {(string|number)[]} ...properties Properties to extract.
  * @returns {Function}          Child NodePath extractor.
  */
-export function extract(...properties) {
+export function extractProperties(...properties) {
 	return nodePath => nodePath.get(...properties);
 }

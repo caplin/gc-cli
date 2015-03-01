@@ -15,7 +15,7 @@ exports.composeTransformers = composeTransformers;
  *
  * @returns {Function} Will return a NodePath's parent.
  */
-exports.parent = parent;
+exports.extractParent = extractParent;
 
 /**
  * Returns a function that when provided with a NodePath will extract the
@@ -24,7 +24,7 @@ exports.parent = parent;
  * @param   {(string|number)[]} ...properties Properties to extract.
  * @returns {Function}          Child NodePath extractor.
  */
-exports.extract = extract;
+exports.extractProperties = extractProperties;
 
 function composeTransformers() {
   for (var _len = arguments.length, transforms = Array(_len), _key = 0; _key < _len; _key++) {
@@ -44,13 +44,13 @@ function composeTransformers() {
   };
 }
 
-function parent() {
+function extractParent() {
   return function (nodePath) {
     return nodePath.parent;
   };
 }
 
-function extract() {
+function extractProperties() {
   for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
     properties[_key] = arguments[_key];
   }

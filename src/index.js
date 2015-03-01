@@ -1,3 +1,22 @@
+// Matcher exports
+export {
+	orMatchers,
+	literalMatcher,
+	composeMatchers,
+	identifierMatcher,
+	callExpressionMatcher,
+	memberExpressionMatcher,
+	variableDeclaratorMatcher
+} from './utils/matchers';
+
+// Transformer exports
+export {
+	extractParent,
+	extractProperties,
+	composeTransformers
+} from './utils/transformers';
+
+// Visitor exports
 export {namespacedClassVisitor} from './flatten';
 export {rootNamespaceVisitor} from './rootnstocjs';
 export {moduleIdVisitor} from './module-id-converter';

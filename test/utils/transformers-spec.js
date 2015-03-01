@@ -4,8 +4,8 @@ const {parse, print, visit} = require('recast');
 const {builders} = require('recast').types;
 
 import {
-	parent,
-	extract,
+	extractParent,
+	extractProperties,
 	composeTransformers
 } from '../../src/utils/transformers';
 
@@ -13,9 +13,9 @@ const {literal, identifier} = builders;
 
 const variableDeclaratorTransformer = composeTransformers(
 	literal('newlib'),
-	parent(),
-	parent(),
-	extract('id'),
+	extractParent(),
+	extractParent(),
+	extractProperties('id'),
 	identifier('newlib')
 );
 
@@ -26,7 +26,7 @@ describe('transformers', function() {
 		const stubNodePath = {parent: stubParent};
 
 		//When.
-		const returnedNodePath = parent()(stubNodePath);
+		const returnedNodePath = extractParent()(stubNodePath);
 
 		//Then.
 		assert.equal(returnedNodePath, stubParent);
@@ -42,7 +42,7 @@ describe('transformers', function() {
 		}};
 
 		//When.
-		const returnedNodePath = extract('test')(stubNodePath);
+		const returnedNodePath = extractProperties('test')(stubNodePath);
 
 		//Then.
 		assert.equal(returnedNodePath, stubChildNodePath);

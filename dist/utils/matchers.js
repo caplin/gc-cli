@@ -18,7 +18,7 @@ exports.composeMatchers = composeMatchers;
  * @param   {...Function} matchers - Matchers that a node may be tested against.
  * @returns {Function}    Function that checks if provided NodePath satifies matchers.
  */
-exports.or = or;
+exports.orMatchers = orMatchers;
 
 //	MATCHERS
 
@@ -29,7 +29,7 @@ exports.or = or;
  * @param   {string} value - Expected value of the literal.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.literal = literal;
+exports.literalMatcher = literalMatcher;
 
 /**
  * Creates a predicate function that checks if a NodePath is an Identifier with the
@@ -38,7 +38,7 @@ exports.literal = literal;
  * @param   {string} name - Expected name of the identifier.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.identifier = identifier;
+exports.identifierMatcher = identifierMatcher;
 
 /**
  * Creates a predicate function that checks if a NodePath is a CallExpression with the
@@ -47,7 +47,7 @@ exports.identifier = identifier;
  * @param   {Object} callExpressionPattern - Expected callee of the call expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.callExpression = callExpression;
+exports.callExpressionMatcher = callExpressionMatcher;
 
 /**
  * Creates a predicate function that checks if a NodePath is a VariableDeclarator with the
@@ -56,7 +56,7 @@ exports.callExpression = callExpression;
  * @param   {Object} variableDeclaratorPattern - Expected id of the variable declarator.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.variableDeclarator = variableDeclarator;
+exports.variableDeclaratorMatcher = variableDeclaratorMatcher;
 
 /**
  * Creates a predicate function that checks if a NodePath is a MemberExpression with the
@@ -65,7 +65,7 @@ exports.variableDeclarator = variableDeclarator;
  * @param   {Object} memberExpressionPattern - Expected property of the member expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.memberExpression = memberExpression;
+exports.memberExpressionMatcher = memberExpressionMatcher;
 
 var namedTypes = require("recast").types.namedTypes;
 
@@ -92,7 +92,7 @@ function composeMatchers() {
   };
 }
 
-function or() {
+function orMatchers() {
   for (var _len = arguments.length, matchers = Array(_len), _key = 0; _key < _len; _key++) {
     matchers[_key] = arguments[_key];
   }
@@ -108,7 +108,7 @@ function or() {
   };
 }
 
-function literal(value) {
+function literalMatcher(value) {
   return function (_ref) {
     var node = _ref.node;
     var parent = _ref.parent;
@@ -119,7 +119,7 @@ function literal(value) {
   };
 }
 
-function identifier(name) {
+function identifierMatcher(name) {
   return function (_ref) {
     var node = _ref.node;
     var parent = _ref.parent;
@@ -130,7 +130,7 @@ function identifier(name) {
   };
 }
 
-function callExpression() {
+function callExpressionMatcher() {
   var _ref = arguments[0] === undefined ? { callee: NOOP } : arguments[0];
 
   var callee = _ref.callee;
@@ -145,7 +145,7 @@ function callExpression() {
   };
 }
 
-function variableDeclarator(_ref) {
+function variableDeclaratorMatcher(_ref) {
   var id = _ref.id;
 
   return function (nodePath) {
@@ -158,7 +158,7 @@ function variableDeclarator(_ref) {
   };
 }
 
-function memberExpression(_ref) {
+function memberExpressionMatcher(_ref) {
   var property = _ref.property;
 
   return function (nodePath) {

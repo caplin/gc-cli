@@ -25,7 +25,7 @@ export function composeMatchers(...matchers) {
  * @param   {...Function} matchers - Matchers that a node may be tested against.
  * @returns {Function}    Function that checks if provided NodePath satifies matchers.
  */
-export function or(...matchers) {
+export function orMatchers(...matchers) {
 	return (nodePath) => {
 		const testNodePath = (matcher) => nodePath && matcher(nodePath);
 
@@ -44,7 +44,7 @@ export function or(...matchers) {
  * @param   {string} value - Expected value of the literal.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-export function literal(value) {
+export function literalMatcher(value) {
 	return ({node, parent}) => {
 		if (Literal.check(node) && node.value === value) {
 			return parent;
@@ -59,7 +59,7 @@ export function literal(value) {
  * @param   {string} name - Expected name of the identifier.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-export function identifier(name) {
+export function identifierMatcher(name) {
 	return ({node, parent}) => {
 		if (Identifier.check(node) && node.name === name) {
 			return parent;
@@ -74,7 +74,7 @@ export function identifier(name) {
  * @param   {Object} callExpressionPattern - Expected callee of the call expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-export function callExpression({callee} = {callee: NOOP}) {
+export function callExpressionMatcher({callee} = {callee: NOOP}) {
 	return (nodePath) => {
 		const {node, parent} = nodePath;
 
@@ -91,7 +91,7 @@ export function callExpression({callee} = {callee: NOOP}) {
  * @param   {Object} variableDeclaratorPattern - Expected id of the variable declarator.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-export function variableDeclarator({id}) {
+export function variableDeclaratorMatcher({id}) {
 	return (nodePath) => {
 		const {node, parent} = nodePath;
 
@@ -108,7 +108,7 @@ export function variableDeclarator({id}) {
  * @param   {Object} memberExpressionPattern - Expected property of the member expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-export function memberExpression({property}) {
+export function memberExpressionMatcher({property}) {
 	return (nodePath) => {
 		const {node, parent} = nodePath;
 
