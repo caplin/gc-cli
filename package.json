@@ -2,7 +2,7 @@
   "name": "global-compiler",
   "version": "0.0.0",
   "scripts": {
-    "test": "mocha --compilers js:babel/register spec/**",
+    "test": "mocha -R min --compilers js:babel/register test/**",
     "test:debug": "node --debug _mocha",
     "build": "babel src --out-dir dist"
   },

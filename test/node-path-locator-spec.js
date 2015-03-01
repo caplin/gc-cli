@@ -15,7 +15,7 @@ import {
 } from '../src/utils/matchers';
 
 const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'spec/resources/node-path-locator/';
+const testResourcesLocation = 'test/resources/node-path-locator/';
 const givenCode = fs.readFileSync(testResourcesLocation + 'given-requires.js', fileOptions);
 const givenAST = parse(givenCode);
 

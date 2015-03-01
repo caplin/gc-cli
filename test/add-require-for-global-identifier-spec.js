@@ -6,7 +6,7 @@ const {parse, print, visit} = require('recast');
 import {addRequireForGlobalIdentifierVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'spec/resources/add-require-for-global-identifier/';
+const testResourcesLocation = 'test/resources/add-require-for-global-identifier/';
 const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
 const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
 const givenAST = parse(givenCode);

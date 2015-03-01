@@ -6,7 +6,7 @@ const {parse, print, visit} = require('recast');
 import {replaceLibraryIncludesWithRequiresVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'spec/resources/replace-library-includes-with-requires/';
+const testResourcesLocation = 'test/resources/replace-library-includes-with-requires/';
 const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
 const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
 const givenAST = parse(givenCode);
