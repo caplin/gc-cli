@@ -2,7 +2,9 @@
   "name": "gc-cli",
   "version": "0.0.0",
   "scripts": {
-    "test": "jasmine"
+    "test": "jasmine",
+    "build": "babel src --out-dir dist",
+    "test:m": "mocha --compilers js:babel/register spec/conversion-spec.js"
   },
   "repository": {
     "type": "git",
@@ -22,8 +24,10 @@
     "vinyl-fs": "^0.3.7"
   },
   "devDependencies": {
+    "babel": "^4.6.3",
     "del": "^1.1.1",
-    "jasmine": "git://github.com/briandipalma/jasmine-npm"
+    "jasmine": "git://github.com/briandipalma/jasmine-npm",
+    "mocha": "^2.1.0"
   },
   "bin": "./bin/gc-cli-cli.js"
 }
