@@ -45,47 +45,6 @@ export function createOptionsObject(options) {
 
 	optionsObject.libraryIncludesToRequire = new Set(['chosen']);
 	optionsObject.libraryIncludeIterable = Iterable(['caplin', 'thirdparty']);
-	optionsObject.formatterOptions = {
-		preset : 'default',
-		plugins: [
-			'esformatter-quotes',
-			'esformatter-eol-last',
-			'esformatter-semicolons',
-			'esformatter-use-strict',
-			'esformatter-quote-props',
-			'esformatter-dot-notation',
-			'esformatter-module-exports',
-			'esformatter-spaced-lined-comment'
-		],
-		quotes: {
-			type: 'single',
-			avoidEscape: true
-		},
-		indent : {
-			value : '\t'
-		},
-		lineBreak: {
-			before: {
-				BlockComment: 2,
-				ForStatementClosingBrace: 1,
-				FunctionDeclarationClosingBrace: 1,
-				FunctionExpressionClosingBrace: 1,
-				IfStatementClosingBrace: 1,
-				TryClosingBrace: 1
-			},
-			after: {
-				CatchOpeningBrace: 1,
-				IfStatementOpeningBrace: 1,
-				ElseStatementOpeningBrace: 1,
-				ForStatementClosingBrace: 2,
-				ForStatementOpeningBrace: 1,
-				ForInStatementOpeningBrace: 1,
-				FunctionExpressionOpeningBrace: 1,
-				FunctionDeclarationOpeningBrace: 1,
-				TryOpeningBrace: 1
-			}
-		}
-	};
 
 	return optionsObject;
 }

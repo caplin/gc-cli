@@ -5,6 +5,7 @@ var {visit} = require('recast');
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 var {Iterable} = require('immutable');
+const {defaultFormatCode} = require('js-formatter');
 const esformatter = require('esformatter');
 
 import {
@@ -108,14 +109,14 @@ function flattenClass(fileMetadata, encoding, callback) {
 }
 
 /**
- * Formats code based on provided formatter options.
+ * Formats code.
  *
- * @param   {Object} formatterOptions - Options to configure formatting.
  * @returns {Function} Stream transform implementation which formats JS files.
  */
 function formatCode(formatterOptions) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		fileMetadata.contents = formatCodeIfValid(fileMetadata, formatterOptions);
+		// Format the transformed code, vinyl-fs needs file contents to be a Buffer
+		fileMetadata.contents = new Buffer(defaultFormatCode(fileMetadata.contents.toString()));
 		this.push(fileMetadata);
 		callback();
 	})
@@ -141,30 +142,5 @@ function createJSStyleFiles() {
 		fs.writeFile('.js-style', 'common-js');
 		fs.writeFile(path.join('test', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
 		fs.writeFile(path.join('tests', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
-	}
-}
-
-/**
- * Format code into a consistent style if the code is valid top leve script code.
- * It might not be valid if it has an early return statement which is valid to have in function level code.
- *
- * @param   {Object}   fileMetadata     Description of file data.
- * @param   {Object} formatterOptions - Options to configure formatting.
- * @returns {Buffer} Formatted code.
- */
-function formatCodeIfValid(fileMetadata, formatterOptions) {
-	const codeToFormat = fileMetadata.contents.toString();
-
-	try {
-		const formattedCode = esformatter.format(codeToFormat, formatterOptions);
-
-		return new Buffer(formattedCode);
-	} catch (error) {
-		console.error(codeToFormat);
-		console.error(fileMetadata);
-		console.error(error);
-		console.error('Error formatting file following conversion, skipping formatting.');
-
-		return fileMetadata.contents;
 	}
 }
