@@ -1,5 +1,5 @@
 const {Iterable} = require('immutable');
-const namedTypes = require('ast-types').namedTypes;
+const namedTypes = require('recast').types.namedTypes;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 

@@ -1,4 +1,4 @@
-const {namedTypes} = require('ast-types');
+const {namedTypes} = require('recast').types;
 
 const NOOP = () => true;
 const {Literal, CallExpression, Identifier, VariableDeclarator, MemberExpression} = namedTypes;

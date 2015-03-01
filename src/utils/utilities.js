@@ -1,6 +1,6 @@
 const {Iterable} = require('immutable');
 const capitalize = require('capitalize');
-const {builders, namedTypes} = require('ast-types');
+const {builders, namedTypes} = require('recast').types;
 
 /**
  * Returns true if the provided Expression node is a leaf node of a namespace.

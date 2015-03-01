@@ -1,4 +1,4 @@
-const namedTypes = require('ast-types').namedTypes;
+const namedTypes = require('recast').types.namedTypes;
 
 /**
  * SpiderMonkey AST node.

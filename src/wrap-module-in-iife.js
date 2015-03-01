@@ -1,4 +1,4 @@
-const {builders} = require('ast-types');
+const {builders} = require('recast').types;
 
 /**
  * SpiderMonkey AST node.

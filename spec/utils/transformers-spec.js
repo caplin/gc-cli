@@ -1,7 +1,7 @@
 const assert = require('assert');
 
 const {parse, print, visit} = require('recast');
-const {builders} = require('ast-types');
+const {builders} = require('recast').types;
 
 import {
 	parent,

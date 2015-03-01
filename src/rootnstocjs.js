@@ -1,5 +1,5 @@
 const {Iterable} = require('immutable');
-const {builders, namedTypes} = require('ast-types');
+const {builders, namedTypes} = require('recast').types;
 
 import {
 	createRequireDeclaration,

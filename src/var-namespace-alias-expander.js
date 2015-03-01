@@ -1,4 +1,4 @@
-const {namedTypes} = require('ast-types');
+const {namedTypes} = require('recast').types;
 const {visit} = require('recast');
 const {shim} = require('array-includes');
 
