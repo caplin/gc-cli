@@ -13,7 +13,7 @@ import {
 	namespacedIIFEClassVisitor,
 	verifyVarIsAvailableVisitor,
 	addRequireForGlobalIdentifierVisitor
-} from 'global-compiler/index';
+} from 'global-compiler';
 
 import {
 	parseJSFile,

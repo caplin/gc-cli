@@ -1,10 +1,10 @@
 const {builders} = require('recast').types;
 
 import {
-	parent,
-	extract,
+	extractParent,
+	extractProperties,
 	composeTransformers
-} from 'global-compiler/utils/transformers';
+} from 'global-compiler';
 
 const {literal, identifier} = builders;
 
@@ -17,12 +17,12 @@ const {literal, identifier} = builders;
  */
 export function getServiceTransformer(serviceAlias) {
 	return composeTransformers(
-		parent(),
-		parent(),
-		parent(),
+		extractParent(),
+		extractParent(),
+		extractParent(),
 		identifier('require'),
-		parent(),
-		extract('arguments', 0),
+		extractParent(),
+		extractProperties('arguments', 0),
 		literal('service!' + serviceAlias)
 	);
 }

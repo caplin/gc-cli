@@ -1,17 +1,17 @@
 import {
-	identifier,
-	callExpression,
 	composeMatchers,
-	memberExpression,
-} from 'global-compiler/utils/matchers';
+	identifierMatcher,
+	callExpressionMatcher,
+	memberExpressionMatcher,
+} from 'global-compiler';
 
 // Matches caplin.core.ServiceRegistry.getService('service')
 const getServiceMatcher = composeMatchers(
-	identifier('caplin'),
-	memberExpression({property: identifier('core')}),
-	memberExpression({property: identifier('ServiceRegistry')}),
-	memberExpression({property: identifier('getService')}),
-	callExpression()
+	identifierMatcher('caplin'),
+	memberExpressionMatcher({property: identifierMatcher('core')}),
+	memberExpressionMatcher({property: identifierMatcher('ServiceRegistry')}),
+	memberExpressionMatcher({property: identifierMatcher('getService')}),
+	callExpressionMatcher()
 );
 
 // Map<string, Function> matchers to test NodePaths against

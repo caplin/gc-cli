@@ -7,6 +7,16 @@ const {Iterable} = require('immutable');
 const {builders} = require('recast').types;
 
 import {
+	orMatchers,
+	literalMatcher,
+	composeMatchers,
+	identifierMatcher,
+	callExpressionMatcher,
+	memberExpressionMatcher,
+	variableDeclaratorMatcher,
+	extractParent,
+	extractProperties,
+	composeTransformers,
 	moduleIdVisitor,
 	rootNamespaceVisitor,
 	nodePathLocatorVisitor,
@@ -17,23 +27,7 @@ import {
 	varNamespaceAliasExpanderVisitor,
 	addRequireForGlobalIdentifierVisitor,
 	replaceLibraryIncludesWithRequiresVisitor
-} from 'global-compiler/index';
-
-import {
-	parent,
-	extract,
-	composeTransformers
-} from 'global-compiler/utils/transformers';
-
-import {
-	or,
-	composeMatchers,
-	literal as literalMatcher,
-	identifier as identifierMatcher,
-	callExpression as callExpressionMatcher,
-	memberExpression as memberExpressionMatcher,
-	variableDeclarator as variableDeclaratorMatcher
-} from 'global-compiler/utils/matchers';
+} from 'global-compiler';
 
 import {
 	getFileNamespaceParts,
@@ -56,7 +50,7 @@ const caplinRequireMatcher = composeMatchers(
 
 const caplinInheritanceMatcher = composeMatchers(
 	identifierMatcher('caplin'),
-	or(
+	orMatchers(
 		memberExpressionMatcher({property: identifierMatcher('extend')}),
 		memberExpressionMatcher({property: identifierMatcher('implement')})
 	),
@@ -72,23 +66,23 @@ const {literal, identifier} = builders;
 
 const caplinRequireTransformer = composeTransformers(
 	literal('topiarist'),
-	parent(),
-	parent(),
-	extract('id'),
+	extractParent(),
+	extractParent(),
+	extractProperties('id'),
 	identifier('topiarist')
 );
 
 const caplinInheritanceToExtendTransformer = composeTransformers(
 	identifier('topiarist'),
-	parent(),
-	extract('property'),
+	extractParent(),
+	extractProperties('property'),
 	identifier('extend')
 );
 
 const caplinInheritanceToInheritTransformer = composeTransformers(
 	identifier('topiarist'),
-	parent(),
-	extract('property'),
+	extractParent(),
+	extractProperties('property'),
 	identifier('inherit')
 );
 
