@@ -32,7 +32,7 @@ const testCommandOptions = {
 	outputDirectory: './test-output'
 };
 
-process.chdir('spec/resources');
+process.chdir('test/resources');
 
 const expectedDirectory = 'expected/';
 const fileOptions = {encoding: 'utf-8'};

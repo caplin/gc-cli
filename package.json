@@ -2,9 +2,8 @@
   "name": "gc-cli",
   "version": "0.0.0",
   "scripts": {
-    "test": "jasmine",
     "build": "babel src --out-dir dist",
-    "test:m": "mocha --compilers js:babel/register spec/conversion-spec.js"
+    "test": "mocha -R min --compilers js:babel/register"
   },
   "repository": {
     "type": "git",
