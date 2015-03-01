@@ -4,7 +4,7 @@ var parse = require('recast').parse;
 var print = require('recast').print;
 var visit = require('recast').visit;
 const {Iterable} = require('immutable');
-const {builders} = require('ast-types');
+const {builders} = require('recast').types;
 
 import {
 	moduleIdVisitor,
