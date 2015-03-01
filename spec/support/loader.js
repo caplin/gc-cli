@@ -6,7 +6,7 @@ var System = require('systemjs');
 
 System.config({
 	map: {
-		'global-compiler': 'node_modules/global-compiler/src'
+		'global-compiler': 'node_modules/global-compiler/src/index'
 	}
 });
 
