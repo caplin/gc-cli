@@ -49,6 +49,6 @@ describe('Global to CJS conversion', function() {
 		visit(givenIIFEConstructorAST, rootNamespaceVisitor);
 
 		// Then.
-//		assert.equal(print(givenIIFEConstructorAST).code, expectedIIFEConstructorCode);
+		assert.equal(print(givenIIFEConstructorAST).code, expectedIIFEConstructorCode);
 	});
 });
