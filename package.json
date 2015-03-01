@@ -4,7 +4,7 @@
   "scripts": {
     "test": "jasmine",
     "test:debug": "node --debug node_modules/.bin/jasmine",
-    "m": "mocha --compilers js:./spec/support/loader.js spec/*spec.js"
+    "test:m": "mocha --compilers js:babel/register spec/*spec.js"
   },
   "repository": {
     "type": "git",
@@ -12,15 +12,15 @@
   },
   "dependencies": {
     "array-includes": "^1.0.5",
-    "ast-types": "^0.6.0",
     "capitalize": "^0.5.0",
     "immutable": "^3.0.3",
     "recast": "^0.10.0"
   },
   "devDependencies": {
+    "babel": "^4.6.1",
     "jasmine": "git://github.com/briandipalma/jasmine-npm",
     "mocha": "^2.1.0",
-    "systemjs": "^0.13.2",
+    "systemjs": "^0.14.1",
     "through2": "^0.6.1"
   }
 }
