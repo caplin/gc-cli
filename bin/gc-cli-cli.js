@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 "use strict";
 
-var System = require('systemjs');
 var parseArgs = require('minimist');
+
+var gcCli = require('../dist/index');
 
 var commandParseOptions = {
 	alias: {
@@ -18,21 +19,7 @@ var commandParseOptions = {
 	}
 };
 
-System.config({
-	baseURL: 'file:' + __dirname.replace('bin', ''),
+var options = parseArgs(process.argv.slice(2), commandParseOptions);
+var optionsObject = gcCli.createOptionsObject(options);
 
-	map: {
-		'global-compiler': 'node_modules/global-compiler/src/index'
-	}
-});
-
-System.import('src/index')
-	.then(function(gcCli) {
-		var options = parseArgs(process.argv.slice(2), commandParseOptions);
-		var optionsObject = gcCli.createOptionsObject(options);
-
-		gcCli.processFile(optionsObject);
-	})
-	.catch(function(error) {
-		console.error(error);
-	});
+gcCli.processFile(optionsObject);
