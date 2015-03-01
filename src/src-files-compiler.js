@@ -6,7 +6,6 @@ var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 var {Iterable} = require('immutable');
 const {defaultFormatCode} = require('js-formatter');
-const esformatter = require('esformatter');
 
 import {
 	namespacedClassVisitor,
