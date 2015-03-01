@@ -33,9 +33,9 @@ export function parent() {
  * Returns a function that when provided with a NodePath will extract the
  * requested child NodePath.
  *
- * @param {string} property - Child NodePath to extract.
- * @returns {Function} Child NodePath extractor.
+ * @param   {(string|number)[]} ...properties Properties to extract.
+ * @returns {Function}          Child NodePath extractor.
  */
-export function extract(property) {
-	return nodePath => nodePath.get(property);
+export function extract(...properties) {
+	return nodePath => nodePath.get(...properties);
 }
