@@ -2,9 +2,9 @@
   "name": "global-compiler",
   "version": "0.0.0",
   "scripts": {
-    "test": "jasmine",
-    "test:debug": "node --debug node_modules/.bin/jasmine",
-    "test:m": "mocha --compilers js:babel/register spec/*spec.js"
+    "test": "mocha --compilers js:babel/register spec/*spec.js",
+    "test:debug": "node --debug _mocha",
+    "build": "babel src --out-dir dist"
   },
   "repository": {
     "type": "git",
@@ -18,9 +18,6 @@
   },
   "devDependencies": {
     "babel": "^4.6.1",
-    "jasmine": "git://github.com/briandipalma/jasmine-npm",
-    "mocha": "^2.1.0",
-    "systemjs": "^0.14.1",
-    "through2": "^0.6.1"
+    "mocha": "^2.1.0"
   }
 }
