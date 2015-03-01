@@ -1,6 +1,7 @@
 {
   "name": "global-compiler",
   "version": "0.0.0",
+  "main": "dist/index.js",
   "scripts": {
     "test": "mocha -R min --compilers js:babel/register test/**",
     "test:debug": "node --debug _mocha",
