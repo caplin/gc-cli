@@ -13,6 +13,9 @@ var Field = require("my/long/name/space/Field");
 var SimpleUtility = require("my/simple/Utility");
 var Utility;
 
+/**
+ * Some docs.
+ */
 function SimpleClass() {
 	Utility = SimpleUtility;
 	var test = new Field();

@@ -1,5 +1,8 @@
 var Utility;
 
+/**
+ * Some docs.
+ */
 function SimpleClass() {
 	Utility = my.simple.Utility;
 	var test = new my.long.name.space.Field();
