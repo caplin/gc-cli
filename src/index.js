@@ -20,10 +20,10 @@ export {
 export {namespacedClassVisitor} from './flatten';
 export {rootNamespaceVisitor} from './rootnstocjs';
 export {moduleIdVisitor} from './module-id-converter';
-export {iifeClassFlattenerVisitor} from './iife-flatten';
 export {nodePathLocatorVisitor} from './node-path-locator';
 export {wrapModuleInIIFEVisitor} from './wrap-module-in-iife';
 export {cjsRequireRemoverVisitor} from './cjs-require-remover';
+export {iifeClassFlattenerVisitor} from './iife-class-flattener';
 export {flattenProgramIIFEVisitor} from './flatten-program-iife';
 export {addModuleUseStrictVisitor} from './add-module-use-strict';
 export {flattenMemberExpression} from './flatten-member-expression';
