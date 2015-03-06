@@ -28,5 +28,6 @@
     "jasmine": "git://github.com/briandipalma/jasmine-npm",
     "mocha": "^2.1.0"
   },
+  "preferGlobal": true,
   "bin": "./bin/gc-cli-cli.js"
 }
