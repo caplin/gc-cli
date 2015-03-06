@@ -3,7 +3,14 @@ import {Iterable} from 'immutable';
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 
-const {namedTypes} = types;
+const {
+	namedTypes: {
+		Program,
+		CallExpression,
+		ReturnStatement,
+		AssignmentExpression
+	}
+} = types;
 
 /**
  * Convert an IIFEs if its result is bound to an identifier that matches the provided fully
@@ -23,10 +30,11 @@ export const iifeClassFlattenerVisitor = {
 	 * @param {NodePath} identifierNodePath - Identifier NodePath.
 	 */
 	visitIdentifier(identifierNodePath) {
-		const parent = identifierNodePath.parent;
+		const {parent} = identifierNodePath;
+		// Is this identifier the class name node `MyClass` of a fully namespaced expression `name.MyClass`
+		const isNamespacedExpression = isNamespacedExpressionNode(parent.node, this._namespaceIterable);
 
-		if (isNamespacedExpressionNode(parent.node, this._namespaceIterable)
-			&& isRootPartOfIIFE(parent, identifierNodePath)) {
+		if (isNamespacedExpression && isRootPartOfIIFE(parent, identifierNodePath)) {
 			replaceIIFEWithItsContents(parent.parent, this._className);
 		}
 
@@ -35,24 +43,25 @@ export const iifeClassFlattenerVisitor = {
 }
 
 /**
- * @param {NodePath} namespacedNodePath - Root of the fully qualified namespaced NodePath.
+ * Verify that the namespaced NodePath is part of an IIFE which is located at the top level of the
+ * script.
+ *
+ * @param   {NodePath} namespacedNodePath Root of the fully qualified namespaced NodePath
+ * @param   {NodePath} classNameNodePath  Class name identifier
+ * @returns {Boolean}  true if node is script level IIFE
  */
-function isRootPartOfIIFE(namespacedNodePath, identifierNodePath) {
+function isRootPartOfIIFE(namespacedNodePath, classNameNodePath) {
 	const grandparent = namespacedNodePath.parent;
 	const assignmentExpressionGrandparent = grandparent.parent.parent;
 
 	const namespacedNodeIsOnLeft = (grandparent.get('left') === namespacedNodePath);
-	const isRootOfIIFE = (namespacedNodePath.get('property') === identifierNodePath);
-	const callExpressionIsOnRight = namedTypes.CallExpression.check(grandparent.get('right').node);
-	const namespacedNodeIsInAssignmentExpression = namedTypes.AssignmentExpression.check(grandparent.node);
-	const assignmentGrandparentIsProgram = namedTypes.Program.check(assignmentExpressionGrandparent.node);
+	const isRootOfIIFE = (namespacedNodePath.get('property') === classNameNodePath);
+	const callExpressionIsOnRight = CallExpression.check(grandparent.get('right').node);
+	const namespacedNodeIsInAssignmentExpression = AssignmentExpression.check(grandparent.node);
+	const assignmentGrandparentIsProgram = Program.check(assignmentExpressionGrandparent.node);
 
-	if (namespacedNodeIsOnLeft && namespacedNodeIsInAssignmentExpression
-		&& assignmentGrandparentIsProgram && callExpressionIsOnRight && isRootOfIIFE) {
-		return true;
-	}
-
-	return false;
+	return namespacedNodeIsOnLeft && namespacedNodeIsInAssignmentExpression
+		&& assignmentGrandparentIsProgram && callExpressionIsOnRight && isRootOfIIFE;
 }
 
 /**
@@ -60,13 +69,12 @@ function isRootPartOfIIFE(namespacedNodePath, identifierNodePath) {
  * @param {string} className - The class name.
  */
 function replaceIIFEWithItsContents(assignmentNodePath, className) {
+	// Keep IIFE leading comments
 	const comments = assignmentNodePath.parent.node.comments;
 	const iifeBody = assignmentNodePath.get('right', 'callee', 'body', 'body');
+	// Filter out the final return statement in the IIFE as IIFE is being removed
 	const iifeStatementsWithoutFinalReturn = iifeBody.value.filter((iifeStatement) => {
-		const isNotFinalReturnStatement = !(namedTypes.ReturnStatement.check(iifeStatement) === true
-										&& iifeStatement.argument.name === className);
-
-		return isNotFinalReturnStatement;
+		return !(ReturnStatement.check(iifeStatement) === true && iifeStatement.argument.name === className);
 	});
 
 	assignmentNodePath.parent.replace(...iifeStatementsWithoutFinalReturn);
