@@ -20,7 +20,7 @@ export {
 export {namespacedClassVisitor} from './flatten';
 export {rootNamespaceVisitor} from './rootnstocjs';
 export {moduleIdVisitor} from './module-id-converter';
-export {namespacedIIFEClassVisitor} from './iife-flatten';
+export {iifeClassFlattenerVisitor} from './iife-flatten';
 export {nodePathLocatorVisitor} from './node-path-locator';
 export {wrapModuleInIIFEVisitor} from './wrap-module-in-iife';
 export {cjsRequireRemoverVisitor} from './cjs-require-remover';

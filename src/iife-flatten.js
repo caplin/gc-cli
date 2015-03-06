@@ -6,10 +6,11 @@ import {isNamespacedExpressionNode} from './utils/utilities';
 const {namedTypes} = types;
 
 /**
- * Converts all IIFEs that match the provided fully qualified class name.
- * They will have their function lexical scope contents moved to the top module level.
+ * Convert an IIFEs if its result is bound to an identifier that matches the provided fully
+ * qualified class name.
+ * They will have their IIFE contents moved to the module level.
  */
-export const namespacedIIFEClassVisitor = {
+export const iifeClassFlattenerVisitor = {
 	/**
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */

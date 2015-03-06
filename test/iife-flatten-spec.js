@@ -2,7 +2,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 const {parse, print, visit} = require('recast');
-import {namespacedIIFEClassVisitor} from '../src/index';
+import {iifeClassFlattenerVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'test/resources/iife-flatten/';
@@ -16,10 +16,10 @@ const givenTwoLevelAST = parse(givenTwoLevelCode);
 describe('IIFE Namespaced class flattening', function() {
 	it('should extract class from IIFE.', function() {
 		//Given.
-		namespacedIIFEClassVisitor.initialize('my.long.name.space.SimpleClass');
+		iifeClassFlattenerVisitor.initialize('my.long.name.space.SimpleClass');
 
 		//When.
-		visit(givenAST, namespacedIIFEClassVisitor);
+		visit(givenAST, iifeClassFlattenerVisitor);
 
 		//Then.
 		assert.equal(print(givenAST).code, expectedCode);
@@ -27,10 +27,10 @@ describe('IIFE Namespaced class flattening', function() {
 
 	it('should extract class from IIFE with only two levels.', function() {
 		//Given.
-		namespacedIIFEClassVisitor.initialize('my.Class');
+		iifeClassFlattenerVisitor.initialize('my.Class');
 
 		//When.
-		visit(givenTwoLevelAST, namespacedIIFEClassVisitor);
+		visit(givenTwoLevelAST, iifeClassFlattenerVisitor);
 
 		//Then.
 		assert.equal(print(givenTwoLevelAST).code, expectedTwoLevelCode);
