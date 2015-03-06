@@ -1,22 +1,9 @@
-const {Iterable} = require('immutable');
-const namedTypes = require('recast').types.namedTypes;
+import {types} from 'recast';
+import {Iterable} from 'immutable';
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
+const {namedTypes} = types;
 
 /**
  * Converts all IIFEs that match the provided fully qualified class name.
