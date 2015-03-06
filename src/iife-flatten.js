@@ -15,14 +15,24 @@ const {
 /**
  * Convert an IIFEs if its result is bound to an identifier that matches the provided fully
  * qualified class name.
- * They will have their IIFE contents moved to the module level.
+ * The IIFE contents will be moved to the module level.
+ *
+ * This transform works by identifying the class name in the IIFE class expression.
+ *
+ * my.name.space.MyClass = (function(){}());
+ *
+ * The transform is provided the name `my.name.space.MyClass` and when it finds a top level
+ * assignment expression that matches an IIFE class structure it replaces it with the contents
+ * of the function expression.
  */
 export const iifeClassFlattenerVisitor = {
 	/**
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
 	initialize(fullyQualifiedName) {
-		this._namespaceIterable = Iterable(fullyQualifiedName.split('.').reverse());
+		const nameParts = fullyQualifiedName.split('.').reverse();
+
+		this._namespaceIterable = Iterable(nameParts);
 		this._className = this._namespaceIterable.first();
 	},
 
@@ -31,7 +41,7 @@ export const iifeClassFlattenerVisitor = {
 	 */
 	visitIdentifier(identifierNodePath) {
 		const {parent} = identifierNodePath;
-		// Is this identifier the class name node `MyClass` of a fully namespaced expression `name.MyClass`
+		// Is this identifier the class name node `MyClass` of a fully namespaced expression `my.name.MyClass`
 		const isNamespacedExpression = isNamespacedExpressionNode(parent.node, this._namespaceIterable);
 
 		if (isNamespacedExpression && isRootPartOfIIFE(parent, identifierNodePath)) {
