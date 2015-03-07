@@ -35,7 +35,7 @@ var _globalCompiler = require("global-compiler");
 
 var namespacedClassVisitor = _globalCompiler.namespacedClassVisitor;
 var flattenMemberExpression = _globalCompiler.flattenMemberExpression;
-var namespacedIIFEClassVisitor = _globalCompiler.namespacedIIFEClassVisitor;
+var iifeClassFlattenerVisitor = _globalCompiler.iifeClassFlattenerVisitor;
 var verifyVarIsAvailableVisitor = _globalCompiler.verifyVarIsAvailableVisitor;
 var addRequireForGlobalIdentifierVisitor = _globalCompiler.addRequireForGlobalIdentifierVisitor;
 
@@ -72,8 +72,8 @@ function compileSourceFiles(options) {
 function flattenIIFEClass(fileMetadata, encoding, callback) {
 	var classNamespace = getFileNamespace(fileMetadata);
 
-	namespacedIIFEClassVisitor.initialize(classNamespace);
-	transformASTAndPushToNextStream(fileMetadata, namespacedIIFEClassVisitor, this, callback);
+	iifeClassFlattenerVisitor.initialize(classNamespace);
+	transformASTAndPushToNextStream(fileMetadata, iifeClassFlattenerVisitor, this, callback);
 }
 
 /**

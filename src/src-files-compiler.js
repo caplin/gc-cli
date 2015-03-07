@@ -10,7 +10,7 @@ const {defaultFormatCode} = require('js-formatter');
 import {
 	namespacedClassVisitor,
 	flattenMemberExpression,
-	namespacedIIFEClassVisitor,
+	iifeClassFlattenerVisitor,
 	verifyVarIsAvailableVisitor,
 	addRequireForGlobalIdentifierVisitor
 } from 'global-compiler';
@@ -75,8 +75,8 @@ export function compileSourceFiles(options) {
 function flattenIIFEClass(fileMetadata, encoding, callback) {
 	var classNamespace = getFileNamespace(fileMetadata);
 
-	namespacedIIFEClassVisitor.initialize(classNamespace);
-	transformASTAndPushToNextStream(fileMetadata, namespacedIIFEClassVisitor, this, callback);
+	iifeClassFlattenerVisitor.initialize(classNamespace);
+	transformASTAndPushToNextStream(fileMetadata, iifeClassFlattenerVisitor, this, callback);
 }
 
 /**
