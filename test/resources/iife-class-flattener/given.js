@@ -6,8 +6,10 @@ my.thirdparty('dep');
  * @returns {[[Type]]} [[Description]]
  */
 my.long.name.space.SimpleClass = (function() {
-	'use strict';
 
+	/**
+	 * Some docs.
+	 */
 	function SimpleClass(something, somethingElse) {
 	}
 

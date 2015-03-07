@@ -23,7 +23,7 @@ const {
  *
  * The transform is provided the name `my.name.space.MyClass` and when it finds a top level
  * assignment expression that matches an IIFE class structure it replaces it with the contents
- * of the function expression.
+ * of the IIFE.
  */
 export const iifeClassFlattenerVisitor = {
 	/**
@@ -88,5 +88,24 @@ function replaceIIFEWithItsContents(assignmentNodePath, className) {
 	});
 
 	assignmentNodePath.parent.replace(...iifeStatementsWithoutFinalReturn);
-	assignmentNodePath.parent.node.comments = comments;
+	reattachCommentsFromIIFE(assignmentNodePath.parent.node, comments);
+}
+
+/**
+ * When an IIFE is replaced with its contents the comments attached to it will be lost. We reattach them to the AST by
+ * adding them as part of the comments for the first statement in the IIFE.
+ *
+ * @param {ASTNode}    firstStatementInIIFE The first statement from the contents of the IIFE
+ * @param {Comment[]?} commentsFromIIFE     Comments attached to the IIFE
+ */
+function reattachCommentsFromIIFE(firstStatementInIIFE, commentsFromIIFE) {
+	const commentsFromFirstStatementInIIFE = firstStatementInIIFE.comments;
+
+	// If both the first statement in the IIFE and the IIFE have comments add the IIFE comments to the first statement
+	if (commentsFromIIFE && commentsFromFirstStatementInIIFE) {
+		commentsFromFirstStatementInIIFE.unshift(...commentsFromIIFE);
+	} else if (commentsFromIIFE) {
+		// If the first statement has no comments and the IIFE does then we can just assign the IIFE comments
+		firstStatementInIIFE.comments = commentsFromIIFE;
+	}
 }

@@ -5,8 +5,9 @@ my.thirdparty('dep');
  *
  * @returns {[[Type]]} [[Description]]
  */
-'use strict';
-
+/**
+ * Some docs.
+ */
 function SimpleClass(something, somethingElse) {
 }
 
