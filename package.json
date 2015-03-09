@@ -25,7 +25,6 @@
   "devDependencies": {
     "babel": "^4.6.3",
     "del": "^1.1.1",
-    "jasmine": "git://github.com/briandipalma/jasmine-npm",
     "mocha": "^2.1.0"
   },
   "preferGlobal": true,
