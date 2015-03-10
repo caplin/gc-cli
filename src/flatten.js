@@ -1,23 +1,8 @@
-const {Iterable} = require('immutable');
+import {List} from 'immutable';
 const builders = require('recast').types.builders;
 const namedTypes = require('recast').types.namedTypes;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
-
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
 
 /**
  * Converts all Expression trees that match the provided fully qualified class name.
@@ -28,8 +13,10 @@ export const namespacedClassVisitor = {
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
 	initialize(fullyQualifiedName) {
-		this._namespaceIterable = Iterable(fullyQualifiedName.split('.').reverse());
-		this._className = this._namespaceIterable.first();
+		const nameParts = fullyQualifiedName.split('.').reverse();
+
+		this._namespaceList = List.of(...nameParts);
+		this._className = this._namespaceList.first();
 	},
 
 	/**
@@ -38,7 +25,7 @@ export const namespacedClassVisitor = {
 	visitIdentifier(identifierNodePath) {
 		const parent = identifierNodePath.parent;
 
-		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceIterable)) {
+		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceList)) {
 			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
 		}
 
@@ -51,12 +38,12 @@ export const namespacedClassVisitor = {
  *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
  * @param {NodePath} identifierParentNodePath - Identifier parent NodePath.
- * @param {Iterable<string>} namespaceIterable - Fully qualified class name iterable.
+ * @param {List<string>} namespaceList - Fully qualified class name iterable.
  * @returns {boolean} true if identifier is root of a class namespaced expression.
  */
-function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceIterable) {
+function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceList) {
 	const isRootOfNamespace = (identifierParentNodePath.get('property') === identifierNodePath);
-	const isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceIterable);
+	const isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
 
 	return isInClassNamespace && isRootOfNamespace;
 }
