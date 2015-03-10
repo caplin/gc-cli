@@ -31,7 +31,7 @@ function GridView() {
 
 It also formats the code using the [js-formatter](https://github.com/briandipalma/js-formatter)
 tool and adds requires for specified globals i.e. `var jQuery = require('jQuery')` if they are
-found in the source code.
+found in the source code. To minimize changes you can format your code first and then run this tool.
 
 ### Mechanics
 
