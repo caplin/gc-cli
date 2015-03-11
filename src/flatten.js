@@ -1,8 +1,19 @@
+import {types} from 'recast';
 import {List} from 'immutable';
-const builders = require('recast').types.builders;
-const namedTypes = require('recast').types.namedTypes;
 
 import {isNamespacedExpressionNode} from './utils/utilities';
+
+const {
+	namedTypes: {
+		MemberExpression,
+		FunctionExpression,
+		AssignmentExpression
+	},
+	builders: {
+		identifier,
+		functionDeclaration
+	}
+} = types;
 
 /**
  * Converts all Expression trees that match the provided fully qualified class name.
@@ -56,14 +67,14 @@ function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, name
 function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
 	const grandParent = namespacedClassNodePath.parent;
 
-	if (namedTypes.AssignmentExpression.check(grandParent.node) &&
-		namedTypes.FunctionExpression.check(grandParent.node.right)) {
+	if (AssignmentExpression.check(grandParent.node) &&
+		FunctionExpression.check(grandParent.node.right)) {
 		const constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
 
 		// Move the constructor comments onto the function declaration that replaces it
 		constructorFunctionDeclaration.comments = grandParent.parent.node.comments;
 		grandParent.parent.replace(constructorFunctionDeclaration);
-	} else if (namedTypes.MemberExpression.check(namespacedClassNodePath.node)) {
+	} else if (MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
 	} else {
 		console.log('Namespaced expression not transformed, grandparent node type ::', grandParent.node.type);
@@ -78,8 +89,8 @@ function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, className
  */
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
 	const {right: functionExpression} = assignmentExpression;
-	const classConstructorDeclaration = builders.functionDeclaration(
-		builders.identifier(className),
+	const classConstructorDeclaration = functionDeclaration(
+		identifier(className),
 		functionExpression.params,
 		functionExpression.body
 	);
