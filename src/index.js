@@ -17,9 +17,9 @@ export {
 } from './utils/transformers';
 
 // Visitor exports
-export {namespacedClassVisitor} from './flatten';
 export {rootNamespaceVisitor} from './rootnstocjs';
 export {moduleIdVisitor} from './module-id-converter';
+export {namespacedClassFlattenerVisitor} from './flatten';
 export {nodePathLocatorVisitor} from './node-path-locator';
 export {wrapModuleInIIFEVisitor} from './wrap-module-in-iife';
 export {cjsRequireRemoverVisitor} from './cjs-require-remover';

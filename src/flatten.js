@@ -16,10 +16,15 @@ const {
 } = types;
 
 /**
- * Converts all Expression trees that match the provided fully qualified class name.
- * They will be mutated to flat Identifiers with the class name as their value.
+ * Flattens all Expression trees that match the provided fully qualified class name. They will be
+ * transformed to simple Identifiers with the class name as their value.
+ *
+ * This transform works by identifying class name expressions.
+ *
+ * my.name.space.MyClass = function(){};
+ *
  */
-export const namespacedClassVisitor = {
+export const namespacedClassFlattenerVisitor = {
 	/**
 	 * @param {string} fullyQualifiedName - The fully qualified class name.
 	 */
