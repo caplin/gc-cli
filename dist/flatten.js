@@ -1,40 +1,43 @@
 "use strict";
 
-var _require = require("immutable");
+var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
 
-var Iterable = _require.Iterable;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-var builders = require("recast").types.builders;
-var namedTypes = require("recast").types.namedTypes;
+var types = require("recast").types;
+
+var List = require("immutable").List;
 
 var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpressionNode;
 
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
+var _types$namedTypes = types.namedTypes;
+var MemberExpression = _types$namedTypes.MemberExpression;
+var FunctionExpression = _types$namedTypes.FunctionExpression;
+var AssignmentExpression = _types$namedTypes.AssignmentExpression;
+var _types$builders = types.builders;
+var identifier = _types$builders.identifier;
+var functionDeclaration = _types$builders.functionDeclaration;
 
 /**
- * AstTypes NodePath.
+ * Flattens all Expression trees that match the provided fully qualified class name. They will be
+ * transformed to simple Identifiers with the class name as their value.
  *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
+ * This transform works by identifying class name expressions.
+ *
+ * my.name.space.MyClass = function(){};
+ *
  */
-
-/**
- * Converts all Expression trees that match the provided fully qualified class name.
- * They will be mutated to flat Identifiers with the class name as their value.
- */
-var namespacedClassVisitor = exports.namespacedClassVisitor = {
+var namespacedClassFlattenerVisitor = {
 	/**
   * @param {string} fullyQualifiedName - The fully qualified class name.
   */
 	initialize: function initialize(fullyQualifiedName) {
-		this._namespaceIterable = Iterable(fullyQualifiedName.split(".").reverse());
-		this._className = this._namespaceIterable.first();
+		var nameParts = fullyQualifiedName.split(".").reverse();
+
+		this._namespaceList = List.of.apply(List, _toConsumableArray(nameParts));
+		this._className = this._namespaceList.first();
 	},
 
 	/**
@@ -43,7 +46,7 @@ var namespacedClassVisitor = exports.namespacedClassVisitor = {
 	visitIdentifier: function visitIdentifier(identifierNodePath) {
 		var parent = identifierNodePath.parent;
 
-		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceIterable)) {
+		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceList)) {
 			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
 		}
 
@@ -51,17 +54,18 @@ var namespacedClassVisitor = exports.namespacedClassVisitor = {
 	}
 };
 
+exports.namespacedClassFlattenerVisitor = namespacedClassFlattenerVisitor;
 /**
  * Checks if identifier is the root of class namespaced expression.
  *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
  * @param {NodePath} identifierParentNodePath - Identifier parent NodePath.
- * @param {Iterable<string>} namespaceIterable - Fully qualified class name iterable.
+ * @param {List<string>} namespaceList - Fully qualified class name iterable.
  * @returns {boolean} true if identifier is root of a class namespaced expression.
  */
-function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceIterable) {
+function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceList) {
 	var isRootOfNamespace = identifierParentNodePath.get("property") === identifierNodePath;
-	var isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceIterable);
+	var isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
 
 	return isInClassNamespace && isRootOfNamespace;
 }
@@ -74,13 +78,13 @@ function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, name
 function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
 	var grandParent = namespacedClassNodePath.parent;
 
-	if (namedTypes.AssignmentExpression.check(grandParent.node) && namedTypes.FunctionExpression.check(grandParent.node.right)) {
+	if (AssignmentExpression.check(grandParent.node) && FunctionExpression.check(grandParent.node.right)) {
 		var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
 
 		// Move the constructor comments onto the function declaration that replaces it
 		constructorFunctionDeclaration.comments = grandParent.parent.node.comments;
 		grandParent.parent.replace(constructorFunctionDeclaration);
-	} else if (namedTypes.MemberExpression.check(namespacedClassNodePath.node)) {
+	} else if (MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
 	} else {
 		console.log("Namespaced expression not transformed, grandparent node type ::", grandParent.node.type);
@@ -96,10 +100,7 @@ function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, className
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
 	var functionExpression = assignmentExpression.right;
 
-	var classConstructorDeclaration = builders.functionDeclaration(builders.identifier(className), functionExpression.params, functionExpression.body);
+	var classConstructorDeclaration = functionDeclaration(identifier(className), functionExpression.params, functionExpression.body);
 
 	return classConstructorDeclaration;
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

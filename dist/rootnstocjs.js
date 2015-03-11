@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _require = require("immutable");
 
 var Iterable = _require.Iterable;
@@ -43,7 +47,7 @@ var calculateUniqueModuleVariableId = _utilsUtilities.calculateUniqueModuleVaria
  * Converts all Expressions under the specified root namespaces.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
-var rootNamespaceVisitor = exports.rootNamespaceVisitor = {
+var rootNamespaceVisitor = {
 	/**
   * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
   * @param {AstNode[]} programStatements - Program body statements.
@@ -115,6 +119,7 @@ var rootNamespaceVisitor = exports.rootNamespaceVisitor = {
 	}
 };
 
+exports.rootNamespaceVisitor = rootNamespaceVisitor;
 /**
  * Does identifier value match a namespace root and is it at the root of an expression tree.
  *
@@ -328,6 +333,3 @@ function transformAllNamespacedExpressions(fullyQualifiedNameData, programStatem
 function preventClashesWithGlobals(moduleIdentifiers) {
 	moduleIdentifiers.add("Number").add("Error");
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

@@ -1,5 +1,8 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 /**
  * SpiderMonkey AST node.
  * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
@@ -19,7 +22,7 @@
  * This visitor finds all NodePaths that match certain criteria.
  * It performs no mutations itself but will notify a listener for each matched NodePath.
  */
-var nodePathLocatorVisitor = exports.nodePathLocatorVisitor = {
+var nodePathLocatorVisitor = {
 	/**
   * @param {Function} matchedNodesReceiver - Will receive a Map<string, NodePath[]> of matched NodePaths.
   * @param {Map<string, Function>} matchers - The matchers to test NodePaths against.
@@ -68,6 +71,7 @@ var nodePathLocatorVisitor = exports.nodePathLocatorVisitor = {
 	}
 };
 
+exports.nodePathLocatorVisitor = nodePathLocatorVisitor;
 /**
  * If the provided Map does not have a value array for the key create one. Add value to provided Map.
  *
@@ -82,6 +86,3 @@ function addToValueArray(key, value, matchedNodePaths) {
 		matchedNodePaths.set(key, [value]);
 	}
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

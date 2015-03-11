@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _require = require("immutable");
 
 var Iterable = _require.Iterable;
@@ -26,7 +30,7 @@ var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpres
 /**
  * Given the parts of a member expression flatten all occurences of it to the provided identifier.
  */
-var flattenMemberExpression = exports.flattenMemberExpression = {
+var flattenMemberExpression = {
 	/**
   * @param {string[]} memberExpressionParts - The parts of the member expression to flatten.
   * @param {string} replacementIdentifier - The name of the identifier to replace the flattened member expression.
@@ -47,6 +51,4 @@ var flattenMemberExpression = exports.flattenMemberExpression = {
 		this.traverse(memberExpressionNodePath);
 	}
 };
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+exports.flattenMemberExpression = flattenMemberExpression;

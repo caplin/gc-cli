@@ -66,6 +66,9 @@ exports.variableDeclaratorMatcher = variableDeclaratorMatcher;
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
 exports.memberExpressionMatcher = memberExpressionMatcher;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var namedTypes = require("recast").types.namedTypes;
 
@@ -170,7 +173,3 @@ function memberExpressionMatcher(_ref) {
     }
   };
 }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});

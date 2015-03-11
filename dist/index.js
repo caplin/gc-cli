@@ -1,5 +1,8 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 // Matcher exports
 
 var _utilsMatchers = require("./utils/matchers");
@@ -21,9 +24,9 @@ exports.extractProperties = _utilsTransformers.extractProperties;
 exports.composeTransformers = _utilsTransformers.composeTransformers;
 
 // Visitor exports
-exports.namespacedClassVisitor = require("./flatten").namespacedClassVisitor;
 exports.rootNamespaceVisitor = require("./rootnstocjs").rootNamespaceVisitor;
 exports.moduleIdVisitor = require("./module-id-converter").moduleIdVisitor;
+exports.namespacedClassFlattenerVisitor = require("./flatten").namespacedClassFlattenerVisitor;
 exports.nodePathLocatorVisitor = require("./node-path-locator").nodePathLocatorVisitor;
 exports.wrapModuleInIIFEVisitor = require("./wrap-module-in-iife").wrapModuleInIIFEVisitor;
 exports.cjsRequireRemoverVisitor = require("./cjs-require-remover").cjsRequireRemoverVisitor;
@@ -35,6 +38,3 @@ exports.verifyVarIsAvailableVisitor = require("./verify-var-is-available").verif
 exports.varNamespaceAliasExpanderVisitor = require("./var-namespace-alias-expander").varNamespaceAliasExpanderVisitor;
 exports.addRequireForGlobalIdentifierVisitor = require("./add-require-for-global-identifier").addRequireForGlobalIdentifierVisitor;
 exports.replaceLibraryIncludesWithRequiresVisitor = require("./replace-library-includes-with-requires").replaceLibraryIncludesWithRequiresVisitor;
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var builders = require("recast").types.builders;
 
 /**
@@ -20,7 +24,7 @@ var builders = require("recast").types.builders;
 /**
  *
  */
-var addModuleUseStrictVisitor = exports.addModuleUseStrictVisitor = {
+var addModuleUseStrictVisitor = {
 	/**
   * @param {NodePath} literalNodePath - Literal NodePath.
   */
@@ -43,6 +47,4 @@ var addModuleUseStrictVisitor = exports.addModuleUseStrictVisitor = {
 		programNodePath.get("body").unshift(useStrictStatement);
 	}
 };
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+exports.addModuleUseStrictVisitor = addModuleUseStrictVisitor;

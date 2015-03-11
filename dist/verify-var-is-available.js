@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var calculateUniqueModuleVariableId = require("./utils/utilities").calculateUniqueModuleVariableId;
 
 /**
@@ -20,7 +24,7 @@ var calculateUniqueModuleVariableId = require("./utils/utilities").calculateUniq
 /**
  * Will find a free variation of a variable name for use within a module AST.
  */
-var verifyVarIsAvailableVisitor = exports.verifyVarIsAvailableVisitor = {
+var verifyVarIsAvailableVisitor = {
 	initialize: function initialize() {
 		this._identifiersInModuleScope = new Set();
 	},
@@ -53,6 +57,4 @@ var verifyVarIsAvailableVisitor = exports.verifyVarIsAvailableVisitor = {
 		this.traverse(variableDeclaratorNodePath);
 	}
 };
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+exports.verifyVarIsAvailableVisitor = verifyVarIsAvailableVisitor;

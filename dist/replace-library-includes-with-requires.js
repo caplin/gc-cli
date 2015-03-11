@@ -2,6 +2,10 @@
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _require = require("immutable");
 
 var Iterable = _require.Iterable;
@@ -36,7 +40,7 @@ var isNamespacedExpressionNode = _utilsUtilities.isNamespacedExpressionNode;
  * This transform aims to identify and replace them with a standard `require`.
  * The only requires added will be ones that are present in the code and in the `moduleIDsToRequire` `Set`.
  */
-var replaceLibraryIncludesWithRequiresVisitor = exports.replaceLibraryIncludesWithRequiresVisitor = {
+var replaceLibraryIncludesWithRequiresVisitor = {
 	/**
   * @param {Set<string>} moduleIDsToRequire - The module IDs to require if included by non standard means.
   * @param {Iterable<string>} libraryIncludeIterable - A Iterable of names that correspond to a library include.
@@ -109,6 +113,7 @@ var replaceLibraryIncludesWithRequiresVisitor = exports.replaceLibraryIncludesWi
 	}
 };
 
+exports.replaceLibraryIncludesWithRequiresVisitor = replaceLibraryIncludesWithRequiresVisitor;
 /**
  * Checks if the given Node Path is a require CallExpression.
  *
@@ -135,6 +140,3 @@ function isALibraryInclude(callExpression, libraryIncludeIterable) {
 
 	return isNamespacedExpressionNode(callee.node, libraryIncludeIterable);
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

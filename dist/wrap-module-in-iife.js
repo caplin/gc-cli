@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var builders = require("recast").types.builders;
 
 /**
@@ -19,7 +23,7 @@ var builders = require("recast").types.builders;
 
 /**
  */
-var wrapModuleInIIFEVisitor = exports.wrapModuleInIIFEVisitor = {
+var wrapModuleInIIFEVisitor = {
   /**
    * @param {NodePath} programNodePath - Program NodePath.
    */
@@ -33,6 +37,4 @@ var wrapModuleInIIFEVisitor = exports.wrapModuleInIIFEVisitor = {
     return false;
   }
 };
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+exports.wrapModuleInIIFEVisitor = wrapModuleInIIFEVisitor;

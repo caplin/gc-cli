@@ -2,6 +2,10 @@
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _require$types = require("recast").types;
 
 var builders = _require$types.builders;
@@ -27,7 +31,7 @@ var createRequireDeclaration = require("./utils/utilities").createRequireDeclara
 /**
  * This transform adds CJS requires for specified global identifiers.
  */
-var addRequireForGlobalIdentifierVisitor = exports.addRequireForGlobalIdentifierVisitor = {
+var addRequireForGlobalIdentifierVisitor = {
 	/**
   * @param {Map<Sequence<string>, string>} identifiersToRequire - The identifiers that should be required.
   * @param {AstNode[]} programStatements - Program body statements.
@@ -85,6 +89,7 @@ var addRequireForGlobalIdentifierVisitor = exports.addRequireForGlobalIdentifier
 	}
 };
 
+exports.addRequireForGlobalIdentifierVisitor = addRequireForGlobalIdentifierVisitor;
 /**
  * Checks if identifier is an identifier to create a require for.
  *
@@ -210,6 +215,3 @@ function addRequiresForGlobalIdentifiers(matchedGlobalIdentifiers, identifiersTo
 		}
 	}
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

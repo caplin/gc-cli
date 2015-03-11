@@ -44,6 +44,9 @@ exports.getNamespacePath = getNamespacePath;
  * @returns {boolean} true if variable parts are a namespace alias.
  */
 exports.isNamespaceAlias = isNamespaceAlias;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
 var _require = require("immutable");
 
@@ -173,6 +176,3 @@ function isNamespacedExpression(_x, _x2) {
 		return false;
 	}
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

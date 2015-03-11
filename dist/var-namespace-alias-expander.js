@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var namedTypes = require("recast").types.namedTypes;
 
 var _require = require("recast");
@@ -36,7 +40,7 @@ shim();
  * This transform will discover aliases to namespace paths, bound as vars, and when these aliases are
  * detected in the AST it will expand the alias identifier to the complete namespace path.
  */
-var varNamespaceAliasExpanderVisitor = exports.varNamespaceAliasExpanderVisitor = {
+var varNamespaceAliasExpanderVisitor = {
 	/**
   * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
   */
@@ -66,6 +70,7 @@ var varNamespaceAliasExpanderVisitor = exports.varNamespaceAliasExpanderVisitor 
 	}
 };
 
+exports.varNamespaceAliasExpanderVisitor = varNamespaceAliasExpanderVisitor;
 /**
  * Checks if the provided identifier could be bound to a namespace alias.
  *
@@ -213,6 +218,3 @@ function addIdentifierAssignments(identifierBindings, identifierScopeNodePath, i
 
 	visit(identifierScopeNodePath, assignmentVisitor);
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

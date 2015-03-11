@@ -25,6 +25,9 @@ exports.extractParent = extractParent;
  * @returns {Function}          Child NodePath extractor.
  */
 exports.extractProperties = extractProperties;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 function composeTransformers() {
   for (var _len = arguments.length, transforms = Array(_len), _key = 0; _key < _len; _key++) {
@@ -59,7 +62,3 @@ function extractProperties() {
     return nodePath.get.apply(nodePath, properties);
   };
 }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});

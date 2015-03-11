@@ -2,6 +2,9 @@
 
 var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var namedTypes = require("recast").types.namedTypes;
 
 /**
@@ -23,7 +26,7 @@ var namedTypes = require("recast").types.namedTypes;
  * Removes all IIFEs at the Program level.
  * They will have their function lexical scope contents moved to the top module level.
  */
-var flattenProgramIIFEVisitor = exports.flattenProgramIIFEVisitor = {
+var flattenProgramIIFEVisitor = {
   /**
    * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
    */
@@ -45,6 +48,4 @@ var flattenProgramIIFEVisitor = exports.flattenProgramIIFEVisitor = {
     this.traverse(callExpressionNodePath);
   }
 };
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+exports.flattenProgramIIFEVisitor = flattenProgramIIFEVisitor;

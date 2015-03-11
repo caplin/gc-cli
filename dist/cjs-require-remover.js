@@ -1,5 +1,8 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 var builders = require("recast").types.builders;
 var namedTypes = require("recast").types.namedTypes;
 
@@ -21,7 +24,7 @@ var namedTypes = require("recast").types.namedTypes;
 /**
  * Removes all CJS module ids in the provided `moduleIdsToRemove` `Set`.
  */
-var cjsRequireRemoverVisitor = exports.cjsRequireRemoverVisitor = {
+var cjsRequireRemoverVisitor = {
 	/**
   * @param {Set<string>} moduleIdsToRemove - The module requires to remove.
   */
@@ -41,6 +44,7 @@ var cjsRequireRemoverVisitor = exports.cjsRequireRemoverVisitor = {
 	}
 };
 
+exports.cjsRequireRemoverVisitor = cjsRequireRemoverVisitor;
 /**
  * Checks if the given Node Path is for a require statement that should be removed.
  *
@@ -65,6 +69,3 @@ function isARequireThatMustBeRemoved(variableDeclarationNodePath, moduleIdsToRem
 
 	return false;
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

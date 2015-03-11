@@ -2,9 +2,13 @@
 
 var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var types = require("recast").types;
 
-var Iterable = require("immutable").Iterable;
+var List = require("immutable").List;
 
 var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpressionNode;
 
@@ -15,9 +19,8 @@ var ReturnStatement = _types$namedTypes.ReturnStatement;
 var AssignmentExpression = _types$namedTypes.AssignmentExpression;
 
 /**
- * Convert an IIFEs if its result is bound to an identifier that matches the provided fully
- * qualified class name.
- * The IIFE contents will be moved to the module level.
+ * Flattens an IIFEs if its result is bound to an expression that matches the fully qualified
+ * class name. The IIFE contents will be moved to the module level.
  *
  * This transform works by identifying the class name in the IIFE class expression.
  *
@@ -27,25 +30,25 @@ var AssignmentExpression = _types$namedTypes.AssignmentExpression;
  * assignment expression that matches an IIFE class structure it replaces it with the contents
  * of the IIFE.
  */
-var iifeClassFlattenerVisitor = exports.iifeClassFlattenerVisitor = {
+var iifeClassFlattenerVisitor = {
 	/**
-  * @param {string} fullyQualifiedName - The fully qualified class name.
+  * @param {string} fullyQualifiedName The fully qualified class name
   */
 	initialize: function initialize(fullyQualifiedName) {
 		var nameParts = fullyQualifiedName.split(".").reverse();
 
-		this._namespaceIterable = Iterable(nameParts);
-		this._className = this._namespaceIterable.first();
+		this._namespaceList = List.of.apply(List, _toConsumableArray(nameParts));
+		this._className = this._namespaceList.first();
 	},
 
 	/**
-  * @param {NodePath} identifierNodePath - Identifier NodePath.
+  * @param {NodePath} identifierNodePath Identifier NodePath
   */
 	visitIdentifier: function visitIdentifier(identifierNodePath) {
 		var parent = identifierNodePath.parent;
 
 		// Is this identifier the class name node `MyClass` of a fully namespaced expression `my.name.MyClass`
-		var isNamespacedExpression = isNamespacedExpressionNode(parent.node, this._namespaceIterable);
+		var isNamespacedExpression = isNamespacedExpressionNode(parent.node, this._namespaceList);
 
 		if (isNamespacedExpression && isRootPartOfIIFE(parent, identifierNodePath)) {
 			replaceIIFEWithItsContents(parent.parent, this._className);
@@ -55,6 +58,7 @@ var iifeClassFlattenerVisitor = exports.iifeClassFlattenerVisitor = {
 	}
 };
 
+exports.iifeClassFlattenerVisitor = iifeClassFlattenerVisitor;
 /**
  * Verify that the namespaced NodePath is part of an IIFE which is located at the top level of the
  * script.
@@ -77,8 +81,8 @@ function isRootPartOfIIFE(namespacedNodePath, classNameNodePath) {
 }
 
 /**
- * @param {NodePath} assignmentNodePath - Assignment node path containing IIFE.
- * @param {string} className - The class name.
+ * @param {NodePath} assignmentNodePath Assignment node path containing IIFE
+ * @param {string}   className          The class name
  */
 function replaceIIFEWithItsContents(assignmentNodePath, className) {
 	var _assignmentNodePath$parent;
@@ -99,8 +103,8 @@ function replaceIIFEWithItsContents(assignmentNodePath, className) {
  * When an IIFE is replaced with its contents the comments attached to it will be lost. We reattach them to the AST by
  * adding them as part of the comments for the first statement in the IIFE.
  *
- * @param {ASTNode}    firstStatementInIIFE The first statement from the contents of the IIFE
- * @param {Comment[]?} commentsFromIIFE     Comments attached to the IIFE
+ * @param {ASTNode}   firstStatementInIIFE The first statement from the contents of the IIFE
+ * @param {Comment[]} commentsFromIIFE     Comments attached to the IIFE
  */
 function reattachCommentsFromIIFE(firstStatementInIIFE, commentsFromIIFE) {
 	var commentsFromFirstStatementInIIFE = firstStatementInIIFE.comments;
@@ -113,6 +117,3 @@ function reattachCommentsFromIIFE(firstStatementInIIFE, commentsFromIIFE) {
 		firstStatementInIIFE.comments = commentsFromIIFE;
 	}
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

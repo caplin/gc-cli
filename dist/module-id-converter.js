@@ -1,5 +1,8 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 var builders = require("recast").types.builders;
 var namedTypes = require("recast").types.namedTypes;
 
@@ -22,7 +25,7 @@ var namedTypes = require("recast").types.namedTypes;
  * Transforms all CJS module ids in the provided `moduleIdsToConvert` `Map` to their value in the `Map`.
  * It will also transform the module identifier name.
  */
-var moduleIdVisitor = exports.moduleIdVisitor = {
+var moduleIdVisitor = {
 	/**
   * @param {Map<string, string>} moduleIdsToConvert - The module Ids to convert.
   */
@@ -40,6 +43,7 @@ var moduleIdVisitor = exports.moduleIdVisitor = {
 	}
 };
 
+exports.moduleIdVisitor = moduleIdVisitor;
 /**
  * Replace any module ids that match the module ids to transform.
  *
@@ -64,6 +68,3 @@ function replaceModuleIdsToTransform(identifierNode, identifierParentNodePath, m
 		}
 	}
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
