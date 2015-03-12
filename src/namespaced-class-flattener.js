@@ -62,7 +62,7 @@ export const namespacedClassFlattenerVisitor = {
  * @param {NodePath}     identifierNodePath       Identifier NodePath
  * @param {NodePath}     identifierParentNodePath Identifier parent NodePath
  * @param {List<string>} namespaceList            Fully qualified class name iterable
- * @returns {boolean} true if identifier is root of a class namespaced expression
+ * @returns {boolean}                             true if identifier is the class name
  */
 function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceList) {
 	// Is the identifier being tested the class name identifier i.e. `MyClass`
