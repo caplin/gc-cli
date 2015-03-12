@@ -19,13 +19,13 @@ const {
  * Flattens all Expression trees that match the provided fully qualified class name. They will be
  * transformed to simple Identifiers with the class name as their value.
  *
- * This transform works by identifying class name expressions such as.
+ * This transform works by identifying class name expressions such as,
  *
  * my.name.space.MyClass = function(){};
  *
  * my.name.space.MyClass.protoype.myMethod = function(){};
  * 
- * And flattening them to
+ * and flattening them to
  *
  * function MyClass(){};
  *
@@ -65,11 +65,11 @@ export const namespacedClassFlattenerVisitor = {
  * @returns {boolean}                             true if identifier is the class name
  */
 function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceList) {
-	// Is the identifier being tested the class name identifier i.e. `MyClass`
-	const isClassNamespaceLeaf = (identifierParentNodePath.get('property') === identifierNodePath);
+	// Is the identifier being tested the leaf of an expression
+	const isIdentifierLeafNode = (identifierParentNodePath.get('property') === identifierNodePath);
 	const isClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
 
-	return isClassNamespace && isClassNamespaceLeaf;
+	return isClassNamespace && isIdentifierLeafNode;
 }
 
 /**
