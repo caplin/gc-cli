@@ -24,7 +24,7 @@ const {
  * my.name.space.MyClass = function(){};
  *
  * my.name.space.MyClass.protoype.myMethod = function(){};
- * 
+ *
  * and flattening them to
  *
  * function MyClass(){};
