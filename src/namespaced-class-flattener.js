@@ -54,7 +54,7 @@ export const namespacedClassFlattenerVisitor = {
 
 		this.traverse(identifierNodePath);
 	}
-}
+};
 
 /**
  * Checks if identifier is the leaf of class namespaced expression. The leaf being the class name.
@@ -99,6 +99,7 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
  *
  * @param {AstNode} assignmentExpression AssignmentExpression AstNode
  * @param {string}  className            The class name
+ * @returns {AstNode} Constructor function declaration
  */
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
 	const {right: functionExpression} = assignmentExpression;
