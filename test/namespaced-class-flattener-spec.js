@@ -1,55 +1,56 @@
-const fs = require('fs');
-const assert = require('assert');
+import {equal} from 'assert';
+import {readFileSync} from 'fs';
 
-const {parse, print, visit} = require('recast');
+import {parse, print, visit} from 'recast';
+
 import {namespacedClassFlattenerVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'test/resources/namespaced-class-flattener/';
 
-const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
+const givenCode = readFileSync(testResourcesLocation + 'given.js', fileOptions);
+const expectedCode = readFileSync(testResourcesLocation + 'expected.js', fileOptions);
 const givenAST = parse(givenCode);
 
-const givenObjectCode = fs.readFileSync(testResourcesLocation + 'given-object.js', fileOptions);
-const expectedObjectCode = fs.readFileSync(testResourcesLocation + 'expected-object.js', fileOptions);
+const givenObjectCode = readFileSync(testResourcesLocation + 'given-object.js', fileOptions);
+const expectedObjectCode = readFileSync(testResourcesLocation + 'expected-object.js', fileOptions);
 const givenObjectAST = parse(givenObjectCode);
 
-const givenTwoLevelObjectCode = fs.readFileSync(testResourcesLocation + 'given-twolevel.js', fileOptions);
-const expectedTwoLevelObjectCode = fs.readFileSync(testResourcesLocation + 'expected-twolevel.js', fileOptions);
+const givenTwoLevelObjectCode = readFileSync(testResourcesLocation + 'given-twolevel.js', fileOptions);
+const expectedTwoLevelObjectCode = readFileSync(testResourcesLocation + 'expected-twolevel.js', fileOptions);
 const givenTwoLevelObjectAST = parse(givenTwoLevelObjectCode);
 
-describe('Namespaced class flattening', function() {
-	it('should remove the class namespace.', function() {
-		//Given.
+describe('Namespaced class flattening', () => {
+	it('should remove the class namespace.', () => {
+		// Given
 		namespacedClassFlattenerVisitor.initialize('my.long.name.space.SimpleClass');
 
-		//When.
+		// When
 		visit(givenAST, namespacedClassFlattenerVisitor);
 
-		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		// Then
+		equal(print(givenAST).code, expectedCode);
 	});
 
-	it('should remove object namespacing.', function() {
-		//Given.
+	it('should remove object namespacing.', () => {
+		// Given
 		namespacedClassFlattenerVisitor.initialize('my.long.name.space.SimpleObject');
 
-		//When.
+		// When
 		visit(givenObjectAST, namespacedClassFlattenerVisitor);
 
-		//Then.
-		assert.equal(print(givenObjectAST).code, expectedObjectCode);
+		// Then
+		equal(print(givenObjectAST).code, expectedObjectCode);
 	});
 
-	it('should remove two level object namespacing.', function() {
-		//Given.
+	it('should remove two level object namespacing.', () => {
+		// Given
 		namespacedClassFlattenerVisitor.initialize('my.SimpleUtilityObject');
 
-		//When.
+		// When
 		visit(givenTwoLevelObjectAST, namespacedClassFlattenerVisitor);
 
-		//Then.
-		assert.equal(print(givenTwoLevelObjectAST).code, expectedTwoLevelObjectCode);
+		// Then
+		equal(print(givenTwoLevelObjectAST).code, expectedTwoLevelObjectCode);
 	});
 });
