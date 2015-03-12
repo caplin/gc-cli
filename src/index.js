@@ -19,7 +19,6 @@ export {
 // Visitor exports
 export {rootNamespaceVisitor} from './rootnstocjs';
 export {moduleIdVisitor} from './module-id-converter';
-export {namespacedClassFlattenerVisitor} from './flatten';
 export {nodePathLocatorVisitor} from './node-path-locator';
 export {wrapModuleInIIFEVisitor} from './wrap-module-in-iife';
 export {cjsRequireRemoverVisitor} from './cjs-require-remover';
@@ -28,6 +27,7 @@ export {flattenProgramIIFEVisitor} from './flatten-program-iife';
 export {addModuleUseStrictVisitor} from './add-module-use-strict';
 export {flattenMemberExpression} from './flatten-member-expression';
 export {verifyVarIsAvailableVisitor} from './verify-var-is-available';
+export {namespacedClassFlattenerVisitor} from './namespaced-class-flattener';
 export {varNamespaceAliasExpanderVisitor} from './var-namespace-alias-expander';
 export {addRequireForGlobalIdentifierVisitor} from './add-require-for-global-identifier';
 export {replaceLibraryIncludesWithRequiresVisitor} from './replace-library-includes-with-requires';

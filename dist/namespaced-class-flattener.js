@@ -24,14 +24,21 @@ var functionDeclaration = _types$builders.functionDeclaration;
  * Flattens all Expression trees that match the provided fully qualified class name. They will be
  * transformed to simple Identifiers with the class name as their value.
  *
- * This transform works by identifying class name expressions.
+ * This transform works by identifying class name expressions such as.
  *
  * my.name.space.MyClass = function(){};
  *
+ * my.name.space.MyClass.protoype.myMethod = function(){};
+ * 
+ * And flattening them to
+ *
+ * function MyClass(){};
+ *
+ * MyClass.protoype.myMethod = function(){};
  */
 var namespacedClassFlattenerVisitor = {
 	/**
-  * @param {string} fullyQualifiedName - The fully qualified class name.
+  * @param {string} fullyQualifiedName The fully qualified class name
   */
 	initialize: function initialize(fullyQualifiedName) {
 		var nameParts = fullyQualifiedName.split(".").reverse();
@@ -41,13 +48,13 @@ var namespacedClassFlattenerVisitor = {
 	},
 
 	/**
-  * @param {NodePath} identifierNodePath - Identifier NodePath.
+  * @param {NodePath} identifierNodePath Identifier NodePath
   */
 	visitIdentifier: function visitIdentifier(identifierNodePath) {
 		var parent = identifierNodePath.parent;
 
 		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceList)) {
-			replaceNamespacedClassWithIdentifier(parent, identifierNodePath.node, this._className);
+			replaceClassNamespaceWithIdentifier(parent, identifierNodePath.node, this._className);
 		}
 
 		this.traverse(identifierNodePath);
@@ -56,28 +63,30 @@ var namespacedClassFlattenerVisitor = {
 
 exports.namespacedClassFlattenerVisitor = namespacedClassFlattenerVisitor;
 /**
- * Checks if identifier is the root of class namespaced expression.
+ * Checks if identifier is the leaf of class namespaced expression. The leaf being the class name.
  *
- * @param {NodePath} identifierNodePath - Identifier NodePath.
- * @param {NodePath} identifierParentNodePath - Identifier parent NodePath.
- * @param {List<string>} namespaceList - Fully qualified class name iterable.
- * @returns {boolean} true if identifier is root of a class namespaced expression.
+ * @param {NodePath}     identifierNodePath       Identifier NodePath
+ * @param {NodePath}     identifierParentNodePath Identifier parent NodePath
+ * @param {List<string>} namespaceList            Fully qualified class name iterable
+ * @returns {boolean} true if identifier is root of a class namespaced expression
  */
 function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceList) {
-	var isRootOfNamespace = identifierParentNodePath.get("property") === identifierNodePath;
-	var isInClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
+	// Is the identifier being tested the class name identifier i.e. `MyClass`
+	var isClassNamespaceLeaf = identifierParentNodePath.get("property") === identifierNodePath;
+	var isClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
 
-	return isInClassNamespace && isRootOfNamespace;
+	return isClassNamespace && isClassNamespaceLeaf;
 }
 
 /**
- * @param {NodePath} namespacedClassNodePath - Root of the fully qualified namespaced NodePath.
- * @param {AstNode} classNameIdentifierNode - Identifier AstNode.
- * @param {string} className - The class name.
+ * @param {NodePath} namespacedClassNodePath Leaf of the fully qualified namespaced NodePath
+ * @param {AstNode}  classNameIdentifierNode Identifier AstNode
+ * @param {string}   className               The class name
  */
-function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
+function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
 	var grandParent = namespacedClassNodePath.parent;
 
+	// Is the namespaced expression a class constructor
 	if (AssignmentExpression.check(grandParent.node) && FunctionExpression.check(grandParent.node.right)) {
 		var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
 
@@ -94,8 +103,8 @@ function replaceNamespacedClassWithIdentifier(namespacedClassNodePath, className
 /**
  * Given a class constructor AssignmentExpression AstNode create a FunctionDeclaration class constructor.
  *
- * @param {AstNode} assignmentExpression - AssignmentExpression AstNode.
- * @param {string} className - The class name.
+ * @param {AstNode} assignmentExpression AssignmentExpression AstNode
+ * @param {string}  className            The class name
  */
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
 	var functionExpression = assignmentExpression.right;
