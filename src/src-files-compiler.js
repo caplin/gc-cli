@@ -8,10 +8,10 @@ var {Iterable} = require('immutable');
 const {defaultFormatCode} = require('js-formatter');
 
 import {
-	namespacedClassVisitor,
 	flattenMemberExpression,
 	iifeClassFlattenerVisitor,
 	verifyVarIsAvailableVisitor,
+	namespacedClassFlattenerVisitor,
 	addRequireForGlobalIdentifierVisitor
 } from 'global-compiler';
 
@@ -90,8 +90,8 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
 function flattenClass(fileMetadata, encoding, callback) {
 	var classNamespace = getFileNamespace(fileMetadata);
 
-	namespacedClassVisitor.initialize(classNamespace);
-	transformASTAndPushToNextStream(fileMetadata, namespacedClassVisitor, this, callback);
+	namespacedClassFlattenerVisitor.initialize(classNamespace);
+	transformASTAndPushToNextStream(fileMetadata, namespacedClassFlattenerVisitor, this, callback);
 }
 
 /**
