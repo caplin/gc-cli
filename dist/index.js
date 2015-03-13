@@ -25,6 +25,9 @@ exports.createOptionsObject = createOptionsObject;
  * @param {OptionsObject} optionsObject - Options to configure transforms.
  */
 exports.processFile = processFile;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
 var _require = require("immutable");
 
@@ -62,7 +65,3 @@ function processFile(optionsObject) {
 		compileSourceFiles(optionsObject);
 	}
 }
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

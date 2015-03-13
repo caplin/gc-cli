@@ -94,6 +94,9 @@ exports.addModuleUseStrict = addModuleUseStrict;
  * @returns {Function} Stream transform implementation which sets parsed AST on `contents` of FileMetadata.
  */
 exports.convertASTToBuffer = convertASTToBuffer;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 var chalk = require("chalk");
 var through2 = require("through2");
 var parse = require("recast").parse;
@@ -302,7 +305,3 @@ function convertASTToBuffer() {
 		callback();
 	});
 }
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

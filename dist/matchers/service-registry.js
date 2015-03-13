@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _globalCompiler = require("global-compiler");
 
 var composeMatchers = _globalCompiler.composeMatchers;
@@ -11,9 +15,7 @@ var memberExpressionMatcher = _globalCompiler.memberExpressionMatcher;
 var getServiceMatcher = composeMatchers(identifierMatcher("caplin"), memberExpressionMatcher({ property: identifierMatcher("core") }), memberExpressionMatcher({ property: identifierMatcher("ServiceRegistry") }), memberExpressionMatcher({ property: identifierMatcher("getService") }), callExpressionMatcher());
 
 // Map<string, Function> matchers to test NodePaths against
-var getServiceMatchers = exports.getServiceMatchers = new Map();
+var getServiceMatchers = new Map();
 
+exports.getServiceMatchers = getServiceMatchers;
 getServiceMatchers.set("Identifier", getServiceMatcher);
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

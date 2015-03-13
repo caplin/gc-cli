@@ -8,6 +8,9 @@
  * @returns {Function} Transformer function
  */
 exports.getServiceTransformer = getServiceTransformer;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
 var builders = require("recast").types.builders;
 
@@ -22,7 +25,3 @@ var identifier = builders.identifier;
 function getServiceTransformer(serviceAlias) {
 	return composeTransformers(extractParent(), extractParent(), extractParent(), identifier("require"), extractParent(), extractProperties("arguments", 0), literal("service!" + serviceAlias));
 }
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

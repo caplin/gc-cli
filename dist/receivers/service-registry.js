@@ -1,6 +1,9 @@
 "use strict";
 
 exports.getServiceNodesReceiver = getServiceNodesReceiver;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
 var getServiceTransformer = require("../transformers/service-registry").getServiceTransformer;
 
@@ -16,7 +19,3 @@ function getServiceNodesReceiver(matchedNodePaths) {
 		serviceTransformer(identifierNodePath);
 	});
 }
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});

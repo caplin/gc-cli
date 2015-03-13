@@ -28,6 +28,9 @@ exports.getFileNamespace = getFileNamespace;
  * @returns {Array} File namespace parts.
  */
 exports.getFileNamespaceParts = getFileNamespaceParts;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var path = require("path");
 
 var chalk = require("chalk");
@@ -53,7 +56,3 @@ function getFileNamespace(fileMetadata) {
 function getFileNamespaceParts(fileMetadata) {
   return fileMetadata.relative.replace(/\.js$/, "").split(path.sep);
 }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});

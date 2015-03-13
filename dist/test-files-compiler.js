@@ -26,6 +26,9 @@
  * @param {OptionsObject} options - Options to configure transforms.
  */
 exports.compileTestFiles = compileTestFiles;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var vinylFs = require("vinyl-fs");
 var through2 = require("through2");
 
@@ -75,6 +78,3 @@ function flattenProgramIIFE(fileMetadata, encoding, callback) {
 function wrapModuleInIIFE(fileMetadata, encoding, callback) {
   transformASTAndPushToNextStream(fileMetadata, wrapModuleInIIFEVisitor, this, callback);
 }
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});

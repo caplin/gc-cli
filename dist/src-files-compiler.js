@@ -13,6 +13,9 @@
  * @param {OptionsObject} options - Options to configure transforms.
  */
 exports.compileSourceFiles = compileSourceFiles;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 var fs = require("fs");
 var path = require("path");
 
@@ -33,10 +36,10 @@ var defaultFormatCode = _require3.defaultFormatCode;
 
 var _globalCompiler = require("global-compiler");
 
-var namespacedClassVisitor = _globalCompiler.namespacedClassVisitor;
 var flattenMemberExpression = _globalCompiler.flattenMemberExpression;
 var iifeClassFlattenerVisitor = _globalCompiler.iifeClassFlattenerVisitor;
 var verifyVarIsAvailableVisitor = _globalCompiler.verifyVarIsAvailableVisitor;
+var namespacedClassFlattenerVisitor = _globalCompiler.namespacedClassFlattenerVisitor;
 var addRequireForGlobalIdentifierVisitor = _globalCompiler.addRequireForGlobalIdentifierVisitor;
 
 var _commonTransforms = require("./common-transforms");
@@ -87,8 +90,8 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
 function flattenClass(fileMetadata, encoding, callback) {
 	var classNamespace = getFileNamespace(fileMetadata);
 
-	namespacedClassVisitor.initialize(classNamespace);
-	transformASTAndPushToNextStream(fileMetadata, namespacedClassVisitor, this, callback);
+	namespacedClassFlattenerVisitor.initialize(classNamespace);
+	transformASTAndPushToNextStream(fileMetadata, namespacedClassFlattenerVisitor, this, callback);
 }
 
 /**
@@ -127,6 +130,3 @@ function createJSStyleFiles() {
 		fs.writeFile(path.join("tests", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
 	};
 }
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
