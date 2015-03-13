@@ -5,12 +5,15 @@ import {isNamespacedExpressionNode} from './utils/utilities';
 
 const {
 	namedTypes: {
+		ObjectExpression,
 		MemberExpression,
 		FunctionExpression,
 		AssignmentExpression
 	},
 	builders: {
 		identifier,
+		variableDeclarator,
+		variableDeclaration,
 		functionDeclaration
 	}
 } = types;
@@ -87,6 +90,14 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
 		// Move the constructor comments onto the function declaration that replaces it
 		constructorFunctionDeclaration.comments = grandParent.parent.node.comments;
 		grandParent.parent.replace(constructorFunctionDeclaration);
+	} else if (AssignmentExpression.check(grandParent.node) && ObjectExpression.check(grandParent.node.right)) {
+		// Is the namespaced expression an object literal i.e. my.name.MyClass = {}
+		const classVariableDeclarator = variableDeclarator(classNameIdentifierNode, grandParent.node.right);
+		const classVariableDeclaration = variableDeclaration('var', [classVariableDeclarator]);
+
+		// Move the constructor comments onto the function declaration that replaces it
+		classVariableDeclaration.comments = grandParent.parent.node.comments;
+		grandParent.parent.replace(classVariableDeclaration);
 	} else if (MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
 	} else {

@@ -1,4 +1,7 @@
-SimpleUtilityObject = {}
+/**
+ * Docs
+ */
+var SimpleUtilityObject = {};
 
 SimpleUtilityObject.staticUtilityMethod = function() {}
 

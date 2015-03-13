@@ -1,3 +1,6 @@
+/**
+ * Docs
+ */
 my.SimpleUtilityObject = {}
 
 my.SimpleUtilityObject.staticUtilityMethod = function() {}

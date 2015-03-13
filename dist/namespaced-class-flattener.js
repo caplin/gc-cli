@@ -13,24 +13,27 @@ var List = require("immutable").List;
 var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpressionNode;
 
 var _types$namedTypes = types.namedTypes;
+var ObjectExpression = _types$namedTypes.ObjectExpression;
 var MemberExpression = _types$namedTypes.MemberExpression;
 var FunctionExpression = _types$namedTypes.FunctionExpression;
 var AssignmentExpression = _types$namedTypes.AssignmentExpression;
 var _types$builders = types.builders;
 var identifier = _types$builders.identifier;
+var variableDeclarator = _types$builders.variableDeclarator;
+var variableDeclaration = _types$builders.variableDeclaration;
 var functionDeclaration = _types$builders.functionDeclaration;
 
 /**
  * Flattens all Expression trees that match the provided fully qualified class name. They will be
  * transformed to simple Identifiers with the class name as their value.
  *
- * This transform works by identifying class name expressions such as.
+ * This transform works by identifying class name expressions such as,
  *
  * my.name.space.MyClass = function(){};
  *
  * my.name.space.MyClass.protoype.myMethod = function(){};
- * 
- * And flattening them to
+ *
+ * and flattening them to
  *
  * function MyClass(){};
  *
@@ -68,14 +71,14 @@ exports.namespacedClassFlattenerVisitor = namespacedClassFlattenerVisitor;
  * @param {NodePath}     identifierNodePath       Identifier NodePath
  * @param {NodePath}     identifierParentNodePath Identifier parent NodePath
  * @param {List<string>} namespaceList            Fully qualified class name iterable
- * @returns {boolean} true if identifier is root of a class namespaced expression
+ * @returns {boolean}                             true if identifier is the class name
  */
 function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceList) {
-	// Is the identifier being tested the class name identifier i.e. `MyClass`
-	var isClassNamespaceLeaf = identifierParentNodePath.get("property") === identifierNodePath;
+	// Is the identifier being tested the leaf of an expression
+	var isIdentifierLeafNode = identifierParentNodePath.get("property") === identifierNodePath;
 	var isClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
 
-	return isClassNamespace && isClassNamespaceLeaf;
+	return isClassNamespace && isIdentifierLeafNode;
 }
 
 /**
@@ -93,6 +96,14 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
 		// Move the constructor comments onto the function declaration that replaces it
 		constructorFunctionDeclaration.comments = grandParent.parent.node.comments;
 		grandParent.parent.replace(constructorFunctionDeclaration);
+	} else if (AssignmentExpression.check(grandParent.node) && ObjectExpression.check(grandParent.node.right)) {
+		// Is the namespaced expression an object literal i.e. my.name.MyClass = {}
+		var classVariableDeclarator = variableDeclarator(classNameIdentifierNode, grandParent.node.right);
+		var classVariableDeclaration = variableDeclaration("var", [classVariableDeclarator]);
+
+		// Move the constructor comments onto the function declaration that replaces it
+		classVariableDeclaration.comments = grandParent.parent.node.comments;
+		grandParent.parent.replace(classVariableDeclaration);
 	} else if (MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
 	} else {
@@ -105,6 +116,7 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
  *
  * @param {AstNode} assignmentExpression AssignmentExpression AstNode
  * @param {string}  className            The class name
+ * @returns {AstNode} Constructor function declaration
  */
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
 	var functionExpression = assignmentExpression.right;
