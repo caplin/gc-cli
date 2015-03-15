@@ -7,6 +7,7 @@
     "build": "npm run lint && npm run test && npm run compile",
     "test": "mocha -R min --compilers js:babel/register test/**",
     "test:debug": "node --debug _mocha",
+    "precompile": "rimraf dist",
     "compile": "babel src --out-dir dist"
   },
   "repository": {
