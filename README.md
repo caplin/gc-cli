@@ -5,15 +5,15 @@
 
 ### Purpose
 
-This repository hosts a set of JS code transforms. The purpose of the transforms is to take global JS code and
+This repository hosts a set of JS code transforms. The purpose of the transforms is to take script JS code and
 transform it into CommonJS module code. The transforms are designed to be used by other tools.
 
 ### Mechanics
 
-The transformers are [recast AST visitors](https://github.com/benjamn/recast). The transformations are independent of
-each other but can be composed together to produce complex transformations. The transforms are configured by their
-user. The [gc-cli repo](https://github.com/briandipalma/gc-cli) has examples of how to utilize, combine and configure
-the transforms.
+The transforms are [recast AST visitors](https://github.com/benjamn/recast). The transformations are independent of
+each other but can be composed to produce complex transformations. The transforms are configured by their user. The
+[gc-cli repo](https://github.com/briandipalma/gc-cli) has examples of how to utilize, combine and configure the
+transforms.
 
 ### Testing
 
