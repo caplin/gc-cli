@@ -24,7 +24,6 @@ export {wrapModuleInIIFEVisitor} from './wrap-module-in-iife';
 export {cjsRequireRemoverVisitor} from './cjs-require-remover';
 export {iifeClassFlattenerVisitor} from './iife-class-flattener';
 export {flattenProgramIIFEVisitor} from './flatten-program-iife';
-export {addModuleUseStrictVisitor} from './add-module-use-strict';
 export {flattenMemberExpression} from './flatten-member-expression';
 export {verifyVarIsAvailableVisitor} from './verify-var-is-available';
 export {namespacedClassFlattenerVisitor} from './namespaced-class-flattener';
