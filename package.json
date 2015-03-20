@@ -3,14 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "build": "babel src --out-dir dist",
-    "test": "mocha -R min --compilers js:babel/register"
+    "test": "mocha --compilers js:babel/register test/**"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/briandipalma/gc-cli.git"
   },
   "dependencies": {
-    "array-includes": "^1.0.5",
     "capitalize": "^0.5.0",
     "chalk": "^0.5.1",
     "global-compiler": "git://github.com/briandipalma/global-compiler",
@@ -19,7 +18,7 @@
     "minimist": "^1.1.0",
     "recast": "^0.10.0",
     "through2": "^0.6.1",
-    "vinyl-fs": "^0.3.7"
+    "vinyl-fs": "^1.0.0"
   },
   "devDependencies": {
     "babel": "^4.6.3",
