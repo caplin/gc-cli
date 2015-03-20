@@ -8,13 +8,13 @@ describe('utilities', () => {
 	it('should calculate correct file namespace.', () => {
 		// Given.
 		const expectedFileNamespace = 'name.space.long.MyClass';
-		const mockVinylFile = {
+		const stubVinylFile = {
 			cwd: '/home/user/trader/lib/mylib',
 			path: '/home/user/trader/lib/mylib/src/name/space/long/MyClass.js'
 		};
 
 		// When.
-		const namespace = getFileNamespace(mockVinylFile);
+		const namespace = getFileNamespace(stubVinylFile);
 
 		// Then.
 		equal(namespace, expectedFileNamespace);
