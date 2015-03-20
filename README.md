@@ -6,8 +6,7 @@
 
 This repository hosts a command line tool that converts package/folder namespaced JavaScript code
 to CommonJS modules. So scripts with classes defined in a namespaced manner will be flattened and
-references to namespaced dependencies will be replaced with module local bindings to required
-modules.
+references to namespaced dependencies will be replaced with bindings to required modules.
 
 Code in this style:
 
@@ -30,8 +29,9 @@ function GridView() {
 ```
 
 It also formats the code using the [js-formatter](https://github.com/briandipalma/js-formatter)
-tool and adds requires for specified globals i.e. `var jQuery = require('jQuery')` if they are
-found in the source code. To minimize changes you can format your code first and then run this tool.
+tool and adds requires for specified globals i.e. `jQuery.on(...)` will add
+`var jQuery = require('jQuery')` if they are present in the source code. To minimize changes you
+can format your code first and then run this tool.
 
 ### Mechanics
 
