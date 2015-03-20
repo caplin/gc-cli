@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "babel": "^4.6.1",
-    "eslint": "^0.16.0",
+    "eslint": "^0.17.0",
     "mocha": "^2.1.0",
     "rimraf": "^2.3.2"
   }
