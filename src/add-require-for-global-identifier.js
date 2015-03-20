@@ -3,21 +3,6 @@ const {builders, namedTypes} = require('recast').types;
 import {createRequireDeclaration} from './utils/utilities';
 
 /**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
-
-/**
  * This transform adds CJS requires for specified global identifiers.
  */
 export const addRequireForGlobalIdentifierVisitor = {

@@ -14,21 +14,6 @@ var namedTypes = _require$types.namedTypes;
 var createRequireDeclaration = require("./utils/utilities").createRequireDeclaration;
 
 /**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
-
-/**
  * This transform adds CJS requires for specified global identifiers.
  */
 var addRequireForGlobalIdentifierVisitor = {

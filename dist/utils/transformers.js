@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Returns a function that when provided with a NodePath will transform it according to
  * the operations of the provided transforms.
@@ -8,6 +6,8 @@
  * that will be used to transform the provided NodePath.
  * @returns {Function} Function that will transform a provided NodePath.
  */
+"use strict";
+
 exports.composeTransformers = composeTransformers;
 
 /**

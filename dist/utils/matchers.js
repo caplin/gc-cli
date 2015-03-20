@@ -1,4 +1,4 @@
-"use strict";
+
 
 /**
  * Creates a function that checks if a NodePath matches the provided matchers.
@@ -9,6 +9,8 @@
  * @param   {...Function} matchers - Matchers that a node must satisfy to be classed as matching.
  * @returns {Function} Function that checks if provided NodePath satifies matchers.
  */
+"use strict";
+
 exports.composeMatchers = composeMatchers;
 
 /**

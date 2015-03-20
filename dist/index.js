@@ -31,7 +31,6 @@ exports.wrapModuleInIIFEVisitor = require("./wrap-module-in-iife").wrapModuleInI
 exports.cjsRequireRemoverVisitor = require("./cjs-require-remover").cjsRequireRemoverVisitor;
 exports.iifeClassFlattenerVisitor = require("./iife-class-flattener").iifeClassFlattenerVisitor;
 exports.flattenProgramIIFEVisitor = require("./flatten-program-iife").flattenProgramIIFEVisitor;
-exports.addModuleUseStrictVisitor = require("./add-module-use-strict").addModuleUseStrictVisitor;
 exports.flattenMemberExpression = require("./flatten-member-expression").flattenMemberExpression;
 exports.verifyVarIsAvailableVisitor = require("./verify-var-is-available").verifyVarIsAvailableVisitor;
 exports.namespacedClassFlattenerVisitor = require("./namespaced-class-flattener").namespacedClassFlattenerVisitor;

@@ -1,4 +1,4 @@
-"use strict";
+
 
 /**
  * Returns true if the provided Expression node is a leaf node of a namespace.
@@ -7,6 +7,8 @@
  * @param {Iterable<string>} namespaceIterable - An Iterable of names to match the expressionNode to.
  * @returns {boolean} true if the node is a leaf namespace node.
  */
+"use strict";
+
 exports.isNamespacedExpressionNode = isNamespacedExpressionNode;
 
 /**
