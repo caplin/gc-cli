@@ -1,4 +1,4 @@
-"use strict";
+
 
 /**
  * Options object.
@@ -25,6 +25,8 @@
 /**
  * @param {OptionsObject} options - Options to configure transforms.
  */
+"use strict";
+
 exports.compileTestFiles = compileTestFiles;
 Object.defineProperty(exports, "__esModule", {
   value: true

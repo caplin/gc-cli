@@ -82,13 +82,6 @@ exports.transformI18nUsage = transformI18nUsage;
 exports.replaceLibraryIncludesWithRequires = replaceLibraryIncludesWithRequires;
 
 /**
- * This transform adds 'use strict' as the first line of a module and removes any other instances.
- *
- * @returns {Function} Stream transform implementation which makes a module strict mode.
- */
-exports.addModuleUseStrict = addModuleUseStrict;
-
-/**
  * Parse AST and set it on the `contents` property of the FileMetadata argument passed into the transform.
  *
  * @returns {Function} Stream transform implementation which sets parsed AST on `contents` of FileMetadata.
@@ -126,7 +119,6 @@ var rootNamespaceVisitor = _globalCompiler.rootNamespaceVisitor;
 var nodePathLocatorVisitor = _globalCompiler.nodePathLocatorVisitor;
 var flattenMemberExpression = _globalCompiler.flattenMemberExpression;
 var cjsRequireRemoverVisitor = _globalCompiler.cjsRequireRemoverVisitor;
-var addModuleUseStrictVisitor = _globalCompiler.addModuleUseStrictVisitor;
 var verifyVarIsAvailableVisitor = _globalCompiler.verifyVarIsAvailableVisitor;
 var varNamespaceAliasExpanderVisitor = _globalCompiler.varNamespaceAliasExpanderVisitor;
 var addRequireForGlobalIdentifierVisitor = _globalCompiler.addRequireForGlobalIdentifierVisitor;
@@ -286,12 +278,6 @@ function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, libraryInc
 	return through2.obj(function (fileMetadata, encoding, callback) {
 		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeIterable);
 		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, this, callback);
-	});
-}
-
-function addModuleUseStrict() {
-	return through2.obj(function (fileMetadata, encoding, callback) {
-		transformASTAndPushToNextStream(fileMetadata, addModuleUseStrictVisitor, this, callback);
 	});
 }
 

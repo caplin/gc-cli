@@ -1,13 +1,4 @@
-"use strict";
 
-/**
- * File metadata consists of a Vinyl file and an AST property.
- *
- * @typedef {Object} FileMetadata
- * @property {Object} ast - Code AST.
- * @property {String} path - File path.
- * @property {String} base - File base, path without file name.
- */
 
 /**
  * @param {FileMetadata} fileMetadata - File metadata for file being visited.
@@ -15,6 +6,8 @@
  * @param {Object} streamTransform - Stream transform instance.
  * @param {Function} callback - Used to flush data down the stream.
  */
+"use strict";
+
 exports.transformASTAndPushToNextStream = transformASTAndPushToNextStream;
 
 /**
@@ -24,35 +17,45 @@ exports.transformASTAndPushToNextStream = transformASTAndPushToNextStream;
 exports.getFileNamespace = getFileNamespace;
 
 /**
- * @param {FileMetadata} fileMetadata - File metadata for file being visited.
+ * @param {FileMetadata} fileMetadata File metadata for file being visited, a Vinyl File object
  * @returns {Array} File namespace parts.
  */
 exports.getFileNamespaceParts = getFileNamespaceParts;
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
-var path = require("path");
 
-var chalk = require("chalk");
+var sep = require("path").sep;
+
 var visit = require("recast").visit;
-function transformASTAndPushToNextStream(fileMetadata, visitor, streamTransform, callback) {
-  try {
-    visit(fileMetadata.ast, visitor);
-  } catch (error) {
-    console.error(visitor);
-    console.error(fileMetadata);
-    console.error(chalk.red(error));
-    callback(error);
-  }
 
-  streamTransform.push(fileMetadata);
-  callback();
+function transformASTAndPushToNextStream(fileMetadata, visitor, streamTransform, callback) {
+	try {
+		visit(fileMetadata.ast, visitor);
+	} catch (error) {
+		console.error(visitor);
+		console.error(fileMetadata);
+		console.error(error);
+		callback(error);
+	}
+
+	streamTransform.push(fileMetadata);
+	callback();
 }
 
 function getFileNamespace(fileMetadata) {
-  return getFileNamespaceParts(fileMetadata).join(".");
+	return getFileNamespaceParts(fileMetadata).join(".");
 }
 
 function getFileNamespaceParts(fileMetadata) {
-  return fileMetadata.relative.replace(/\.js$/, "").split(path.sep);
+	// The cwd is the blade/libs directory (where the user should be invoking the CLI) and the path
+	// is the absolute path to the JS file. Stripping away one from the other returns the relative
+	// path to the JS file.
+	var filePathRelativeToCWD = fileMetadata.path.replace(fileMetadata.cwd, "");
+	// Namespaced files are only present in src files so we need to remove the src prefix from the
+	// file path. Test files aren't namespaced so this function isn't called by the test transform
+	var filePathWithoutSrc = filePathRelativeToCWD.replace(sep + "src" + sep, "");
+
+	// Remove the JS file suffix and break up the path string by directory separator
+	return filePathWithoutSrc.replace(/\.js$/, "").split(sep);
 }

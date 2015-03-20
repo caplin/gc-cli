@@ -1,4 +1,4 @@
-"use strict";
+
 
 /**
  * Creates a transformer that modifies `caplin.core.ServiceRegistry.getService` to
@@ -7,6 +7,8 @@
  * @param   {String}   serviceAlias Service alias to require
  * @returns {Function} Transformer function
  */
+"use strict";
+
 exports.getServiceTransformer = getServiceTransformer;
 Object.defineProperty(exports, "__esModule", {
 	value: true

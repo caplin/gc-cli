@@ -1,4 +1,4 @@
-"use strict";
+
 
 /**
  * File metadata consists of a Vinyl file and an AST property.
@@ -12,6 +12,8 @@
 /**
  * @param {OptionsObject} options - Options to configure transforms.
  */
+"use strict";
+
 exports.compileSourceFiles = compileSourceFiles;
 Object.defineProperty(exports, "__esModule", {
 	value: true

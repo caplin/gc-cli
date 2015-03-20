@@ -1,16 +1,6 @@
-var path = require('path');
+import {sep} from 'path';
 
-var chalk = require('chalk');
-var visit = require('recast').visit;
-
-/**
- * File metadata consists of a Vinyl file and an AST property.
- *
- * @typedef {Object} FileMetadata
- * @property {Object} ast - Code AST.
- * @property {String} path - File path.
- * @property {String} base - File base, path without file name.
- */
+import {visit} from 'recast';
 
 /**
  * @param {FileMetadata} fileMetadata - File metadata for file being visited.
@@ -24,7 +14,7 @@ export function transformASTAndPushToNextStream(fileMetadata, visitor, streamTra
 	} catch (error) {
 		console.error(visitor);
 		console.error(fileMetadata);
-		console.error(chalk.red(error));
+		console.error(error);
 		callback(error);
 	}
 
@@ -41,9 +31,18 @@ export function getFileNamespace(fileMetadata) {
 }
 
 /**
- * @param {FileMetadata} fileMetadata - File metadata for file being visited.
+ * @param {FileMetadata} fileMetadata File metadata for file being visited, a Vinyl File object
  * @returns {Array} File namespace parts.
  */
 export function getFileNamespaceParts(fileMetadata) {
-	return fileMetadata.relative.replace(/\.js$/, '').split(path.sep);
+	// The cwd is the blade/libs directory (where the user should be invoking the CLI) and the path
+	// is the absolute path to the JS file. Stripping away one from the other returns the relative
+	// path to the JS file.
+	const filePathRelativeToCWD = fileMetadata.path.replace(fileMetadata.cwd, '');
+	// Namespaced files are only present in src files so we need to remove the src prefix from the
+	// file path. Test files aren't namespaced so this function isn't called by the test transform
+	const filePathWithoutSrc = filePathRelativeToCWD.replace(sep + 'src' + sep, '');
+
+	// Remove the JS file suffix and break up the path string by directory separator
+	return filePathWithoutSrc.replace(/\.js$/, '').split(sep);
 }

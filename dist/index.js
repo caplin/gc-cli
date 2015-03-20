@@ -1,4 +1,4 @@
-"use strict";
+
 
 /**
  * Options object.
@@ -19,6 +19,8 @@
  * @param {Object} args - CLI arguments to configure transforms.
  * @returns {OptionsObject} An OptionsObject based on the provided CLI arguments.
  */
+"use strict";
+
 exports.createOptionsObject = createOptionsObject;
 
 /**
