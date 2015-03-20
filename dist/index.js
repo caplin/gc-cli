@@ -8,16 +8,16 @@
  * @property {boolean} compileTestFiles - True if files to compile are test files.
  * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
  * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
- * @property {Map<Iterable<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
- * @property {Set<string>} libraryIncludesToRequire - Library includes that should be transformed to requires when found.
- * @property {Iterable<string>} libraryIncludeIterable - The MemberExpression sequence that corresponds to a library include.
+ * @property {Map<List<string>, string>} libraryIdentifiersToRequire Map of library identifiers to add CJS requires for
+ * @property {Set<string>} libraryIncludesToRequire Library includes that should be transformed to requires when found
+ * @property {List<string>} libraryIncludeList - The MemberExpression sequence that corresponds to a library include.
  */
 
 /**
  * Converts CLI arguments to an OptionsObject.
  *
- * @param {Object} args - CLI arguments to configure transforms.
- * @returns {OptionsObject} An OptionsObject based on the provided CLI arguments.
+ * @param {Object} options CLI arguments to configure transforms
+ * @returns {OptionsObject} An OptionsObject based on the provided CLI arguments
  */
 "use strict";
 
@@ -31,31 +31,39 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _require = require("immutable");
-
-var Iterable = _require.Iterable;
+var List = require("immutable").List;
 
 var compileTestFiles = require("./test-files-compiler").compileTestFiles;
 
 var compileSourceFiles = require("./src-files-compiler").compileSourceFiles;
 
-function createOptionsObject(options) {
+function createOptionsObject(_ref) {
+	var namespaces = _ref.namespaces;
+	var compileTestFiles = _ref.compileTestFiles;
+	var removeRequires = _ref.removeRequires;
+	var outputDirectory = _ref.outputDirectory;
+	var _ = _ref._;
+
 	var optionsObject = {
-		namespaces: options.namespaces.split(","),
-		compileTestFiles: options.compileTestFiles,
-		moduleIDsToRemove: new Set([options.removeRequires])
+		namespaces: namespaces.split(","),
+		compileTestFiles: compileTestFiles,
+		moduleIDsToRemove: new Set([removeRequires])
 	};
 
-	if (options.compileTestFiles) {
-		optionsObject.outputDirectory = options.outputDirectory || "tests";
+	// _ is an array of values that aren't covered by the CLI options this can be used to provide a
+	// directory/file or list of files to convert, globs are accepted
+	optionsObject.filesToCompile = filesToCompile(_, compileTestFiles);
+
+	if (compileTestFiles) {
+		optionsObject.outputDirectory = outputDirectory || "tests";
 	} else {
-		optionsObject.outputDirectory = options.outputDirectory || "src";
+		optionsObject.outputDirectory = outputDirectory || "src";
 	}
 
-	optionsObject.libraryIdentifiersToRequire = new Map([[Iterable(["emitr"]), "emitr"], [Iterable(["jQuery"]), "jquery"], [Iterable(["sinon"]), "sinonjs"], [Iterable(["queryString"]), "query-string"], [Iterable(["moment", "()", "tz"]), "moment-timezone"]]);
+	optionsObject.libraryIdentifiersToRequire = new Map([[List.of("emitr"), "emitr"], [List.of("jQuery"), "jquery"], [List.of("sinon"), "sinonjs"], [List.of("queryString"), "query-string"], [List.of("moment", "()", "tz"), "moment-timezone"]]);
 
 	optionsObject.libraryIncludesToRequire = new Set(["chosen"]);
-	optionsObject.libraryIncludeIterable = Iterable(["caplin", "thirdparty"]);
+	optionsObject.libraryIncludeIterable = List.of("caplin", "thirdparty");
 
 	return optionsObject;
 }
@@ -66,4 +74,22 @@ function processFile(optionsObject) {
 	} else {
 		compileSourceFiles(optionsObject);
 	}
+}
+
+/**
+ * Return which files are to be compiled.
+ *
+ * @param   {Array}                cliProvidedFiles Array of files provided via the CLI
+ * @param   {Boolean}              compileTestFiles Are the test files to be compiled
+ * @returns {String|Array<String>} The files to compile
+ */
+function filesToCompile(cliProvidedFiles, compileTestFiles) {
+	// If the user provided some files via the CLI compile them
+	if (cliProvidedFiles.length > 0) {
+		return cliProvidedFiles;
+	} else if (compileTestFiles) {
+		return "tests/**/*.js";
+	}
+
+	return "src/**/*.js";
 }
