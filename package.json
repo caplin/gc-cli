@@ -2,8 +2,12 @@
   "name": "gc-cli",
   "version": "0.0.0",
   "scripts": {
-    "build": "babel src --out-dir dist",
-    "test": "mocha --compilers js:babel/register test/**"
+    "lint": "eslint src/. test/.",
+    "build": "npm run lint && npm run test && npm run compile",
+    "test": "mocha --compilers js:babel/register test/**",
+    "test:debug": "node --debug _mocha",
+    "precompile": "rimraf dist",
+    "compile": "babel src --out-dir dist"
   },
   "repository": {
     "type": "git",
@@ -23,7 +27,9 @@
   "devDependencies": {
     "babel": "^4.6.3",
     "del": "^1.1.1",
-    "mocha": "^2.1.0"
+    "eslint": "^0.17.1",
+    "mocha": "^2.1.0",
+    "rimraf": "^2.3.2"
   },
   "preferGlobal": true,
   "bin": "./bin/gc-cli-cli.js"
