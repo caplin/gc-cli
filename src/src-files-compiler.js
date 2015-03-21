@@ -1,18 +1,12 @@
-var fs = require('fs');
-var path = require('path');
+import {join} from 'path';
+import {writeFile} from 'fs';
 
-var {visit} = require('recast');
-var vinylFs = require('vinyl-fs');
-var through2 = require('through2');
-var {Iterable} = require('immutable');
-const {defaultFormatCode} = require('js-formatter');
-
+import vinylFs from 'vinyl-fs';
+import through2 from 'through2';
+import {defaultFormatCode} from 'js-formatter';
 import {
-	flattenMemberExpression,
 	iifeClassFlattenerVisitor,
-	verifyVarIsAvailableVisitor,
-	namespacedClassFlattenerVisitor,
-	addRequireForGlobalIdentifierVisitor
+	namespacedClassFlattenerVisitor
 } from 'global-compiler';
 
 import {
@@ -46,7 +40,7 @@ import {
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function compileSourceFiles(options) {
-	vinylFs.src('src/**/*.js')
+	vinylFs.src(options.filesToCompile)
 		.pipe(parseJSFile())
 		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(through2.obj(flattenIIFEClass))
@@ -125,8 +119,8 @@ function createJSStyleFiles() {
 	}
 
 	return function() {
-		fs.writeFile('.js-style', 'common-js');
-		fs.writeFile(path.join('test', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
-		fs.writeFile(path.join('tests', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
+		writeFile('.js-style', 'common-js');
+		writeFile(join('test', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
+		writeFile(join('tests', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
 	}
 }

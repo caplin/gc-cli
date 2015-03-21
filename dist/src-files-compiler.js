@@ -1,4 +1,6 @@
+"use strict";
 
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
 /**
  * File metadata consists of a Vinyl file and an AST property.
@@ -12,37 +14,25 @@
 /**
  * @param {OptionsObject} options - Options to configure transforms.
  */
-"use strict";
-
 exports.compileSourceFiles = compileSourceFiles;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-var fs = require("fs");
-var path = require("path");
 
-var _require = require("recast");
+var join = require("path").join;
 
-var visit = _require.visit;
+var writeFile = require("fs").writeFile;
 
-var vinylFs = require("vinyl-fs");
-var through2 = require("through2");
+var vinylFs = _interopRequire(require("vinyl-fs"));
 
-var _require2 = require("immutable");
+var through2 = _interopRequire(require("through2"));
 
-var Iterable = _require2.Iterable;
-
-var _require3 = require("js-formatter");
-
-var defaultFormatCode = _require3.defaultFormatCode;
+var defaultFormatCode = require("js-formatter").defaultFormatCode;
 
 var _globalCompiler = require("global-compiler");
 
-var flattenMemberExpression = _globalCompiler.flattenMemberExpression;
 var iifeClassFlattenerVisitor = _globalCompiler.iifeClassFlattenerVisitor;
-var verifyVarIsAvailableVisitor = _globalCompiler.verifyVarIsAvailableVisitor;
 var namespacedClassFlattenerVisitor = _globalCompiler.namespacedClassFlattenerVisitor;
-var addRequireForGlobalIdentifierVisitor = _globalCompiler.addRequireForGlobalIdentifierVisitor;
 
 var _commonTransforms = require("./common-transforms");
 
@@ -63,7 +53,7 @@ var getFileNamespace = _utilsUtilities.getFileNamespace;
 var transformASTAndPushToNextStream = _utilsUtilities.transformASTAndPushToNextStream;
 
 function compileSourceFiles(options) {
-	vinylFs.src("src/**/*.js").pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", createJSStyleFiles());
+	vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", createJSStyleFiles());
 }
 
 /**
@@ -127,8 +117,8 @@ function createJSStyleFiles() {
 	}
 
 	return function () {
-		fs.writeFile(".js-style", "common-js");
-		fs.writeFile(path.join("test", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
-		fs.writeFile(path.join("tests", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
+		writeFile(".js-style", "common-js");
+		writeFile(join("test", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
+		writeFile(join("tests", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
 	};
 }
