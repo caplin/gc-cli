@@ -6,29 +6,33 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _require$types = require("recast").types;
+var log = require("winston").log;
 
-var builders = _require$types.builders;
-var namedTypes = _require$types.namedTypes;
+var types = require("recast").types;
 
 var createRequireDeclaration = require("./utils/utilities").createRequireDeclaration;
 
+var identifier = types.builders.identifier;
+var _types$namedTypes = types.namedTypes;
+var MemberExpression = _types$namedTypes.MemberExpression;
+var CallExpression = _types$namedTypes.CallExpression;
+
 /**
- * This transform adds CJS requires for specified global identifiers.
+ * This transform adds CJS requires for specified global identifiers. If one of the specified
+ * identifiers is `jQuery` it can be configured to add the statement `var jQuery = require('jquery');`
+ * to the top of the module.
  */
 var addRequireForGlobalIdentifierVisitor = {
 	/**
-  * @param {Map<Sequence<string>, string>} identifiersToRequire - The identifiers that should be required.
-  * @param {AstNode[]} programStatements - Program body statements.
+  * @param {Map<Sequence<string>, string>} identifiersToRequire The identifiers that should be required
   */
-	initialize: function initialize(identifiersToRequire, programStatements) {
+	initialize: function initialize(identifiersToRequire) {
 		this._matchedGlobalIdentifiers = new Map();
-		this._programStatements = programStatements;
 		this._identifiersToRequire = identifiersToRequire;
 	},
 
 	/**
-  * @param {NodePath} identifierNodePath - Identifier NodePath.
+  * @param {NodePath} identifierNodePath Identifier NodePath
   */
 	visitIdentifier: function visitIdentifier(identifierNodePath) {
 		var _iteratorNormalCompletion = true;
@@ -37,10 +41,9 @@ var addRequireForGlobalIdentifierVisitor = {
 
 		try {
 			for (var _iterator = this._identifiersToRequire[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-				var _step$value = _slicedToArray(_step.value, 2);
+				var _step$value = _slicedToArray(_step.value, 1);
 
 				var identifierSequence = _step$value[0];
-				var libraryID = _step$value[1];
 
 				if (isIdentifierToRequire(identifierNodePath, identifierSequence)) {
 					this._matchedGlobalIdentifiers.set(identifierNodePath, identifierSequence);
@@ -65,12 +68,14 @@ var addRequireForGlobalIdentifierVisitor = {
 	},
 
 	/**
-  * @param {NodePath} programNodePath - Program NodePath.
+  * @param {NodePath} programNodePath Program NodePath
   */
 	visitProgram: function visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
-		addRequiresForGlobalIdentifiers(this._matchedGlobalIdentifiers, this._identifiersToRequire, this._programStatements);
+		var programStatements = programNodePath.get("body").value;
+
+		addRequiresForGlobalIdentifiers(this._matchedGlobalIdentifiers, this._identifiersToRequire, programStatements);
 	}
 };
 
@@ -78,9 +83,9 @@ exports.addRequireForGlobalIdentifierVisitor = addRequireForGlobalIdentifierVisi
 /**
  * Checks if identifier is an identifier to create a require for.
  *
- * @param {NodePath} identifierNodePath - An identifier NodePath.
- * @param {Sequence<string>} identifierSequence - The identifier sequence to check.
- * @returns {boolean} true if identifier should be required.
+ * @param   {NodePath}         identifierNodePath An identifier NodePath
+ * @param   {Sequence<string>} identifierSequence The identifier sequence to check
+ * @returns {boolean}          true if identifier should be required
  */
 function isIdentifierToRequire(_x, _x2) {
 	var _again = true;
@@ -93,6 +98,9 @@ function isIdentifierToRequire(_x, _x2) {
 
 		var isPartOfIdentifierToRequire = identifierNodePath.node.name === identifierSequence.last();
 
+		// We can have library identifiers require multiple namespace levels, such as moment().tz being
+		// the use of the moment-timezone library. This usage should not be confused with moment usage.
+		// The first branch is for libraries with multiple namespace levels.
 		if (isPartOfIdentifierToRequire && identifierSequence.count() > 1) {
 			var _getNextNodePath = getNextNodePath(identifierNodePath, identifierSequence);
 
@@ -119,18 +127,21 @@ function isIdentifierToRequire(_x, _x2) {
  * Returns the next NodePath to check against a sequence if there is one that matches the values
  * in the Sequence.
  *
- * @param {NodePath} identifierNodePath - An identifier NodePath.
- * @param {Sequence<string>} identifierSequence - The identifier sequence to check.
- * @returns {([NodePath, Sequence<string>]|undefined)} Next NodePath to check.
+ * @param   {NodePath}                                 identifierNodePath An identifier NodePath
+ * @param   {Sequence<string>}                         identifierSequence The identifier sequence to check
+ * @returns {([NodePath, Sequence<string>]|undefined)} Next NodePath to check
  */
-function getNextNodePath(identifierNodePath, identifierSequence) {
-	var remainingSequence = identifierSequence.butLast();
-	var identifierParentNodePath = identifierNodePath.parent;
+function getNextNodePath(_ref, identifierSequence) {
+	var identifierParentNodePath = _ref.parent;
 
-	if (namedTypes.MemberExpression.check(identifierParentNodePath.node)) {
+	var remainingSequence = identifierSequence.butLast();
+
+	if (MemberExpression.check(identifierParentNodePath.node)) {
 		var object = identifierParentNodePath.get("object");
 
-		if (namedTypes.CallExpression.check(object.node) && remainingSequence.last() === "()") {
+		// If the library identifier sequence includes a call expression, denoted with '()'
+		// then the next node path in sequence is the `callee` of the parent.
+		if (CallExpression.check(object.node) && remainingSequence.last() === "()") {
 			return [object.get("callee"), remainingSequence.butLast()];
 		}
 
@@ -139,18 +150,18 @@ function getNextNodePath(identifierNodePath, identifierSequence) {
 }
 
 /**
- * We don't want to match an identifier if by coincidence it's part of a larger expression.
- * i.e. my.expression.jQuery.shouldnt.match.
+ * We don't want an identifier to match if by coincidence it's part of a larger expression.
+ * i.e. my.expression.jQuery.shouldnt.match. shouldn't match the jQuery library.
  *
- * @param {NodePath} identifierNodePath - An identifier NodePath.
- * @returns {boolean} true if identifier is the root of an expression.
+ * @param   {NodePath} identifierNodePath An identifier NodePath
+ * @returns {boolean}  true if identifier is the root of an expression
  */
 function isStandaloneIdentifier(identifierNodePath) {
 	var identifierParentNodePath = identifierNodePath.parent;
 
-	if (namedTypes.CallExpression.check(identifierParentNodePath.node)) {
+	if (CallExpression.check(identifierParentNodePath.node)) {
 		return true;
-	} else if (namedTypes.MemberExpression.check(identifierParentNodePath.node)) {
+	} else if (MemberExpression.check(identifierParentNodePath.node)) {
 		return identifierParentNodePath.get("object") === identifierNodePath;
 	}
 
@@ -160,16 +171,18 @@ function isStandaloneIdentifier(identifierNodePath) {
 /**
  * Add any requires to the module head that are deemed to be required for the global identifiers in the module.
  *
- * @param {Map<AstNode, Sequence<string>>} matchedGlobalIdentifiers - The identifiers that should be required.
- * @param {Map<Sequence<string>, string>} identifiersToRequire - The identifiers that should be required.
- * @param {AstNode[]} programStatements - Program body statements.
+ * @param {Map<AstNode, Sequence<string>>} matchedGlobalIdentifiers The identifiers that matched during the search
+ * @param {Map<Sequence<string>, string>}  identifiersToRequire     All the identifiers that are searched for
+ * @param {AstNode[]}                      programStatements        Program body statements
  */
 function addRequiresForGlobalIdentifiers(matchedGlobalIdentifiers, identifiersToRequire, programStatements) {
+	// You can find a library identifier multiple times in a module, putting the identifier sequences
+	// into a Set filters out duplicates.
 	var moduleIdentifiersToRequire = new Set(matchedGlobalIdentifiers.values());
 
-	//TODO: You have a match on the longer and a match on the shorter of two libraries using the same identifiers.
-	//The longer needs the shorter as it's a plugin so all you need to do is require the longer as it should
-	//require the shorter itself. The require statement will have a variable with a name equals to the shorter.
+	// If you have a match on the longer and a match on the shorter of two libraries using the same identifiers.
+	// The longer needs the shorter as it's a plugin so all you need to do is require the longer as it should
+	// require the shorter itself. The require statement will have a variable with a name equals to the shorter.
 	var _iteratorNormalCompletion = true;
 	var _didIteratorError = false;
 	var _iteratorError = undefined;
@@ -179,10 +192,11 @@ function addRequiresForGlobalIdentifiers(matchedGlobalIdentifiers, identifiersTo
 			var sequenceToRequire = _step.value;
 
 			var moduleID = identifiersToRequire.get(sequenceToRequire);
-			var moduleIdentifier = builders.identifier(sequenceToRequire.first());
+			var moduleIdentifier = identifier(sequenceToRequire.first());
 			var importDeclaration = createRequireDeclaration(moduleIdentifier, moduleID);
 
-			console.log("Adding require for", moduleID, "with variable name", sequenceToRequire.first());
+			log("Adding require for " + moduleID + " with variable name " + sequenceToRequire.first());
+
 			programStatements.unshift(importDeclaration);
 		}
 	} catch (err) {

@@ -1,30 +1,32 @@
-const fs = require('fs');
-const assert = require('assert');
+import {equal} from 'assert';
+import {readFileSync} from 'fs';
 
-const {Iterable} = require('immutable');
-const {parse, print, visit} = require('recast');
+import {Iterable} from 'immutable';
+import {describe, it} from 'mocha';
+import {parse, print, visit} from 'recast';
+
 import {addRequireForGlobalIdentifierVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
 const testResourcesLocation = 'test/resources/add-require-for-global-identifier/';
-const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
+const givenCode = readFileSync(testResourcesLocation + 'given.js', fileOptions);
+const expectedCode = readFileSync(testResourcesLocation + 'expected.js', fileOptions);
 const givenAST = parse(givenCode);
 
-describe('Add require for global identifier', function() {
-	it('adds require for specified identifiers.', function() {
-		//Given.
-		var identifiersToRequire = new Map([
+describe('Add require for global identifier', () => {
+	it('adds require for specified identifiers.', () => {
+		// Given
+		const identifiersToRequire = new Map([
 			[Iterable(['otherGlobal']), 'otherglobal'],
 			[Iterable(['globalLibrary']), 'globallibrary'],
 			[Iterable(['aLibrary', '()', 'plugin']), 'a-library']
 		]);
 		addRequireForGlobalIdentifierVisitor.initialize(identifiersToRequire, givenAST.program.body);
 
-		//When.
+		// When
 		visit(givenAST, addRequireForGlobalIdentifierVisitor);
 
-		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		// Then
+		equal(print(givenAST).code, expectedCode);
 	});
 });
