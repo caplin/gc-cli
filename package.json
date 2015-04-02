@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint src/. test/.",
     "build": "npm run lint && npm run test && npm run compile",
-    "test": "mocha -R min --compilers js:babel/register test/**",
+    "test": "mocha --compilers js:babel/register test/**",
     "test:debug": "node --debug _mocha",
     "precompile": "rimraf dist",
     "compile": "babel src --out-dir dist"
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "babel": "^4.6.1",
-    "eslint": "^0.17.0",
+    "eslint": "^0.18.0",
     "mocha": "^2.1.0",
     "rimraf": "^2.3.2"
   }
