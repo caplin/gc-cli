@@ -58,7 +58,13 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
  */
 export function processFile(optionsObject) {
 	if (optionsObject.compileTestFiles) {
-		compileTestFiles(optionsObject);
+		var testConversionStream = compileTestFiles(optionsObject);
+
+		testConversionStream.on('end', () => {
+			optionsObject.filesToCompile = 'src-test/**/*.js';
+			optionsObject.outputDirectory = 'src-test';
+			compileSourceFiles(optionsObject);
+		});
 	} else {
 		compileSourceFiles(optionsObject);
 	}

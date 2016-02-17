@@ -70,7 +70,13 @@ function createOptionsObject(_ref) {
 
 function processFile(optionsObject) {
 	if (optionsObject.compileTestFiles) {
-		compileTestFiles(optionsObject);
+		var testConversionStream = compileTestFiles(optionsObject);
+
+		testConversionStream.on("end", function () {
+			optionsObject.filesToCompile = "src-test/**/*.js";
+			optionsObject.outputDirectory = "src-test";
+			compileSourceFiles(optionsObject);
+		});
 	} else {
 		compileSourceFiles(optionsObject);
 	}

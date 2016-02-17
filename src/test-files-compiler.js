@@ -46,7 +46,7 @@ import {transformASTAndPushToNextStream} from './utils/utilities';
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function compileTestFiles(options) {
-	vinylFs.src('tests/**/*.js')
+	return vinylFs.src('tests/**/*.js')
 		.pipe(parseJSFile())
 		.pipe(through2.obj(flattenProgramIIFE))
 		.pipe(expandVarNamespaceAliases(options.namespaces))

@@ -176,8 +176,6 @@ function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
 }
 function parseJSFile() {
 	return through2.obj(function (vinylFile, encoding, callback) {
-		console.log(chalk.green("Parsing"), chalk.bold(vinylFile.relative));
-
 		var fileAST = parse(vinylFile.contents.toString());
 
 		vinylFile.ast = fileAST;
