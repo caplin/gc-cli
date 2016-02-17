@@ -59,6 +59,7 @@ var rootNamespaceVisitor = {
 
 		this._className = className;
 		this._insertExport = insertExport;
+		this._moduleExports = [];
 		this._moduleIdentifiers = new Set();
 		this._fullyQualifiedNameData = new Map();
 		this._programStatements = programStatements;
@@ -78,6 +79,8 @@ var rootNamespaceVisitor = {
 				findAndStoreNodePathToTransform(identifierNodePath, _this._fullyQualifiedNameData);
 			}
 		});
+
+		storeModuleExports(identifierNodePath, this._moduleExports);
 
 		this.traverse(identifierNodePath);
 	},
@@ -111,7 +114,7 @@ var rootNamespaceVisitor = {
 
 		moveProgramCommentsIntoBody(programNodePath);
 		preventClashesWithGlobals(this._moduleIdentifiers);
-		if (this._insertExport) {
+		if (this._insertExport && this._moduleExports.length === 0) {
 			insertExportsStatement(this._className, programNodePath.get("body"));
 		}
 		findUniqueIdentifiersForModules(this._fullyQualifiedNameData, this._moduleIdentifiers);
@@ -146,6 +149,22 @@ function findAndStoreNodePathToTransform(identifierNodePath, fullyQualifiedNameD
 
 	populateNamespacePath(identifierNodePath.parent, nodesPath, namespaceParts);
 	storeNodePathInFQNameData(namespaceParts, nodesPath.pop(), fullyQualifiedNameData);
+}
+
+/**
+ * If the identifier is a module export store it, this allows the transform to check if it needs to add a module
+ * export or not.
+ *
+ * @param  {NodePath} identifierNodePath
+ * @param  {Array<NodePath>} moduleExports
+ */
+function storeModuleExports(identifierNodePath, moduleExports) {
+	var identifierNodeParent = identifierNodePath.parent;
+
+	// Is identifier in an `AssignmentExpression` of the form `module.exports =`
+	if (identifierNodePath.node.name === "module" && identifierNodeParent.get("property") && identifierNodeParent.get("property").node.name === "exports" && namedTypes.AssignmentExpression.check(identifierNodeParent.parent.node) && identifierNodeParent.parent.node.left === identifierNodeParent.node) {
+		moduleExports.push(identifierNodePath);
+	}
 }
 
 /**
