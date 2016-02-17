@@ -1,0 +1,18 @@
+{
+  "name": "gc-cli",
+  "version": "0.0.0",
+  "scripts": {
+    "install": "cd global-compiler; npm i; cd ..; cd gc-cli; npm i",
+    "lint": "cd global-compiler; npm run lint; cd ..; cd gc-cli; npm run lint",
+    "build": "npm run lint && npm run test && npm run compile",
+    "test": "cd global-compiler; npm t; cd ..; cd gc-cli; npm t",
+    "precompile": "cd global-compiler; npm run precompile; cd ..; cd gc-cli; npm run precompile",
+    "compile": "cd global-compiler; npm run compile; cd ..; cd gc-cli; npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caplin/gc-cli.git"
+  },
+  "preferGlobal": true,
+  "bin": "./gc-cli/bin/gc-cli.js"
+}
