@@ -26,6 +26,7 @@ export {iifeClassFlattenerVisitor} from './iife-class-flattener';
 export {flattenProgramIIFEVisitor} from './flatten-program-iife';
 export {flattenMemberExpression} from './flatten-member-expression';
 export {verifyVarIsAvailableVisitor} from './verify-var-is-available';
+export {createRemoveClassNameClassExportVisitor} from './remove-class-name-class-export';
 export {namespacedClassFlattenerVisitor} from './namespaced-class-flattener';
 export {varNamespaceAliasExpanderVisitor} from './var-namespace-alias-expander';
 export {addRequireForGlobalIdentifierVisitor} from './add-require-for-global-identifier';

@@ -5,6 +5,7 @@ import vinylFs from 'vinyl-fs';
 import through2 from 'through2';
 import {defaultFormatCode} from 'js-formatter';
 import {
+	createRemoveClassNameClassExportVisitor,
 	iifeClassFlattenerVisitor,
 	namespacedClassFlattenerVisitor
 } from 'global-compiler';
@@ -43,6 +44,7 @@ export function compileSourceFiles(options) {
 	vinylFs.src(options.filesToCompile)
 		.pipe(parseJSFile())
 		.pipe(expandVarNamespaceAliases(options.namespaces))
+		.pipe(through2.obj(stripFauxCJSExports))
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
 		.pipe(transformSLJSUsage())
@@ -56,6 +58,21 @@ export function compileSourceFiles(options) {
 		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', createJSStyleFiles());
+}
+
+/**
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {FileMetadata} fileMetadata - File meta data for file being transformed.
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ */
+function stripFauxCJSExports(fileMetadata, encoding, callback) {
+	var classNamespace = getFileNamespace(fileMetadata);
+
+	const removeClassNameClassExportVisitor = createRemoveClassNameClassExportVisitor(classNamespace);
+	transformASTAndPushToNextStream(fileMetadata, removeClassNameClassExportVisitor, this, callback);
 }
 
 /**

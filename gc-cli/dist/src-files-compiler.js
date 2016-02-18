@@ -31,6 +31,7 @@ var defaultFormatCode = require("js-formatter").defaultFormatCode;
 
 var _globalCompiler = require("global-compiler");
 
+var createRemoveClassNameClassExportVisitor = _globalCompiler.createRemoveClassNameClassExportVisitor;
 var iifeClassFlattenerVisitor = _globalCompiler.iifeClassFlattenerVisitor;
 var namespacedClassFlattenerVisitor = _globalCompiler.namespacedClassFlattenerVisitor;
 
@@ -53,7 +54,22 @@ var getFileNamespace = _utilsUtilities.getFileNamespace;
 var transformASTAndPushToNextStream = _utilsUtilities.transformASTAndPushToNextStream;
 
 function compileSourceFiles(options) {
-	vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", createJSStyleFiles());
+	vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", createJSStyleFiles());
+}
+
+/**
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {FileMetadata} fileMetadata - File meta data for file being transformed.
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ */
+function stripFauxCJSExports(fileMetadata, encoding, callback) {
+	var classNamespace = getFileNamespace(fileMetadata);
+
+	var removeClassNameClassExportVisitor = createRemoveClassNameClassExportVisitor(classNamespace);
+	transformASTAndPushToNextStream(fileMetadata, removeClassNameClassExportVisitor, this, callback);
 }
 
 /**

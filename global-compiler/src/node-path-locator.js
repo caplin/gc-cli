@@ -43,6 +43,13 @@ export const nodePathLocatorVisitor = {
 	},
 
 	/**
+	 * @param {NodePath} memberExpressionNodePath - MemberExpression NodePath.
+	 */
+	visitMemberExpression(memberExpressionNodePath) {
+		this._testNodePath('MemberExpression', memberExpressionNodePath);
+	},
+
+	/**
 	 * @param {NodePath} programNodePath - Program NodePath.
 	 */
 	visitProgram(programNodePath) {

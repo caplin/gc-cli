@@ -48,6 +48,13 @@ var nodePathLocatorVisitor = {
 	},
 
 	/**
+  * @param {NodePath} memberExpressionNodePath - MemberExpression NodePath.
+  */
+	visitMemberExpression: function visitMemberExpression(memberExpressionNodePath) {
+		this._testNodePath("MemberExpression", memberExpressionNodePath);
+	},
+
+	/**
   * @param {NodePath} programNodePath - Program NodePath.
   */
 	visitProgram: function visitProgram(programNodePath) {

@@ -68,6 +68,15 @@ exports.variableDeclaratorMatcher = variableDeclaratorMatcher;
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
 exports.memberExpressionMatcher = memberExpressionMatcher;
+
+/**
+ * Creates a predicate function that checks if a NodePath is an AssignmentExpression with the
+ * provided property. Will return the NodePath's parent if it matches.
+ *
+ * @param   {Object} assignmentExpressionPattern - Expected properties of the assignment expression.
+ * @returns {Function} Returns the NodePath parent if it fits search criteria.
+ */
+exports.assignmentExpressionMatcher = assignmentExpressionMatcher;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -77,6 +86,7 @@ var namedTypes = require("recast").types.namedTypes;
 var NOOP = function () {
   return true;
 };
+var AssignmentExpression = namedTypes.AssignmentExpression;
 var Literal = namedTypes.Literal;
 var CallExpression = namedTypes.CallExpression;
 var Identifier = namedTypes.Identifier;
@@ -165,12 +175,27 @@ function variableDeclaratorMatcher(_ref) {
 
 function memberExpressionMatcher(_ref) {
   var property = _ref.property;
+  var _ref$object = _ref.object;
+  var object = _ref$object === undefined ? NOOP : _ref$object;
 
   return function (nodePath) {
     var node = nodePath.node;
     var parent = nodePath.parent;
 
-    if (MemberExpression.check(node) && property(nodePath.get("property"))) {
+    if (MemberExpression.check(node) && property(nodePath.get("property")) && object(nodePath.get("object"))) {
+      return parent;
+    }
+  };
+}
+
+function assignmentExpressionMatcher(_ref) {
+  var right = _ref.right;
+
+  return function (nodePath) {
+    var node = nodePath.node;
+    var parent = nodePath.parent;
+
+    if (AssignmentExpression.check(node) && right(nodePath.get("right"))) {
       return parent;
     }
   };

@@ -1,7 +1,7 @@
 const {namedTypes} = require('recast').types;
 
 const NOOP = () => true;
-const {Literal, CallExpression, Identifier, VariableDeclarator, MemberExpression} = namedTypes;
+const {AssignmentExpression, Literal, CallExpression, Identifier, VariableDeclarator, MemberExpression} = namedTypes;
 
 /**
  * Creates a function that checks if a NodePath matches the provided matchers.
@@ -108,11 +108,28 @@ export function variableDeclaratorMatcher({id}) {
  * @param   {Object} memberExpressionPattern - Expected property of the member expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-export function memberExpressionMatcher({property}) {
+export function memberExpressionMatcher({property, object = NOOP}) {
 	return (nodePath) => {
 		const {node, parent} = nodePath;
 
-		if (MemberExpression.check(node) && property(nodePath.get('property'))) {
+		if (MemberExpression.check(node) && property(nodePath.get('property')) && object(nodePath.get('object'))) {
+			return parent;
+		}
+	}
+}
+
+/**
+ * Creates a predicate function that checks if a NodePath is an AssignmentExpression with the
+ * provided property. Will return the NodePath's parent if it matches.
+ *
+ * @param   {Object} assignmentExpressionPattern - Expected properties of the assignment expression.
+ * @returns {Function} Returns the NodePath parent if it fits search criteria.
+ */
+export function assignmentExpressionMatcher({right}) {
+	return (nodePath) => {
+		const {node, parent} = nodePath;
+
+		if (AssignmentExpression.check(node) && right(nodePath.get('right'))) {
 			return parent;
 		}
 	}

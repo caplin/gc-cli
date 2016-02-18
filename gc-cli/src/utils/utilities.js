@@ -41,7 +41,9 @@ export function getFileNamespaceParts(fileMetadata) {
 	const filePathRelativeToCWD = fileMetadata.path.replace(fileMetadata.cwd, '');
 	// Namespaced files are only present in src files so we need to remove the src prefix from the
 	// file path. Test files aren't namespaced so this function isn't called by the test transform
-	const filePathWithoutSrc = filePathRelativeToCWD.replace(sep + 'src' + sep, '');
+	const filePathWithoutSrc = filePathRelativeToCWD
+		.replace(sep + 'src' + sep, '')
+		.replace(sep + 'src-test' + sep, '');
 
 	// Remove the JS file suffix and break up the path string by directory separator
 	return filePathWithoutSrc.replace(/\.js$/, '').split(sep);
