@@ -60,7 +60,7 @@ function createOptionsObject(_ref) {
 		optionsObject.outputDirectory = outputDirectory || "src";
 	}
 
-	optionsObject.libraryIdentifiersToRequire = new Map([[List.of("emitr"), "emitr"], [List.of("jQuery"), "jquery"], [List.of("sinon"), "sinonjs"], [List.of("queryString"), "query-string"], [List.of("moment", "()", "tz"), "moment-timezone"]]);
+	optionsObject.libraryIdentifiersToRequire = new Map([[List.of("caplin"), "caplin-bootstrap"], [List.of("emitr"), "emitr"], [List.of("jQuery"), "jquery"], [List.of("sinon"), "sinonjs"], [List.of("queryString"), "query-string"], [List.of("moment", "()", "tz"), "moment-timezone"]]);
 
 	optionsObject.libraryIncludesToRequire = new Set(["chosen"]);
 	optionsObject.libraryIncludeIterable = List.of("caplin", "thirdparty");
