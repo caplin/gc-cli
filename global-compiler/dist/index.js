@@ -34,6 +34,7 @@ exports.flattenProgramIIFEVisitor = require("./flatten-program-iife").flattenPro
 exports.flattenMemberExpression = require("./flatten-member-expression").flattenMemberExpression;
 exports.verifyVarIsAvailableVisitor = require("./verify-var-is-available").verifyVarIsAvailableVisitor;
 exports.createRemoveClassNameClassExportVisitor = require("./remove-class-name-class-export").createRemoveClassNameClassExportVisitor;
+exports.createRemoveGlobalizeSourceModulesCallVisitor = require("./remove-globalize-source-modules-call").createRemoveGlobalizeSourceModulesCallVisitor;
 exports.namespacedClassFlattenerVisitor = require("./namespaced-class-flattener").namespacedClassFlattenerVisitor;
 exports.varNamespaceAliasExpanderVisitor = require("./var-namespace-alias-expander").varNamespaceAliasExpanderVisitor;
 exports.addRequireForGlobalIdentifierVisitor = require("./add-require-for-global-identifier").addRequireForGlobalIdentifierVisitor;

@@ -2,6 +2,7 @@ var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 
 import {
+	createRemoveGlobalizeSourceModulesCallVisitor,
 	wrapModuleInIIFEVisitor,
 	flattenProgramIIFEVisitor
 } from 'global-compiler';
@@ -48,6 +49,7 @@ import {transformASTAndPushToNextStream} from './utils/utilities';
 export function compileTestFiles(options) {
 	return vinylFs.src(options.filesToCompile)
 		.pipe(parseJSFile())
+		.pipe(through2.obj(removeGlobalizeSourceModulesCall))
 		.pipe(through2.obj(flattenProgramIIFE))
 		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(transformSLJSUsage())
@@ -59,6 +61,19 @@ export function compileTestFiles(options) {
 		.pipe(through2.obj(wrapModuleInIIFE))
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory));
+}
+
+/**
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {FileMetadata} fileMetadata - File meta data for file being transformed.
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ */
+function removeGlobalizeSourceModulesCall(fileMetadata, encoding, callback) {
+	const removeGlobalizeSourceModulesCallVisitor = createRemoveGlobalizeSourceModulesCallVisitor();
+	transformASTAndPushToNextStream(fileMetadata, removeGlobalizeSourceModulesCallVisitor, this, callback);
 }
 
 /**

@@ -36,6 +36,7 @@ var through2 = require("through2");
 
 var _globalCompiler = require("global-compiler");
 
+var createRemoveGlobalizeSourceModulesCallVisitor = _globalCompiler.createRemoveGlobalizeSourceModulesCallVisitor;
 var wrapModuleInIIFEVisitor = _globalCompiler.wrapModuleInIIFEVisitor;
 var flattenProgramIIFEVisitor = _globalCompiler.flattenProgramIIFEVisitor;
 
@@ -54,7 +55,20 @@ var replaceLibraryIncludesWithRequires = _commonTransforms.replaceLibraryInclude
 var transformASTAndPushToNextStream = require("./utils/utilities").transformASTAndPushToNextStream;
 
 function compileTestFiles(options) {
-  return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory));
+  return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory));
+}
+
+/**
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {FileMetadata} fileMetadata - File meta data for file being transformed.
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
+ */
+function removeGlobalizeSourceModulesCall(fileMetadata, encoding, callback) {
+  var removeGlobalizeSourceModulesCallVisitor = createRemoveGlobalizeSourceModulesCallVisitor();
+  transformASTAndPushToNextStream(fileMetadata, removeGlobalizeSourceModulesCallVisitor, this, callback);
 }
 
 /**
