@@ -33,9 +33,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var List = require("immutable").List;
 
-var compileTestFiles = require("./test-files-compiler").compileTestFiles;
+var compileTestAndSrcTestFiles = require("./test-files-compiler").compileTestAndSrcTestFiles;
 
-var compileSourceFiles = require("./src-files-compiler").compileSourceFiles;
+var compileSourceFilesAndCleanUpJSStyleFiles = require("./src-files-compiler").compileSourceFilesAndCleanUpJSStyleFiles;
 
 function createOptionsObject(_ref) {
 	var namespaces = _ref.namespaces;
@@ -70,15 +70,9 @@ function createOptionsObject(_ref) {
 
 function processFile(optionsObject) {
 	if (optionsObject.compileTestFiles) {
-		var testConversionStream = compileTestFiles(optionsObject);
-
-		testConversionStream.on("end", function () {
-			optionsObject.filesToCompile = "src-test/**/*.js";
-			optionsObject.outputDirectory = "src-test";
-			compileSourceFiles(optionsObject);
-		});
+		compileTestAndSrcTestFiles(optionsObject);
 	} else {
-		compileSourceFiles(optionsObject);
+		compileSourceFilesAndCleanUpJSStyleFiles(optionsObject);
 	}
 }
 

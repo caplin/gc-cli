@@ -1,7 +1,7 @@
 import {List} from 'immutable';
 
-import {compileTestFiles} from './test-files-compiler';
-import {compileSourceFiles} from './src-files-compiler';
+import {compileTestAndSrcTestFiles} from './test-files-compiler';
+import {compileSourceFilesAndCleanUpJSStyleFiles} from './src-files-compiler';
 
 /**
  * Options object.
@@ -59,15 +59,9 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
  */
 export function processFile(optionsObject) {
 	if (optionsObject.compileTestFiles) {
-		var testConversionStream = compileTestFiles(optionsObject);
-
-		testConversionStream.on('end', () => {
-			optionsObject.filesToCompile = 'src-test/**/*.js';
-			optionsObject.outputDirectory = 'src-test';
-			compileSourceFiles(optionsObject);
-		});
+		compileTestAndSrcTestFiles(optionsObject);
 	} else {
-		compileSourceFiles(optionsObject);
+		compileSourceFilesAndCleanUpJSStyleFiles(optionsObject);
 	}
 }
 

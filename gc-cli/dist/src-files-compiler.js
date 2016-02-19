@@ -15,6 +15,11 @@ var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["defau
  * @param {OptionsObject} options - Options to configure transforms.
  */
 exports.compileSourceFiles = compileSourceFiles;
+
+/**
+ * @param {OptionsObject} options - Options to configure transforms.
+ */
+exports.compileSourceFilesAndCleanUpJSStyleFiles = compileSourceFilesAndCleanUpJSStyleFiles;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
@@ -57,7 +62,15 @@ var getFileNamespace = _utilsUtilities.getFileNamespace;
 var transformASTAndPushToNextStream = _utilsUtilities.transformASTAndPushToNextStream;
 
 function compileSourceFiles(options) {
-	vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", createJSStyleFiles());
+	var outputDirectory = options.outputDirectory;
+
+	return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
+		unlink(join(outputDirectory, ".js-style"), function () {});
+	});
+}
+
+function compileSourceFilesAndCleanUpJSStyleFiles(options) {
+	compileSourceFiles(options).on("end", createJSStyleFiles());
 }
 
 /**
@@ -123,21 +136,8 @@ function formatCode(formatterOptions) {
  * Creates files required to notify module loader of file type.
  */
 function createJSStyleFiles() {
-	var failedWrites = 0;
-
-	function failedToWriteTestJsStyleFile(error) {
-		if (error) {
-			failedWrites++;
-		}
-
-		if (failedWrites === 2) {
-			console.warn("\nNo tests/test .js-style file was created, this may be due to the fact there are no tests");
-		}
-	}
-
 	return function () {
-		unlink(".js-style", function () {});
-		writeFile(join("test", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
-		writeFile(join("tests", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
+		writeFile(join("test", ".js-style"), "namespaced-js", function () {});
+		writeFile(join("tests", ".js-style"), "namespaced-js", function () {});
 	};
 }

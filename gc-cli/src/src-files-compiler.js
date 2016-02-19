@@ -44,7 +44,9 @@ import {
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function compileSourceFiles(options) {
-	vinylFs.src(options.filesToCompile)
+	const outputDirectory = options.outputDirectory;
+
+	return vinylFs.src(options.filesToCompile)
 		.pipe(parseJSFile())
 		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(through2.obj(stripFauxCJSExports))
@@ -60,7 +62,17 @@ export function compileSourceFiles(options) {
 		.pipe(convertASTToBuffer())
 		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))
-		.on('end', createJSStyleFiles());
+		.on('end', () => {
+			unlink(join(outputDirectory, '.js-style'), () => {});
+		});
+}
+
+/**
+ * @param {OptionsObject} options - Options to configure transforms.
+ */
+export function compileSourceFilesAndCleanUpJSStyleFiles(options) {
+	compileSourceFiles(options)
+		.on('end', createJSStyleFiles())
 }
 
 /**
@@ -126,21 +138,8 @@ function formatCode(formatterOptions) {
  * Creates files required to notify module loader of file type.
  */
 function createJSStyleFiles() {
-	let failedWrites = 0;
-
-	function failedToWriteTestJsStyleFile (error) {
-		if (error) {
-			failedWrites++;
-		}
-
-		if (failedWrites === 2) {
-			console.warn('\nNo tests/test .js-style file was created, this may be due to the fact there are no tests');
-		}
-	}
-
 	return function() {
-		unlink('.js-style', () => {});
-		writeFile(join('test', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
-		writeFile(join('tests', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
+		writeFile(join('test', '.js-style'), 'namespaced-js', () => {});
+		writeFile(join('tests', '.js-style'), 'namespaced-js', () => {});
 	}
 }

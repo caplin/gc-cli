@@ -1,3 +1,6 @@
+import {unlink} from "fs";
+import {join} from "path";
+
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 
@@ -18,7 +21,7 @@ import {
 	expandVarNamespaceAliases,
 	replaceLibraryIncludesWithRequires
 } from './common-transforms';
-
+import {compileSourceFiles} from './src-files-compiler';
 import {transformASTAndPushToNextStream} from './utils/utilities';
 
 /**
@@ -47,6 +50,8 @@ import {transformASTAndPushToNextStream} from './utils/utilities';
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function compileTestFiles(options) {
+	const outputDirectory = options.outputDirectory;
+
 	return vinylFs.src(options.filesToCompile)
 		.pipe(parseJSFile())
 		.pipe(through2.obj(removeGlobalizeSourceModulesCall))
@@ -60,7 +65,23 @@ export function compileTestFiles(options) {
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
 		.pipe(through2.obj(wrapModuleInIIFE))
 		.pipe(convertASTToBuffer())
-		.pipe(vinylFs.dest(options.outputDirectory));
+		.pipe(vinylFs.dest(options.outputDirectory))
+		.on('end', () => {
+			unlink(join(outputDirectory, '.js-style'), () => {});
+		});
+}
+
+/**
+ * @param {OptionsObject} options - Options to configure transforms.
+ */
+export function compileTestAndSrcTestFiles(optionsObject) {
+	var testConversionStream = compileTestFiles(optionsObject);
+
+	testConversionStream.on('end', () => {
+		optionsObject.filesToCompile = 'src-test/**/*.js';
+		optionsObject.outputDirectory = 'src-test';
+		compileSourceFiles(optionsObject);
+	});
 }
 
 /**

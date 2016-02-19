@@ -28,9 +28,19 @@
 "use strict";
 
 exports.compileTestFiles = compileTestFiles;
+
+/**
+ * @param {OptionsObject} options - Options to configure transforms.
+ */
+exports.compileTestAndSrcTestFiles = compileTestAndSrcTestFiles;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var unlink = require("fs").unlink;
+
+var join = require("path").join;
+
 var vinylFs = require("vinyl-fs");
 var through2 = require("through2");
 
@@ -52,10 +62,26 @@ var convertGlobalsToRequires = _commonTransforms.convertGlobalsToRequires;
 var expandVarNamespaceAliases = _commonTransforms.expandVarNamespaceAliases;
 var replaceLibraryIncludesWithRequires = _commonTransforms.replaceLibraryIncludesWithRequires;
 
+var compileSourceFiles = require("./src-files-compiler").compileSourceFiles;
+
 var transformASTAndPushToNextStream = require("./utils/utilities").transformASTAndPushToNextStream;
 
 function compileTestFiles(options) {
-  return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory));
+  var outputDirectory = options.outputDirectory;
+
+  return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
+    unlink(join(outputDirectory, ".js-style"), function () {});
+  });
+}
+
+function compileTestAndSrcTestFiles(optionsObject) {
+  var testConversionStream = compileTestFiles(optionsObject);
+
+  testConversionStream.on("end", function () {
+    optionsObject.filesToCompile = "src-test/**/*.js";
+    optionsObject.outputDirectory = "src-test";
+    compileSourceFiles(optionsObject);
+  });
 }
 
 /**
