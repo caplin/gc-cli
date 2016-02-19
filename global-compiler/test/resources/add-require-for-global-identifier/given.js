@@ -1,6 +1,7 @@
 var Reference = require("other/some/Reference");
 var SuperClass = require("my/long/name/space/SuperClass");
 var my = require("my");
+var emitr = require("emitr");
 
 function SimpleClass() {
 	aLibrary().plugin(42);
@@ -11,6 +12,7 @@ function SimpleClass() {
 
 my.extend(SimpleClass, SuperClass);
 my.extend(SimpleClass, globalLibrary);
+emitr.mixInto(SimpleClass);
 
 SimpleClass.prototype._initMethod = function() {
 	this.controller = new SomeController(SomeConstants.A_CONSTANT, Reference.SOME_CONSTANT);

@@ -19,7 +19,17 @@ export const addRequireForGlobalIdentifierVisitor = {
 	 */
 	initialize(identifiersToRequire) {
 		this._matchedGlobalIdentifiers = new Map();
+		this._preexistingImportSpecifiers = new Set();
 		this._identifiersToRequire = identifiersToRequire;
+	},
+
+	/**
+	 * @param {NodePath} callExpressionNodePath CallExpression NodePath
+	 */
+	visitCallExpression(callExpressionNodePath) {
+		storePreexistingImportSpecifier(callExpressionNodePath, this._preexistingImportSpecifiers);
+
+		this.traverse(callExpressionNodePath);
 	},
 
 	/**
@@ -42,10 +52,50 @@ export const addRequireForGlobalIdentifierVisitor = {
 		this.traverse(programNodePath);
 
 		const programStatements = programNodePath.get('body').value;
+		const sequencesToRequire = filterSequences(this._matchedGlobalIdentifiers, this._preexistingImportSpecifiers);
 
-		addRequiresForGlobalIdentifiers(this._matchedGlobalIdentifiers, this._identifiersToRequire, programStatements);
+		addRequiresForGlobalIdentifiers(sequencesToRequire, this._identifiersToRequire, programStatements);
 	}
 };
+
+/**
+ * Store any preexisting import specifiers so the visitor doesn't add duplicates.
+ *
+ * @param  {NodePath} callExpressionNodePath
+ * @param  {Set<string>} preexistingImportSpecifiers
+ */
+function storePreexistingImportSpecifier(callExpressionNodePath, preexistingImportSpecifiers) {
+	const calleeNode = callExpressionNodePath.node.callee;
+	const parentNode = callExpressionNodePath.parentPath.node;
+
+	if (calleeNode.type === "Identifier" && calleeNode.name === "require" && parentNode.type === "VariableDeclarator") {
+		preexistingImportSpecifiers.add(parentNode.id.name);
+	}
+}
+
+/**
+ * Remove duplicate require sequences and sequences that match already imported module specifiers.
+ *
+ * @param  {Map<NodePath, Sequence<string>>} matchedGlobalIdentifiers
+ * @param  {Set<string>} preexistingImportSpecifiers
+ * @return {Set<Sequence<string>>}
+ */
+function filterSequences(matchedGlobalIdentifiers, preexistingImportSpecifiers) {
+	// You can find a library identifier multiple times in a module, putting the identifier sequences
+	// into a Set filters out duplicates.
+	const moduleSpecifiersToRequire = new Set();
+
+	for (let [, sequenceToRequire] of matchedGlobalIdentifiers) {
+		const importSpecifierAlreadyPresent = preexistingImportSpecifiers.has(sequenceToRequire.first());
+
+		// If an import specifier already exists for the library don't add another require for it.
+		if (importSpecifierAlreadyPresent === false) {
+			moduleSpecifiersToRequire.add(sequenceToRequire);
+		}
+	}
+
+	return moduleSpecifiersToRequire;
+}
 
 /**
  * Checks if identifier is an identifier to create a require for.
@@ -119,19 +169,15 @@ function isStandaloneIdentifier(identifierNodePath) {
 /**
  * Add any requires to the module head that are deemed to be required for the global identifiers in the module.
  *
- * @param {Map<AstNode, Sequence<string>>} matchedGlobalIdentifiers The identifiers that matched during the search
+ * @param {Set<Sequence<string>>} sequencesToRequire The sequences that matched during the search
  * @param {Map<Sequence<string>, string>}  identifiersToRequire     All the identifiers that are searched for
  * @param {AstNode[]}                      programStatements        Program body statements
  */
-function addRequiresForGlobalIdentifiers(matchedGlobalIdentifiers, identifiersToRequire, programStatements) {
-	// You can find a library identifier multiple times in a module, putting the identifier sequences
-	// into a Set filters out duplicates.
-	const moduleIdentifiersToRequire = new Set(matchedGlobalIdentifiers.values());
-
+function addRequiresForGlobalIdentifiers(sequencesToRequire, identifiersToRequire, programStatements) {
 	// If you have a match on the longer and a match on the shorter of two libraries using the same identifiers.
 	// The longer needs the shorter as it's a plugin so all you need to do is require the longer as it should
 	// require the shorter itself. The require statement will have a variable with a name equals to the shorter.
-	for (let sequenceToRequire of moduleIdentifiersToRequire) {
+	for (let sequenceToRequire of sequencesToRequire) {
 		const moduleID = identifiersToRequire.get(sequenceToRequire);
 		const moduleIdentifier = identifier(sequenceToRequire.first());
 		const importDeclaration = createRequireDeclaration(moduleIdentifier, moduleID);
