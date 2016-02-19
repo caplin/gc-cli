@@ -21,7 +21,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var join = require("path").join;
 
-var writeFile = require("fs").writeFile;
+var _fs = require("fs");
+
+var writeFile = _fs.writeFile;
+var unlink = _fs.unlink;
 
 var vinylFs = _interopRequire(require("vinyl-fs"));
 
@@ -133,7 +136,7 @@ function createJSStyleFiles() {
 	}
 
 	return function () {
-		writeFile(".js-style", "common-js");
+		unlink(".js-style", function () {});
 		writeFile(join("test", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
 		writeFile(join("tests", ".js-style"), "namespaced-js", failedToWriteTestJsStyleFile);
 	};

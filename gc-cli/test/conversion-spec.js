@@ -55,14 +55,12 @@ describe('GlobalCompiler conversion', () => {
 
 		//Then.
 		setTimeout(() => {
-			const styleFileOutput = fs.readFileSync('.js-style', fileOptions);
 			const testsStyleFileOutput = fs.readFileSync(path.join('tests', '.js-style'), fileOptions);
 			const output = fs.readFileSync('output/my/long/name/space/SimpleClass.js', fileOptions);
 			const outputIIFE = fs.readFileSync('output/my/long/name/space/SimpleIIFEClass.js', fileOptions);
 
 			assert.equal(output, expected);
 			assert.equal(outputIIFE, expectedIIFE);
-			assert.equal(styleFileOutput, expectedStyleFile);
 			assert.equal(testsStyleFileOutput, expectedTestStyleFile);
 
 			done();

@@ -1,5 +1,8 @@
 import {join} from 'path';
-import {writeFile} from 'fs';
+import {
+	writeFile,
+	unlink
+} from 'fs';
 
 import vinylFs from 'vinyl-fs';
 import through2 from 'through2';
@@ -136,7 +139,7 @@ function createJSStyleFiles() {
 	}
 
 	return function() {
-		writeFile('.js-style', 'common-js');
+		unlink('.js-style', () => {});
 		writeFile(join('test', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
 		writeFile(join('tests', '.js-style'), 'namespaced-js', failedToWriteTestJsStyleFile);
 	}
