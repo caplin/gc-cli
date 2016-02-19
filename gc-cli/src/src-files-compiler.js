@@ -139,6 +139,7 @@ function formatCode(formatterOptions) {
  */
 function createJSStyleFiles() {
 	return function() {
+		unlink('.js-style', () => {});
 		writeFile(join('test', '.js-style'), 'namespaced-js', () => {});
 		writeFile(join('tests', '.js-style'), 'namespaced-js', () => {});
 	}
