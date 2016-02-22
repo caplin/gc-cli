@@ -54,15 +54,23 @@ export function calculateUniqueModuleVariableId(varName, moduleIdentifiers, name
  * @param {AstNode} moduleIdentifier - The identifier the require call result is set to.
  * @param {string} importedModule - The module id literal.
  */
-export function createRequireDeclaration(moduleIdentifier, importedModule) {
-	const requireCall = builders.callExpression(
-		builders.identifier('require'),	[builders.literal(importedModule)]
-	);
+export function createRequireDeclaration(moduleIdentifier, importedModule, importSpecifier) {
+	const importedModuleSource = builders.literal(importedModule);
+	const requireIdentifier = builders.identifier('require');
+	const requireCall = builders.callExpression(requireIdentifier, [importedModuleSource]);
+
+	if (importSpecifier) {
+		const importSpecifierIdentifier = builders.identifier(importSpecifier);
+		const requireMemberExpression = builders.memberExpression(requireCall, importSpecifierIdentifier, false);
+		const requireVariableDeclarator = builders.variableDeclarator(moduleIdentifier, requireMemberExpression);
+
+		return builders.variableDeclaration('var', [requireVariableDeclarator]);
+	}
 
 	if (moduleIdentifier) {
-		return builders.variableDeclaration(
-			'var', [builders.variableDeclarator(moduleIdentifier, requireCall)]
-		);
+		const requireVariableDeclarator = builders.variableDeclarator(moduleIdentifier, requireCall);
+
+		return builders.variableDeclaration('var', [requireVariableDeclarator]);
 	}
 
 	return requireCall;

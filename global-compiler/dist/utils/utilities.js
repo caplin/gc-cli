@@ -112,11 +112,23 @@ function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
 	return freeVarName;
 }
 
-function createRequireDeclaration(moduleIdentifier, importedModule) {
-	var requireCall = builders.callExpression(builders.identifier("require"), [builders.literal(importedModule)]);
+function createRequireDeclaration(moduleIdentifier, importedModule, importSpecifier) {
+	var importedModuleSource = builders.literal(importedModule);
+	var requireIdentifier = builders.identifier("require");
+	var requireCall = builders.callExpression(requireIdentifier, [importedModuleSource]);
+
+	if (importSpecifier) {
+		var importSpecifierIdentifier = builders.identifier(importSpecifier);
+		var requireMemberExpression = builders.memberExpression(requireCall, importSpecifierIdentifier, false);
+		var requireVariableDeclarator = builders.variableDeclarator(moduleIdentifier, requireMemberExpression);
+
+		return builders.variableDeclaration("var", [requireVariableDeclarator]);
+	}
 
 	if (moduleIdentifier) {
-		return builders.variableDeclaration("var", [builders.variableDeclarator(moduleIdentifier, requireCall)]);
+		var requireVariableDeclarator = builders.variableDeclarator(moduleIdentifier, requireCall);
+
+		return builders.variableDeclaration("var", [requireVariableDeclarator]);
 	}
 
 	return requireCall;

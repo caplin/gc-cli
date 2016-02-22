@@ -260,11 +260,19 @@ function addRequiresForGlobalIdentifiers(sequencesToRequire, identifiersToRequir
 		for (var _iterator = sequencesToRequire[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 			var sequenceToRequire = _step.value;
 
-			var moduleID = identifiersToRequire.get(sequenceToRequire);
-			var moduleIdentifier = identifier(sequenceToRequire.first());
-			var importDeclaration = createRequireDeclaration(moduleIdentifier, moduleID);
+			// 'sl4bdummy->SL4B_Accessor' allows the user to import `SL4B_Accessor` from `sl4bdummy`.
 
-			log("Adding require for " + moduleID + " with variable name " + sequenceToRequire.first());
+			var _identifiersToRequire$get$split = identifiersToRequire.get(sequenceToRequire).split("->");
+
+			var _identifiersToRequire$get$split2 = _slicedToArray(_identifiersToRequire$get$split, 2);
+
+			var moduleSource = _identifiersToRequire$get$split2[0];
+			var importSpecifier = _identifiersToRequire$get$split2[1];
+
+			var moduleIdentifier = identifier(sequenceToRequire.first());
+			var importDeclaration = createRequireDeclaration(moduleIdentifier, moduleSource, importSpecifier);
+
+			log("Adding " + moduleSource + " require with id " + moduleIdentifier + " and export " + importSpecifier);
 
 			programStatements.unshift(importDeclaration);
 		}

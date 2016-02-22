@@ -1,3 +1,4 @@
+var SL4B_Accessor = require("sl4bdummy").SL4B_Accessor;
 var globalLibrary = require("globallibrary");
 var otherGlobal = require("otherglobal");
 var aLibrary = require("a-library");
@@ -11,6 +12,7 @@ function SimpleClass() {
 	this.member = new otherGlobal.AClass();
 
 	globalLibrary.makeOfTypeGL(this);
+	SL4B_Accessor();
 }
 
 my.extend(SimpleClass, SuperClass);

@@ -178,11 +178,12 @@ function addRequiresForGlobalIdentifiers(sequencesToRequire, identifiersToRequir
 	// The longer needs the shorter as it's a plugin so all you need to do is require the longer as it should
 	// require the shorter itself. The require statement will have a variable with a name equals to the shorter.
 	for (let sequenceToRequire of sequencesToRequire) {
-		const moduleID = identifiersToRequire.get(sequenceToRequire);
+		// 'sl4bdummy->SL4B_Accessor' allows the user to import `SL4B_Accessor` from `sl4bdummy`.
+		const [moduleSource, importSpecifier] = identifiersToRequire.get(sequenceToRequire).split('->');
 		const moduleIdentifier = identifier(sequenceToRequire.first());
-		const importDeclaration = createRequireDeclaration(moduleIdentifier, moduleID);
+		const importDeclaration = createRequireDeclaration(moduleIdentifier, moduleSource, importSpecifier);
 
-		log(`Adding require for ${moduleID} with variable name ${sequenceToRequire.first()}`);
+		log(`Adding ${moduleSource} require with id ${moduleIdentifier} and export ${importSpecifier}`);
 
 		programStatements.unshift(importDeclaration);
 	}

@@ -8,6 +8,7 @@ function SimpleClass() {
 	this.member = new otherGlobal.AClass();
 
 	globalLibrary.makeOfTypeGL(this);
+	SL4B_Accessor();
 }
 
 my.extend(SimpleClass, SuperClass);
