@@ -45,6 +45,9 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 		[List.of('jQuery'), 'jquery'],
 		[List.of('sinon'), 'sinonjs'],
 		[List.of('queryString'), 'query-string'],
+		[List.of('JsMockito'), 'jsmockito'],
+		[List.of('JsHamcrest'), 'jshamcrest'],
+		[List.of('Mock4JS'), 'mock4js'],
 		[List.of('moment', '()', 'tz'), 'moment-timezone']
 	]);
 
