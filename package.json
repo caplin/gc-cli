@@ -12,6 +12,26 @@
     "type": "git",
     "url": "https://github.com/caplin/gc-cli.git"
   },
+  "dependencies": {
+    "array-includes": "^1.0.5",
+    "capitalize": "^0.5.0",
+    "chalk": "^0.5.1",
+    "global-compiler": "./global-compiler",
+    "immutable": "^3.0.3",
+    "js-formatter": "git://github.com/briandipalma/js-formatter",
+    "minimist": "^1.1.0",
+    "recast": "^0.10.0",
+    "through2": "^0.6.1",
+    "vinyl-fs": "^1.0.0",
+    "winston": "^0.9.0"
+  },
+  "devDependencies": {
+    "babel": "^4.6.3",
+    "del": "^1.1.1",
+    "eslint": "^0.17.1",
+    "mocha": "^2.1.0",
+    "rimraf": "^2.3.2"
+  },
   "preferGlobal": true,
   "bin": "./gc-cli/bin/gc-cli.js"
 }
