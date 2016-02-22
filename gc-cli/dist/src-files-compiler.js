@@ -37,7 +37,7 @@ var through2 = _interopRequire(require("through2"));
 
 var defaultFormatCode = require("js-formatter").defaultFormatCode;
 
-var _globalCompiler = require("global-compiler");
+var _globalCompiler = require("../../global-compiler");
 
 var createRemoveClassNameClassExportVisitor = _globalCompiler.createRemoveClassNameClassExportVisitor;
 var iifeClassFlattenerVisitor = _globalCompiler.iifeClassFlattenerVisitor;

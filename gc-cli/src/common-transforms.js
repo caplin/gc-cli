@@ -26,7 +26,7 @@ import {
 	varNamespaceAliasExpanderVisitor,
 	addRequireForGlobalIdentifierVisitor,
 	replaceLibraryIncludesWithRequiresVisitor
-} from 'global-compiler';
+} from '../../global-compiler';
 
 import {
 	getFileNamespaceParts,

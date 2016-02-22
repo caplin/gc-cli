@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _globalCompiler = require("global-compiler");
+var _globalCompiler = require("../../../global-compiler");
 
 var composeMatchers = _globalCompiler.composeMatchers;
 var identifierMatcher = _globalCompiler.identifierMatcher;

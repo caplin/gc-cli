@@ -102,7 +102,7 @@ var Iterable = _require.Iterable;
 
 var builders = require("recast").types.builders;
 
-var _globalCompiler = require("global-compiler");
+var _globalCompiler = require("../../global-compiler");
 
 var orMatchers = _globalCompiler.orMatchers;
 var literalMatcher = _globalCompiler.literalMatcher;

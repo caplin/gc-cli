@@ -44,7 +44,7 @@ var join = require("path").join;
 var vinylFs = require("vinyl-fs");
 var through2 = require("through2");
 
-var _globalCompiler = require("global-compiler");
+var _globalCompiler = require("../../global-compiler");
 
 var createRemoveGlobalizeSourceModulesCallVisitor = _globalCompiler.createRemoveGlobalizeSourceModulesCallVisitor;
 var wrapModuleInIIFEVisitor = _globalCompiler.wrapModuleInIIFEVisitor;

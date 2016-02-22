@@ -4,7 +4,7 @@ import {
 	extractParent,
 	extractProperties,
 	composeTransformers
-} from 'global-compiler';
+} from '../../../global-compiler';
 
 const {literal, identifier} = builders;
 

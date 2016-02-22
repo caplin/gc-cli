@@ -16,7 +16,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var builders = require("recast").types.builders;
 
-var _globalCompiler = require("global-compiler");
+var _globalCompiler = require("../../../global-compiler");
 
 var extractParent = _globalCompiler.extractParent;
 var extractProperties = _globalCompiler.extractProperties;

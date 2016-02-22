@@ -11,7 +11,7 @@ import {
 	createRemoveClassNameClassExportVisitor,
 	iifeClassFlattenerVisitor,
 	namespacedClassFlattenerVisitor
-} from 'global-compiler';
+} from '../../global-compiler';
 
 import {
 	parseJSFile,

@@ -8,7 +8,7 @@ import {
 	createRemoveGlobalizeSourceModulesCallVisitor,
 	wrapModuleInIIFEVisitor,
 	flattenProgramIIFEVisitor
-} from 'global-compiler';
+} from '../../global-compiler';
 
 import {
 	parseJSFile,
