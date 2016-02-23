@@ -40,7 +40,6 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 	}
 
 	optionsObject.libraryIdentifiersToRequire = new Map([
-		[List.of('caplin'), 'caplin-bootstrap'],
 		[List.of('emitr'), 'emitr'],
 		[List.of('jQuery'), 'jquery'],
 		[List.of('sinon'), 'sinonjs'],

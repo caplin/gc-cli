@@ -3,7 +3,10 @@ var through2 = require('through2');
 var parse = require('recast').parse;
 var print = require('recast').print;
 var visit = require('recast').visit;
-const {Iterable} = require('immutable');
+import {
+	Iterable,
+	List
+} from 'immutable';
 const {builders} = require('recast').types;
 
 import {
@@ -227,6 +230,17 @@ export function addRequiresForLibraries(libraryIdentifiersToRequire) {
 		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
 		transformASTAndPushToNextStream(fileMetadata, addRequireForGlobalIdentifierVisitor, this, callback);
 	});
+}
+
+/**
+ * This transform adds a require for `caplin-bootstrap` if the `caplin` identifier is present in the module.
+ */
+export function addRequiresForCaplinBootstrap() {
+	const caplinBootstrapIdentifier = new Map([
+		[List.of('caplin'), 'caplin-bootstrap']
+	]);
+
+	return addRequiresForLibraries(caplinBootstrapIdentifier);
 }
 
 /**

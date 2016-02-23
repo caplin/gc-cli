@@ -65,6 +65,11 @@ exports.removeCJSModuleRequires = removeCJSModuleRequires;
 exports.addRequiresForLibraries = addRequiresForLibraries;
 
 /**
+ * This transform adds a require for `caplin-bootstrap` if the `caplin` identifier is present in the module.
+ */
+exports.addRequiresForCaplinBootstrap = addRequiresForCaplinBootstrap;
+
+/**
  * This transform is use case specific in that it replaces use of one i18n library with another.
  * The transform is multi-stage as it uses more generic transforms.
  *
@@ -96,9 +101,10 @@ var parse = require("recast").parse;
 var print = require("recast").print;
 var visit = require("recast").visit;
 
-var _require = require("immutable");
+var _immutable = require("immutable");
 
-var Iterable = _require.Iterable;
+var Iterable = _immutable.Iterable;
+var List = _immutable.List;
 
 var builders = require("recast").types.builders;
 
@@ -249,6 +255,12 @@ function addRequiresForLibraries(libraryIdentifiersToRequire) {
 		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
 		transformASTAndPushToNextStream(fileMetadata, addRequireForGlobalIdentifierVisitor, this, callback);
 	});
+}
+
+function addRequiresForCaplinBootstrap() {
+	var caplinBootstrapIdentifier = new Map([[List.of("caplin"), "caplin-bootstrap"]]);
+
+	return addRequiresForLibraries(caplinBootstrapIdentifier);
 }
 
 function transformI18nUsage() {

@@ -1,6 +1,7 @@
 import {unlink} from "fs";
 import {join} from "path";
 
+import {List} from 'immutable';
 var vinylFs = require('vinyl-fs');
 var through2 = require('through2');
 
@@ -15,6 +16,7 @@ import {
 	transformSLJSUsage,
 	convertASTToBuffer,
 	transformI18nUsage,
+	addRequiresForCaplinBootstrap,
 	addRequiresForLibraries,
 	removeCJSModuleRequires,
 	convertGlobalsToRequires,
@@ -23,6 +25,22 @@ import {
 } from './common-transforms';
 import {compileSourceFiles} from './src-files-compiler';
 import {transformASTAndPushToNextStream} from './utils/utilities';
+
+function registerCaplinTestGlobals(options) {
+	// All the Caplin test globals and where they should be required from.
+	options.libraryIdentifiersToRequire.set(List.of('SL4B_Accessor'), 'sl4bdummy->SL4B_Accessor');
+	options.libraryIdentifiersToRequire.set(List.of('assertFails'), 'jsunitextensions->assertFails');
+	options.libraryIdentifiersToRequire.set(List.of('assertAssertError'), 'jsunitextensions->assertAssertError');
+	options.libraryIdentifiersToRequire.set(List.of('assertNoException'), 'jsunitextensions->assertNoException');
+	options.libraryIdentifiersToRequire.set(List.of('assertArrayEquals'), 'jsunitextensions->assertArrayEquals');
+	options.libraryIdentifiersToRequire.set(List.of('assertVariantEquals'), 'jsunitextensions->assertVariantEquals');
+	options.libraryIdentifiersToRequire.set(List.of('triggerKeyEvent'), 'jsunitextensions->triggerKeyEvent');
+	options.libraryIdentifiersToRequire.set(List.of('triggerMouseEvent'), 'jsunitextensions->triggerMouseEvent');
+	options.libraryIdentifiersToRequire.set(List.of('Clock'), 'jsunitextensions->Clock');
+	options.libraryIdentifiersToRequire.set(List.of('ApiProtector'), 'jstestdriverextensions->ApiProtector');
+	options.libraryIdentifiersToRequire.set(List.of('CaplinTestCase'), 'jstestdriverextensions->CaplinTestCase');
+	options.libraryIdentifiersToRequire.set(List.of('defineTestCase'), 'jstestdriverextensions->defineTestCase');
+}
 
 /**
  * Options object.
@@ -50,6 +68,8 @@ import {transformASTAndPushToNextStream} from './utils/utilities';
  * @param {OptionsObject} options - Options to configure transforms.
  */
 export function compileTestFiles(options) {
+	registerCaplinTestGlobals(options);
+
 	const outputDirectory = options.outputDirectory;
 
 	return vinylFs.src(options.filesToCompile)
@@ -63,6 +83,7 @@ export function compileTestFiles(options) {
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
+		.pipe(addRequiresForCaplinBootstrap())
 		.pipe(through2.obj(wrapModuleInIIFE))
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory))

@@ -34,12 +34,14 @@ exports.compileTestFiles = compileTestFiles;
  */
 exports.compileTestAndSrcTestFiles = compileTestAndSrcTestFiles;
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
 
 var unlink = require("fs").unlink;
 
 var join = require("path").join;
+
+var List = require("immutable").List;
 
 var vinylFs = require("vinyl-fs");
 var through2 = require("through2");
@@ -56,6 +58,7 @@ var parseJSFile = _commonTransforms.parseJSFile;
 var transformSLJSUsage = _commonTransforms.transformSLJSUsage;
 var convertASTToBuffer = _commonTransforms.convertASTToBuffer;
 var transformI18nUsage = _commonTransforms.transformI18nUsage;
+var addRequiresForCaplinBootstrap = _commonTransforms.addRequiresForCaplinBootstrap;
 var addRequiresForLibraries = _commonTransforms.addRequiresForLibraries;
 var removeCJSModuleRequires = _commonTransforms.removeCJSModuleRequires;
 var convertGlobalsToRequires = _commonTransforms.convertGlobalsToRequires;
@@ -66,22 +69,39 @@ var compileSourceFiles = require("./src-files-compiler").compileSourceFiles;
 
 var transformASTAndPushToNextStream = require("./utils/utilities").transformASTAndPushToNextStream;
 
+function registerCaplinTestGlobals(options) {
+	// All the Caplin test globals and where they should be required from.
+	options.libraryIdentifiersToRequire.set(List.of("SL4B_Accessor"), "sl4bdummy->SL4B_Accessor");
+	options.libraryIdentifiersToRequire.set(List.of("assertFails"), "jsunitextensions->assertFails");
+	options.libraryIdentifiersToRequire.set(List.of("assertAssertError"), "jsunitextensions->assertAssertError");
+	options.libraryIdentifiersToRequire.set(List.of("assertNoException"), "jsunitextensions->assertNoException");
+	options.libraryIdentifiersToRequire.set(List.of("assertArrayEquals"), "jsunitextensions->assertArrayEquals");
+	options.libraryIdentifiersToRequire.set(List.of("assertVariantEquals"), "jsunitextensions->assertVariantEquals");
+	options.libraryIdentifiersToRequire.set(List.of("triggerKeyEvent"), "jsunitextensions->triggerKeyEvent");
+	options.libraryIdentifiersToRequire.set(List.of("triggerMouseEvent"), "jsunitextensions->triggerMouseEvent");
+	options.libraryIdentifiersToRequire.set(List.of("Clock"), "jsunitextensions->Clock");
+	options.libraryIdentifiersToRequire.set(List.of("ApiProtector"), "jstestdriverextensions->ApiProtector");
+	options.libraryIdentifiersToRequire.set(List.of("CaplinTestCase"), "jstestdriverextensions->CaplinTestCase");
+	options.libraryIdentifiersToRequire.set(List.of("defineTestCase"), "jstestdriverextensions->defineTestCase");
+}
 function compileTestFiles(options) {
-  var outputDirectory = options.outputDirectory;
+	registerCaplinTestGlobals(options);
 
-  return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
-    unlink(join(outputDirectory, ".js-style"), function () {});
-  });
+	var outputDirectory = options.outputDirectory;
+
+	return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
+		unlink(join(outputDirectory, ".js-style"), function () {});
+	});
 }
 
 function compileTestAndSrcTestFiles(optionsObject) {
-  var testConversionStream = compileTestFiles(optionsObject);
+	var testConversionStream = compileTestFiles(optionsObject);
 
-  testConversionStream.on("end", function () {
-    optionsObject.filesToCompile = "src-test/**/*.js";
-    optionsObject.outputDirectory = "src-test";
-    compileSourceFiles(optionsObject);
-  });
+	testConversionStream.on("end", function () {
+		optionsObject.filesToCompile = "src-test/**/*.js";
+		optionsObject.outputDirectory = "src-test";
+		compileSourceFiles(optionsObject);
+	});
 }
 
 /**
@@ -93,8 +113,8 @@ function compileTestAndSrcTestFiles(optionsObject) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function removeGlobalizeSourceModulesCall(fileMetadata, encoding, callback) {
-  var removeGlobalizeSourceModulesCallVisitor = createRemoveGlobalizeSourceModulesCallVisitor();
-  transformASTAndPushToNextStream(fileMetadata, removeGlobalizeSourceModulesCallVisitor, this, callback);
+	var removeGlobalizeSourceModulesCallVisitor = createRemoveGlobalizeSourceModulesCallVisitor();
+	transformASTAndPushToNextStream(fileMetadata, removeGlobalizeSourceModulesCallVisitor, this, callback);
 }
 
 /**
@@ -106,7 +126,7 @@ function removeGlobalizeSourceModulesCall(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenProgramIIFE(fileMetadata, encoding, callback) {
-  transformASTAndPushToNextStream(fileMetadata, flattenProgramIIFEVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, flattenProgramIIFEVisitor, this, callback);
 }
 
 /**
@@ -118,5 +138,5 @@ function flattenProgramIIFE(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function wrapModuleInIIFE(fileMetadata, encoding, callback) {
-  transformASTAndPushToNextStream(fileMetadata, wrapModuleInIIFEVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, wrapModuleInIIFEVisitor, this, callback);
 }

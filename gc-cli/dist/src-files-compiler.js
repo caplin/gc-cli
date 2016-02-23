@@ -49,6 +49,7 @@ var parseJSFile = _commonTransforms.parseJSFile;
 var transformSLJSUsage = _commonTransforms.transformSLJSUsage;
 var convertASTToBuffer = _commonTransforms.convertASTToBuffer;
 var transformI18nUsage = _commonTransforms.transformI18nUsage;
+var addRequiresForCaplinBootstrap = _commonTransforms.addRequiresForCaplinBootstrap;
 var addRequiresForLibraries = _commonTransforms.addRequiresForLibraries;
 var convertGlobalsToRequires = _commonTransforms.convertGlobalsToRequires;
 var expandVarNamespaceAliases = _commonTransforms.expandVarNamespaceAliases;
@@ -64,7 +65,7 @@ var transformASTAndPushToNextStream = _utilsUtilities.transformASTAndPushToNextS
 function compileSourceFiles(options) {
 	var outputDirectory = options.outputDirectory;
 
-	return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
+	return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
 		unlink(join(outputDirectory, ".js-style"), function () {});
 	});
 }
