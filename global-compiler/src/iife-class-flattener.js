@@ -1,7 +1,10 @@
 import {types} from 'recast';
 import {List} from 'immutable';
 
-import {isNamespacedExpressionNode} from './utils/utilities';
+import {
+	copyComments,
+	isNamespacedExpressionNode
+} from './utils/utilities';
 
 const {
 	namedTypes: {
@@ -78,33 +81,12 @@ function isRootPartOfIIFE(namespacedNodePath, classNameNodePath) {
  * @param {string}   className          The class name
  */
 function replaceIIFEWithItsContents(assignmentNodePath, className) {
-	// Keep IIFE leading comments
-	const comments = assignmentNodePath.parent.node.comments;
 	const iifeBody = assignmentNodePath.get('right', 'callee', 'body', 'body');
 	// Filter out the final return statement in the IIFE as IIFE is being removed
 	const iifeStatementsWithoutFinalReturn = iifeBody.value.filter((iifeStatement) => {
 		return !(ReturnStatement.check(iifeStatement) === true && iifeStatement.argument.name === className);
 	});
 
+	copyComments(assignmentNodePath.parent.node, iifeBody.value[0]);
 	assignmentNodePath.parent.replace(...iifeStatementsWithoutFinalReturn);
-	reattachCommentsFromIIFE(assignmentNodePath.parent.node, comments);
-}
-
-/**
- * When an IIFE is replaced with its contents the comments attached to it will be lost. We reattach them to the AST by
- * adding them as part of the comments for the first statement in the IIFE.
- *
- * @param {ASTNode}   firstStatementInIIFE The first statement from the contents of the IIFE
- * @param {Comment[]} commentsFromIIFE     Comments attached to the IIFE
- */
-function reattachCommentsFromIIFE(firstStatementInIIFE, commentsFromIIFE) {
-	const commentsFromFirstStatementInIIFE = firstStatementInIIFE.comments;
-
-	// If both the first statement in the IIFE and the IIFE have comments add the IIFE comments to the first statement
-	if (commentsFromIIFE && commentsFromFirstStatementInIIFE) {
-		commentsFromFirstStatementInIIFE.unshift(...commentsFromIIFE);
-	} else if (commentsFromIIFE) {
-		// If the first statement has no comments and the IIFE does then we can just assign the IIFE comments
-		firstStatementInIIFE.comments = commentsFromIIFE;
-	}
 }

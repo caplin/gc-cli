@@ -1,5 +1,6 @@
 my.call("literal");
 
+// My comment.
 'use strict';
 
 function someFunction() {

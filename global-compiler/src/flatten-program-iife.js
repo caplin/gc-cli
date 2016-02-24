@@ -1,19 +1,8 @@
-const namedTypes = require('recast').types.namedTypes;
+import {types} from 'recast';
 
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
+import {copyComments} from './utils/utilities';
 
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
+const {namedTypes: {Program, FunctionExpression}} = types;
 
 /**
  * Removes all IIFEs at the Program level.
@@ -26,13 +15,13 @@ export const flattenProgramIIFEVisitor = {
 	visitCallExpression(callExpressionNodePath) {
 		const callee = callExpressionNodePath.get('callee');
 		const grandParent = callExpressionNodePath.parent.parent;
-
-		const isGrandParentProgram = namedTypes.Program.check(grandParent.node);
-		const isCalleeFunctionExpression = namedTypes.FunctionExpression.check(callee.node);
+		const isGrandParentProgram = Program.check(grandParent.node);
+		const isCalleeFunctionExpression = FunctionExpression.check(callee.node);
 
 		if (isGrandParentProgram && isCalleeFunctionExpression) {
 			const iifeBody = callee.get('body', 'body').value;
 
+			copyComments(callExpressionNodePath.parentPath.node, iifeBody[0]);
 			callExpressionNodePath.parent.replace(...iifeBody);
 		}
 

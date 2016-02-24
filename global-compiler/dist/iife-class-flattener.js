@@ -10,8 +10,10 @@ var types = require("recast").types;
 
 var List = require("immutable").List;
 
-var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpressionNode;
+var _utilsUtilities = require("./utils/utilities");
 
+var copyComments = _utilsUtilities.copyComments;
+var isNamespacedExpressionNode = _utilsUtilities.isNamespacedExpressionNode;
 var _types$namedTypes = types.namedTypes;
 var Program = _types$namedTypes.Program;
 var CallExpression = _types$namedTypes.CallExpression;
@@ -87,33 +89,12 @@ function isRootPartOfIIFE(namespacedNodePath, classNameNodePath) {
 function replaceIIFEWithItsContents(assignmentNodePath, className) {
 	var _assignmentNodePath$parent;
 
-	// Keep IIFE leading comments
-	var comments = assignmentNodePath.parent.node.comments;
 	var iifeBody = assignmentNodePath.get("right", "callee", "body", "body");
 	// Filter out the final return statement in the IIFE as IIFE is being removed
 	var iifeStatementsWithoutFinalReturn = iifeBody.value.filter(function (iifeStatement) {
 		return !(ReturnStatement.check(iifeStatement) === true && iifeStatement.argument.name === className);
 	});
 
+	copyComments(assignmentNodePath.parent.node, iifeBody.value[0]);
 	(_assignmentNodePath$parent = assignmentNodePath.parent).replace.apply(_assignmentNodePath$parent, _toConsumableArray(iifeStatementsWithoutFinalReturn));
-	reattachCommentsFromIIFE(assignmentNodePath.parent.node, comments);
-}
-
-/**
- * When an IIFE is replaced with its contents the comments attached to it will be lost. We reattach them to the AST by
- * adding them as part of the comments for the first statement in the IIFE.
- *
- * @param {ASTNode}   firstStatementInIIFE The first statement from the contents of the IIFE
- * @param {Comment[]} commentsFromIIFE     Comments attached to the IIFE
- */
-function reattachCommentsFromIIFE(firstStatementInIIFE, commentsFromIIFE) {
-	var commentsFromFirstStatementInIIFE = firstStatementInIIFE.comments;
-
-	// If both the first statement in the IIFE and the IIFE have comments add the IIFE comments to the first statement
-	if (commentsFromIIFE && commentsFromFirstStatementInIIFE) {
-		commentsFromFirstStatementInIIFE.unshift.apply(commentsFromFirstStatementInIIFE, _toConsumableArray(commentsFromIIFE));
-	} else if (commentsFromIIFE) {
-		// If the first statement has no comments and the IIFE does then we can just assign the IIFE comments
-		firstStatementInIIFE.comments = commentsFromIIFE;
-	}
 }

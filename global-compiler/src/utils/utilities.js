@@ -95,6 +95,22 @@ export function getNamespacePath(namespaceExpressionNode, namespaceParts) {
 }
 
 /**
+ * Copy over comments ASTNode values from one node to another.
+ *
+ * @param  {ASTNode} bearerASTNode
+ * @param  {ASTNode} receiverASTNode
+ */
+export function copyComments(bearerASTNode, receiverASTNode) {
+	// If both the bearer AST node and the receiver AST node have comments prepend the comments to the receiver.
+	if (bearerASTNode.comments && receiverASTNode.comments) {
+		receiverASTNode.comments.unshift(...bearerASTNode.comments);
+	} else if (bearerASTNode.comments) {
+		// If the bearer has comments and the receiver doesn't then we can just assign the comments.
+		receiverASTNode.comments = bearerASTNode.comments;
+	}
+}
+
+/**
  * Checks if variable parts make up a namespace alias.
  *
  * @param {NodePath} varNameNodePath - a variable name NodePath.

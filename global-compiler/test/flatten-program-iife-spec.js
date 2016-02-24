@@ -1,21 +1,21 @@
-const fs = require('fs');
-const assert = require('assert');
+import {describe, it} from 'mocha';
+import {visit} from 'recast';
 
-const {parse, print, visit} = require('recast');
 import {flattenProgramIIFEVisitor} from '../src/index';
-
-const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'test/resources/flatten-program-iife/';
-const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
-const givenAST = parse(givenCode);
+import {
+	getAST,
+	verifyASTIsAsExpected
+} from './test-utilities';
 
 describe('Flatten program IIFE', function() {
 	it('should flatten a program IIFE.', function() {
-		//When.
+		// Given.
+		const givenAST = getAST('flatten-program-iife', 'given');
+
+		// When.
 		visit(givenAST, flattenProgramIIFEVisitor);
 
-		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		// Then.
+		verifyASTIsAsExpected('flatten-program-iife', 'expected', givenAST);
 	});
 });

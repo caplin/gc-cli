@@ -1,4 +1,6 @@
+"use strict";
 
+var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
 
 /**
  * Returns true if the provided Expression node is a leaf node of a namespace.
@@ -7,8 +9,6 @@
  * @param {Iterable<string>} namespaceIterable - An Iterable of names to match the expressionNode to.
  * @returns {boolean} true if the node is a leaf namespace node.
  */
-"use strict";
-
 exports.isNamespacedExpressionNode = isNamespacedExpressionNode;
 
 /**
@@ -36,6 +36,14 @@ exports.createRequireDeclaration = createRequireDeclaration;
  * @returns {string[]} the labels that make up a fully qualified namespace.
  */
 exports.getNamespacePath = getNamespacePath;
+
+/**
+ * Copy over comments ASTNode values from one node to another.
+ *
+ * @param  {ASTNode} bearerASTNode
+ * @param  {ASTNode} receiverASTNode
+ */
+exports.copyComments = copyComments;
 
 /**
  * Checks if variable parts make up a namespace alias.
@@ -153,6 +161,18 @@ function getNamespacePath(_x, _x2) {
 		}
 
 		return namespaceParts;
+	}
+}
+
+function copyComments(bearerASTNode, receiverASTNode) {
+	// If both the bearer AST node and the receiver AST node have comments prepend the comments to the receiver.
+	if (bearerASTNode.comments && receiverASTNode.comments) {
+		var _receiverASTNode$comments;
+
+		(_receiverASTNode$comments = receiverASTNode.comments).unshift.apply(_receiverASTNode$comments, _toConsumableArray(bearerASTNode.comments));
+	} else if (bearerASTNode.comments) {
+		// If the bearer has comments and the receiver doesn't then we can just assign the comments.
+		receiverASTNode.comments = bearerASTNode.comments;
 	}
 }
 
