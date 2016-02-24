@@ -47,7 +47,7 @@ import {
 export function compileSourceFiles(options) {
 	const outputDirectory = options.outputDirectory;
 
-	return vinylFs.src(options.filesToCompile)
+	return vinylFs.src([options.filesToCompile, '!**/bundle.js'])
 		.pipe(parseJSFile())
 		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(through2.obj(stripFauxCJSExports))

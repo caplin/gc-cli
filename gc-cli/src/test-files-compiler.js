@@ -73,7 +73,7 @@ export function compileTestFiles(options) {
 
 	const outputDirectory = options.outputDirectory;
 
-	return vinylFs.src(options.filesToCompile)
+	return vinylFs.src([options.filesToCompile, '!**/bundle.js'])
 		.pipe(parseJSFile())
 		.pipe(through2.obj(removeGlobalizeSourceModulesCall))
 		.pipe(through2.obj(flattenProgramIIFE))

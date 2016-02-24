@@ -90,7 +90,7 @@ function compileTestFiles(options) {
 
 	var outputDirectory = options.outputDirectory;
 
-	return vinylFs.src(options.filesToCompile).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(pruneRedundantRequires()).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
+	return vinylFs.src([options.filesToCompile, "!**/bundle.js"]).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(pruneRedundantRequires()).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
 		unlink(join(outputDirectory, ".js-style"), function () {});
 	});
 }
