@@ -304,7 +304,7 @@ function moveProgramCommentsIntoBody(programNodePath) {
 	const programStatements = programNodePath.get('body');
 
 	// If the program node has comments and the first program statement has no comments
-	if (programComments && programStatements.value[0].comments === undefined) {
+	if (programComments && programStatements.value[0] && programStatements.value[0].comments === undefined) {
 		programNodePath.node.comments = undefined;
 		programStatements.value[0].comments = programComments;
 	}
