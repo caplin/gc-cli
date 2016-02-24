@@ -21,6 +21,7 @@ import {
 	removeCJSModuleRequires,
 	convertGlobalsToRequires,
 	expandVarNamespaceAliases,
+	pruneRedundantRequires,
 	replaceLibraryIncludesWithRequires
 } from './common-transforms';
 import {compileSourceFiles} from './src-files-compiler';
@@ -84,6 +85,7 @@ export function compileTestFiles(options) {
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
 		.pipe(addRequiresForCaplinBootstrap())
+		.pipe(pruneRedundantRequires())
 		.pipe(through2.obj(wrapModuleInIIFE))
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory))

@@ -28,6 +28,7 @@ import {
 	verifyVarIsAvailableVisitor,
 	varNamespaceAliasExpanderVisitor,
 	addRequireForGlobalIdentifierVisitor,
+	removeRedundantRequiresVisitor,
 	replaceLibraryIncludesWithRequiresVisitor
 } from '../../global-compiler';
 
@@ -281,6 +282,18 @@ export function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, lib
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeIterable);
 		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, this, callback);
+	});
+}
+
+/**
+ * This transform remove redundant requires.
+ *
+ * @returns {Function} Stream transform implementation which removes redundant requires.
+ */
+export function pruneRedundantRequires() {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		removeRedundantRequiresVisitor.initialize();
+		transformASTAndPushToNextStream(fileMetadata, removeRedundantRequiresVisitor, this, callback);
 	});
 }
 

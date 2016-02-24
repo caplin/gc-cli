@@ -87,6 +87,13 @@ exports.transformI18nUsage = transformI18nUsage;
 exports.replaceLibraryIncludesWithRequires = replaceLibraryIncludesWithRequires;
 
 /**
+ * This transform remove redundant requires.
+ *
+ * @returns {Function} Stream transform implementation which removes redundant requires.
+ */
+exports.pruneRedundantRequires = pruneRedundantRequires;
+
+/**
  * Parse AST and set it on the `contents` property of the FileMetadata argument passed into the transform.
  *
  * @returns {Function} Stream transform implementation which sets parsed AST on `contents` of FileMetadata.
@@ -128,6 +135,7 @@ var cjsRequireRemoverVisitor = _globalCompiler.cjsRequireRemoverVisitor;
 var verifyVarIsAvailableVisitor = _globalCompiler.verifyVarIsAvailableVisitor;
 var varNamespaceAliasExpanderVisitor = _globalCompiler.varNamespaceAliasExpanderVisitor;
 var addRequireForGlobalIdentifierVisitor = _globalCompiler.addRequireForGlobalIdentifierVisitor;
+var removeRedundantRequiresVisitor = _globalCompiler.removeRedundantRequiresVisitor;
 var replaceLibraryIncludesWithRequiresVisitor = _globalCompiler.replaceLibraryIncludesWithRequiresVisitor;
 
 var _utilsUtilities = require("./utils/utilities");
@@ -288,6 +296,13 @@ function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, libraryInc
 	return through2.obj(function (fileMetadata, encoding, callback) {
 		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeIterable);
 		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, this, callback);
+	});
+}
+
+function pruneRedundantRequires() {
+	return through2.obj(function (fileMetadata, encoding, callback) {
+		removeRedundantRequiresVisitor.initialize();
+		transformASTAndPushToNextStream(fileMetadata, removeRedundantRequiresVisitor, this, callback);
 	});
 }
 

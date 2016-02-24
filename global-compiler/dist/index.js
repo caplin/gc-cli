@@ -39,3 +39,4 @@ exports.namespacedClassFlattenerVisitor = require("./namespaced-class-flattener"
 exports.varNamespaceAliasExpanderVisitor = require("./var-namespace-alias-expander").varNamespaceAliasExpanderVisitor;
 exports.addRequireForGlobalIdentifierVisitor = require("./add-require-for-global-identifier").addRequireForGlobalIdentifierVisitor;
 exports.replaceLibraryIncludesWithRequiresVisitor = require("./replace-library-includes-with-requires").replaceLibraryIncludesWithRequiresVisitor;
+exports.removeRedundantRequiresVisitor = require("./remove-redundant-requires").removeRedundantRequiresVisitor;
