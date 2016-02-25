@@ -1,5 +1,7 @@
 "use strict";
 
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
 var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
 
 /**
@@ -25,6 +27,8 @@ exports.calculateUniqueModuleVariableId = calculateUniqueModuleVariableId;
  *
  * @param {AstNode} moduleIdentifier - The identifier the require call result is set to.
  * @param {string} importedModule - The module id literal.
+ * @param {importSpecifier} importSpecifier - The import specifier of the require.
+ * @returns {ASTNode} require declaration.
  */
 exports.createRequireDeclaration = createRequireDeclaration;
 
@@ -58,16 +62,20 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _require = require("immutable");
+var capitalize = _interopRequire(require("capitalize"));
 
-var Iterable = _require.Iterable;
+var types = require("recast").types;
 
-var capitalize = require("capitalize");
-
-var _require$types = require("recast").types;
-
-var builders = _require$types.builders;
-var namedTypes = _require$types.namedTypes;
+var _types$builders = types.builders;
+var callExpression = _types$builders.callExpression;
+var identifier = _types$builders.identifier;
+var literal = _types$builders.literal;
+var memberExpression = _types$builders.memberExpression;
+var variableDeclaration = _types$builders.variableDeclaration;
+var variableDeclarator = _types$builders.variableDeclarator;
+var _types$namedTypes = types.namedTypes;
+var Identifier = _types$namedTypes.Identifier;
+var MemberExpression = _types$namedTypes.MemberExpression;
 
 function isNamespacedExpressionNode(_x, _x2) {
 	var _left;
@@ -80,10 +88,10 @@ function isNamespacedExpressionNode(_x, _x2) {
 		    namespaceIterable = _x2;
 		isPropertyIdentifier = isIdentifierANamespaceLeaf = undefined;
 
-		if (namedTypes.Identifier.check(expressionNode)) {
+		if (Identifier.check(expressionNode)) {
 			return expressionNode.name === namespaceIterable.first() && namespaceIterable.count() === 1;
-		} else if (namedTypes.MemberExpression.check(expressionNode)) {
-			var isPropertyIdentifier = namedTypes.Identifier.check(expressionNode.property);
+		} else if (MemberExpression.check(expressionNode)) {
+			var isPropertyIdentifier = Identifier.check(expressionNode.property);
 			var isIdentifierANamespaceLeaf = expressionNode.property.name === namespaceIterable.first();
 
 			if (!(_left = isPropertyIdentifier && isIdentifierANamespaceLeaf)) {
@@ -121,22 +129,22 @@ function calculateUniqueModuleVariableId(varName, moduleIdentifiers) {
 }
 
 function createRequireDeclaration(moduleIdentifier, importedModule, importSpecifier) {
-	var importedModuleSource = builders.literal(importedModule);
-	var requireIdentifier = builders.identifier("require");
-	var requireCall = builders.callExpression(requireIdentifier, [importedModuleSource]);
+	var importedModuleSource = literal(importedModule);
+	var requireIdentifier = identifier("require");
+	var requireCall = callExpression(requireIdentifier, [importedModuleSource]);
 
 	if (importSpecifier) {
-		var importSpecifierIdentifier = builders.identifier(importSpecifier);
-		var requireMemberExpression = builders.memberExpression(requireCall, importSpecifierIdentifier, false);
-		var requireVariableDeclarator = builders.variableDeclarator(moduleIdentifier, requireMemberExpression);
+		var importSpecifierIdentifier = identifier(importSpecifier);
+		var requireMemberExpression = memberExpression(requireCall, importSpecifierIdentifier, false);
+		var requireVariableDeclarator = variableDeclarator(moduleIdentifier, requireMemberExpression);
 
-		return builders.variableDeclaration("var", [requireVariableDeclarator]);
+		return variableDeclaration("var", [requireVariableDeclarator]);
 	}
 
 	if (moduleIdentifier) {
-		var requireVariableDeclarator = builders.variableDeclarator(moduleIdentifier, requireCall);
+		var requireVariableDeclarator = variableDeclarator(moduleIdentifier, requireCall);
 
-		return builders.variableDeclaration("var", [requireVariableDeclarator]);
+		return variableDeclaration("var", [requireVariableDeclarator]);
 	}
 
 	return requireCall;
@@ -150,9 +158,9 @@ function getNamespacePath(_x, _x2) {
 		var namespaceExpressionNode = _x,
 		    namespaceParts = _x2;
 
-		if (namedTypes.Identifier.check(namespaceExpressionNode)) {
+		if (Identifier.check(namespaceExpressionNode)) {
 			namespaceParts.push(namespaceExpressionNode.name);
-		} else if (namedTypes.MemberExpression.check(namespaceExpressionNode)) {
+		} else if (MemberExpression.check(namespaceExpressionNode)) {
 			namespaceParts.push(namespaceExpressionNode.property.name);
 			_x = namespaceExpressionNode.object;
 			_x2 = namespaceParts;
@@ -165,7 +173,7 @@ function getNamespacePath(_x, _x2) {
 }
 
 function copyComments(bearerASTNode, receiverASTNode) {
-	// If both the bearer AST node and the receiver AST node have comments prepend the comments to the receiver.
+	// If both the bearer AST node and the receiver AST node have comments prepend to the receiver.
 	if (bearerASTNode.comments && receiverASTNode.comments) {
 		var _receiverASTNode$comments;
 
@@ -174,13 +182,6 @@ function copyComments(bearerASTNode, receiverASTNode) {
 		// If the bearer has comments and the receiver doesn't then we can just assign the comments.
 		receiverASTNode.comments = bearerASTNode.comments;
 	}
-}
-
-function isNamespaceAlias(varNameNodePath, varValueNodePath, namespaceRoots) {
-	var isVariableNameIdentifier = namedTypes.Identifier.check(varNameNodePath.node);
-	var isVarValueNamespaced = varValueNodePath && isNamespacedExpression(varValueNodePath, namespaceRoots);
-
-	return isVariableNameIdentifier && isVarValueNamespaced;
 }
 
 /**
@@ -198,9 +199,9 @@ function isNamespacedExpression(_x, _x2) {
 		var expressionNodePath = _x,
 		    namespaceRoots = _x2;
 
-		if (namedTypes.Identifier.check(expressionNodePath.node)) {
+		if (Identifier.check(expressionNodePath.node)) {
 			return namespaceRoots.indexOf(expressionNodePath.node.name) > -1;
-		} else if (namedTypes.MemberExpression.check(expressionNodePath.node)) {
+		} else if (MemberExpression.check(expressionNodePath.node)) {
 			_x = expressionNodePath.get("object");
 			_x2 = namespaceRoots;
 			_again = true;
@@ -209,4 +210,10 @@ function isNamespacedExpression(_x, _x2) {
 
 		return false;
 	}
+}
+function isNamespaceAlias(varNameNodePath, varValueNodePath, namespaceRoots) {
+	var isVariableNameIdentifier = Identifier.check(varNameNodePath.node);
+	var isVarValueNamespaced = varValueNodePath && isNamespacedExpression(varValueNodePath, namespaceRoots);
+
+	return isVariableNameIdentifier && isVarValueNamespaced;
 }
