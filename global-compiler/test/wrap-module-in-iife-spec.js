@@ -1,21 +1,31 @@
-const fs = require('fs');
-const assert = require('assert');
+import {visit} from 'recast';
 
-const {parse, print, visit} = require('recast');
 import {wrapModuleInIIFEVisitor} from '../src/index';
-
-const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'test/resources/wrap-module-in-iife/';
-const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
-const givenAST = parse(givenCode);
+import {
+	getAST,
+	verifyASTIsAsExpected
+} from './test-utilities';
 
 describe('wrap module in IIFE', () => {
 	it('should wrap module contents in an IIFE.', () => {
-		//When.
+		// Given.
+		const givenAST = getAST('wrap-module-in-iife', 'given');
+
+		// When.
 		visit(givenAST, wrapModuleInIIFEVisitor);
 
-		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		// Then.
+		verifyASTIsAsExpected('wrap-module-in-iife', 'expected', givenAST);
+	});
+
+	it('should only wrap a module if it has contents.', () => {
+		// Given.
+		const givenAST = getAST('wrap-module-in-iife', 'given-comment');
+
+		// When.
+		visit(givenAST, wrapModuleInIIFEVisitor);
+
+		// Then.
+		verifyASTIsAsExpected('wrap-module-in-iife', 'expected-comment', givenAST);
 	});
 });
