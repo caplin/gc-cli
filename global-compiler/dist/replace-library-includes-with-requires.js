@@ -6,34 +6,40 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _require = require("immutable");
-
-var Iterable = _require.Iterable;
-
-var _require$types = require("recast").types;
-
-var builders = _require$types.builders;
-var namedTypes = _require$types.namedTypes;
+var types = require("recast").types;
 
 var _utilsUtilities = require("./utils/utilities");
 
 var createRequireDeclaration = _utilsUtilities.createRequireDeclaration;
 var isNamespacedExpressionNode = _utilsUtilities.isNamespacedExpressionNode;
+var Identifier = types.namedTypes.Identifier;
 
 /**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
+ * Checks if the given Node Path is a require CallExpression.
  *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
+ * @param {NodePath} callExpression - CallExpression NodePath.
+ * @returns {boolean} true if the call expression is a module require.
  */
+function isRequire(callExpression) {
+	var callee = callExpression.get("callee");
+	var isRequireCall = callee.node.name === "require";
+	var isStandaloneRequireCall = Identifier.check(callee.node);
+
+	return isRequireCall && isStandaloneRequireCall;
+}
 
 /**
- * AstTypes NodePath.
+ * Checks if the given Node Path is a library include CallExpression.
  *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
+ * @param {NodePath} callExpression - CallExpression NodePath.
+ * @param {Iterable<string>} libraryIncludeIterable - A Iterable of names that correspond to a library include.
+ * @returns {boolean} true if the call expression is a library include.
  */
+function isALibraryInclude(callExpression, libraryIncludeIterable) {
+	var callee = callExpression.get("callee");
+
+	return isNamespacedExpressionNode(callee.node, libraryIncludeIterable);
+}
 
 /**
  * Certain library systems have non standard ways of including dependencies.
@@ -41,6 +47,7 @@ var isNamespacedExpressionNode = _utilsUtilities.isNamespacedExpressionNode;
  * The only requires added will be ones that are present in the code and in the `moduleIDsToRequire` `Set`.
  */
 var replaceLibraryIncludesWithRequiresVisitor = {
+
 	/**
   * @param {Set<string>} moduleIDsToRequire - The module IDs to require if included by non standard means.
   * @param {Iterable<string>} libraryIncludeIterable - A Iterable of names that correspond to a library include.
@@ -58,9 +65,11 @@ var replaceLibraryIncludesWithRequiresVisitor = {
 	visitCallExpression: function visitCallExpression(callExpressionNodePath) {
 		if (isRequire(callExpressionNodePath)) {
 			var requireArgument = callExpressionNodePath.get("arguments", 0, "value");
+
 			this._moduleIDsRequiredInModule.add(requireArgument.value);
 		} else if (isALibraryInclude(callExpressionNodePath, this._libraryIncludeIterable)) {
 			var requireArgument = callExpressionNodePath.get("arguments", 0, "value");
+
 			this._libraryIncludesInModule.set(callExpressionNodePath, requireArgument.value);
 		}
 
@@ -88,11 +97,11 @@ var replaceLibraryIncludesWithRequiresVisitor = {
 					callExpressionNodePath.parent.replace();
 				} else if (this._moduleIDsToRequire.has(libraryIncludeID)) {
 					var libraryRequire = createRequireDeclaration(undefined, libraryIncludeID);
+
 					callExpressionNodePath.replace(libraryRequire);
 					this._moduleIDsRequiredInModule.add(libraryIncludeID);
-
-					console.log("Replacing library include for " + libraryIncludeID + " with a require");
 				} else {
+					// eslint-disable-next-line
 					console.log("*** Library include for " + libraryIncludeID + " has not been replaced with a require ***");
 				}
 			}
@@ -112,31 +121,4 @@ var replaceLibraryIncludesWithRequiresVisitor = {
 		}
 	}
 };
-
 exports.replaceLibraryIncludesWithRequiresVisitor = replaceLibraryIncludesWithRequiresVisitor;
-/**
- * Checks if the given Node Path is a require CallExpression.
- *
- * @param {NodePath} callExpression - CallExpression NodePath.
- * @returns {boolean} true if the call expression is a module require.
- */
-function isRequire(callExpression) {
-	var callee = callExpression.get("callee");
-	var isRequireCall = callee.node.name === "require";
-	var isStandaloneRequireCall = namedTypes.Identifier.check(callee.node);
-
-	return isRequireCall && isStandaloneRequireCall;
-}
-
-/**
- * Checks if the given Node Path is a library include CallExpression.
- *
- * @param {NodePath} callExpression - CallExpression NodePath.
- * @param {Iterable<string>} libraryIncludeIterable - A Iterable of names that correspond to a library include.
- * @returns {boolean} true if the call expression is a library include.
- */
-function isALibraryInclude(callExpression, libraryIncludeIterable) {
-	var callee = callExpression.get("callee");
-
-	return isNamespacedExpressionNode(callee.node, libraryIncludeIterable);
-}

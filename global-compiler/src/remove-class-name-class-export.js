@@ -3,8 +3,8 @@ import {
 	composeMatchers,
 	identifierMatcher,
 	memberExpressionMatcher
-} from "./utils/matchers";
-import {nodePathLocatorVisitor} from "./node-path-locator";
+} from './utils/matchers';
+import {nodePathLocatorVisitor} from './node-path-locator';
 
 /**
  * Create a function that receives any matched `NodePath`s and removes them from the AST.
@@ -17,7 +17,7 @@ function createMatchedNodesReceiver(classNameClassExportMatcher) {
 		for (let matchedNodePath of (matchedNodePaths.get('MemberExpression') || [])) {
 			classNameClassExportMatcher(matchedNodePath).prune();
 		}
-	}
+	};
 }
 
 /**
@@ -36,7 +36,7 @@ function createClassNameClassExportMatcher(classNamespaceParts) {
 	// The `my.name` in `my.name.space.MyClass`.
 	const namespaceRootMatcher = memberExpressionMatcher({
 		object: identifierMatcher(classNamespaceParts.shift()),
-		property: identifierMatcher(classNamespaceParts.shift()),
+		property: identifierMatcher(classNamespaceParts.shift())
 	});
 	// The right hand side of the `my.name.space.MyClass = MyClass` assignment.
 	const rightHandSideOfAssignmentMatcher = assignmentExpressionMatcher({
@@ -66,7 +66,7 @@ function createClassNameClassExportMatcher(classNamespaceParts) {
  * @return {Visitor}
  */
 export function createRemoveClassNameClassExportVisitor(classNamespace) {
-	const classNamespaceParts = classNamespace.split(".");
+	const classNamespaceParts = classNamespace.split('.');
 	const classNameClassExportMatcher = createClassNameClassExportMatcher(classNamespaceParts);
 	const matchedNodesReceiver = createMatchedNodesReceiver(classNameClassExportMatcher);
 	const matcher = new Map();

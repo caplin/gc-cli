@@ -73,7 +73,8 @@ function createClassNameClassExportMatcher(classNamespaceParts) {
 	// The `my.name` in `my.name.space.MyClass`.
 	var namespaceRootMatcher = memberExpressionMatcher({
 		object: identifierMatcher(classNamespaceParts.shift()),
-		property: identifierMatcher(classNamespaceParts.shift()) });
+		property: identifierMatcher(classNamespaceParts.shift())
+	});
 	// The right hand side of the `my.name.space.MyClass = MyClass` assignment.
 	var rightHandSideOfAssignmentMatcher = assignmentExpressionMatcher({
 		right: identifierMatcher(className)
