@@ -1,0 +1,6 @@
+{
+	"extends": "@briandipalma/eslint-config-bdp",
+	"rules": {
+		"quotes": [2, "single"]
+	}
+}
