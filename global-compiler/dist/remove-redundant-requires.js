@@ -7,9 +7,10 @@ Object.defineProperty(exports, "__esModule", {
 var types = require("recast").types;
 
 var _types$namedTypes = types.namedTypes;
-var Literal = _types$namedTypes.Literal;
-var Identifier = _types$namedTypes.Identifier;
+var CallExpression = _types$namedTypes.CallExpression;
 var ExpressionStatement = _types$namedTypes.ExpressionStatement;
+var Identifier = _types$namedTypes.Identifier;
+var Literal = _types$namedTypes.Literal;
 var MemberExpression = _types$namedTypes.MemberExpression;
 var VariableDeclarator = _types$namedTypes.VariableDeclarator;
 
@@ -190,6 +191,26 @@ function groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequ
 }
 
 /**
+ * If the require is an inline call don't try to prune it e.g. `require('lib').call()`.
+ *
+ * @param  {NodePath} requireCallExpressionNodePath
+ * @return {boolean}
+ */
+function filterInlineCalls(requireCallExpressionNodePath) {
+	var currentNodePath = requireCallExpressionNodePath.parentPath;
+
+	while (MemberExpression.check(currentNodePath.node)) {
+		currentNodePath = currentNodePath.parentPath;
+	}
+
+	if (CallExpression.check(currentNodePath.node)) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Sort a module source's requires and remove any redundant ones.
  *
  * @param  {Map<NodePath>} moduleRequires
@@ -215,7 +236,9 @@ function sortRequiresAndPruneRedundantRequires(moduleRequires) {
 				for (var _iterator2 = callExpressionNodePaths[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 					var callExpressionNodePath = _step2.value;
 
-					groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths);
+					if (filterInlineCalls(callExpressionNodePath)) {
+						groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths);
+					}
 				}
 			} catch (err) {
 				_didIteratorError2 = true;

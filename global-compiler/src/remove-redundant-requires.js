@@ -1,6 +1,8 @@
 import {types} from 'recast';
 
-const {namedTypes: {Literal, Identifier, ExpressionStatement, MemberExpression, VariableDeclarator}} = types;
+const {
+	namedTypes: {CallExpression, ExpressionStatement, Identifier, Literal, MemberExpression, VariableDeclarator}
+} = types;
 
 /**
  * Removes redundant requires from modules, e.g. requires that don't bind a module variable if there is a
@@ -157,6 +159,26 @@ function groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequ
 }
 
 /**
+ * If the require is an inline call don't try to prune it e.g. `require('lib').call()`.
+ *
+ * @param  {NodePath} requireCallExpressionNodePath
+ * @return {boolean}
+ */
+function filterInlineCalls(requireCallExpressionNodePath) {
+	let currentNodePath = requireCallExpressionNodePath.parentPath;
+
+	while (MemberExpression.check(currentNodePath.node)) {
+		currentNodePath = currentNodePath.parentPath;
+	}
+
+	if (CallExpression.check(currentNodePath.node)) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Sort a module source's requires and remove any redundant ones.
  *
  * @param  {Map<NodePath>} moduleRequires
@@ -168,7 +190,9 @@ function sortRequiresAndPruneRedundantRequires(moduleRequires) {
 
 		// Group the requires by their metadata.
 		for (let callExpressionNodePath of callExpressionNodePaths) {
-			groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths);
+			if (filterInlineCalls(callExpressionNodePath)) {
+				groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths);
+			}
 		}
 
 		// Remove any requires for a module source that are superfluous.
