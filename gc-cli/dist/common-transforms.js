@@ -1,5 +1,7 @@
 "use strict";
 
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
 /**
@@ -61,11 +63,14 @@ exports.removeCJSModuleRequires = removeCJSModuleRequires;
  * It is meant to allow discoverability of global references to libraries in modules and conversion to module imports.
  *
  * @param {Map<Iterable<string>, string>} libraryIdentifiersToRequire - The identifiers that should be required.
+ * @returns {Function} Stream transform.
  */
 exports.addRequiresForLibraries = addRequiresForLibraries;
 
 /**
  * This transform adds a require for `caplin-bootstrap` if the `caplin` identifier is present in the module.
+ *
+ * @returns {Function} Stream transform.
  */
 exports.addRequiresForCaplinBootstrap = addRequiresForCaplinBootstrap;
 
@@ -102,18 +107,21 @@ exports.convertASTToBuffer = convertASTToBuffer;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-var chalk = require("chalk");
-var through2 = require("through2");
-var parse = require("recast").parse;
-var print = require("recast").print;
-var visit = require("recast").visit;
+/* eslint-disable no-invalid-this, func-names */
 
 var _immutable = require("immutable");
 
 var Iterable = _immutable.Iterable;
 var List = _immutable.List;
 
-var builders = require("recast").types.builders;
+var _recast = require("recast");
+
+var parse = _recast.parse;
+var print = _recast.print;
+var types = _recast.types;
+var visit = _recast.visit;
+
+var through2 = _interopRequire(require("through2"));
 
 var _globalCompiler = require("../../global-compiler");
 
@@ -147,6 +155,10 @@ var getServiceMatchers = require("./matchers/service-registry").getServiceMatche
 
 var getServiceNodesReceiver = require("./receivers/service-registry").getServiceNodesReceiver;
 
+var _types$builders = types.builders;
+var literal = _types$builders.literal;
+var identifier = _types$builders.identifier;
+
 var caplinRequireMatcher = composeMatchers(literalMatcher("caplin"), callExpressionMatcher({ callee: identifierMatcher("require") }), variableDeclaratorMatcher({ id: identifierMatcher("caplin") }));
 
 var caplinInheritanceMatcher = composeMatchers(identifierMatcher("caplin"), orMatchers(memberExpressionMatcher({ property: identifierMatcher("extend") }), memberExpressionMatcher({ property: identifierMatcher("implement") })), callExpressionMatcher());
@@ -155,9 +167,6 @@ var caplinInheritanceMatchers = new Map();
 
 caplinInheritanceMatchers.set("Literal", caplinRequireMatcher);
 caplinInheritanceMatchers.set("Identifier", caplinInheritanceMatcher);
-
-var literal = builders.literal;
-var identifier = builders.identifier;
 
 var caplinRequireTransformer = composeTransformers(literal("topiarist"), extractParent(), extractParent(), extractProperties("id"), identifier("topiarist"));
 
@@ -207,16 +216,16 @@ function expandVarNamespaceAliases(rootNamespaces) {
 
 function transformSLJSUsage() {
 	return through2.obj(function (fileMetadata, encoding, callback) {
-		//Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
+		// Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
 		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
 		var freeSLJSVariation = verifyVarIsAvailableVisitor.getFreeVariation("streamlink");
 
-		//Replace all calls to a certain namespace with calls to the new SLJS identifier.
+		// Replace all calls to a certain namespace with calls to the new SLJS identifier.
 		flattenMemberExpression.initialize(["caplin", "streamlink"], freeSLJSVariation);
 		visit(fileMetadata.ast, flattenMemberExpression);
 
-		//Add a require that requires SLJS into the module.
+		// Add a require that requires SLJS into the module.
 		var libraryIdentifiersToRequire = new Map([[Iterable([freeSLJSVariation]), "sljs"]]);
 
 		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
@@ -273,18 +282,21 @@ function addRequiresForCaplinBootstrap() {
 
 function transformI18nUsage() {
 	return through2.obj(function (fileMetadata, encoding, callback) {
-		//Verify that the i18n variable is free to use in this module, if not generate a variation on it that is.
+		// Verify that the i18n variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
 		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
 		var freeI18NVariation = verifyVarIsAvailableVisitor.getFreeVariation("i18n");
 
-		//Convert all requires with a certain ID to another ID and variable identifer.
-		var moduleIdsToConvert = new Map([["ct", ["br/I18n", freeI18NVariation]]]);
+		// Convert all requires with a certain ID to another ID and variable identifer.
+		var moduleIdsToConvert = new Map([["ct", ["br/I18n", freeI18NVariation]], ["br", ["br/I18n", freeI18NVariation]]]);
+
 		moduleIdVisitor.initialize(moduleIdsToConvert);
 		visit(fileMetadata.ast, moduleIdVisitor);
 
-		//Replace all calls to a certain namespace with calls to the new i18n identifier.
+		// Replace all calls to a certain namespace with calls to the new i18n identifier.
 		flattenMemberExpression.initialize(["ct", "i18n"], freeI18NVariation);
+		visit(fileMetadata.ast, flattenMemberExpression);
+		flattenMemberExpression.initialize(["br", "I18n"], freeI18NVariation);
 		visit(fileMetadata.ast, flattenMemberExpression);
 
 		this.push(fileMetadata);

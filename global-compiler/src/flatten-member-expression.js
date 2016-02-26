@@ -1,34 +1,22 @@
-const {Iterable} = require('immutable');
-const builders = require('recast').types.builders;
+import {Iterable} from 'immutable';
+import {types} from 'recast';
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
+const {builders: {identifier}} = types;
 
 /**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
-
-/**
- * Given the parts of a member expression flatten all occurences of it to the provided identifier.
+ * Given member expression parts flatten all their occurences to the provided identifier.
  */
 export const flattenMemberExpression = {
+
 	/**
 	 * @param {string[]} memberExpressionParts - The parts of the member expression to flatten.
 	 * @param {string} replacementIdentifier - The name of the identifier to replace the flattened member expression.
 	 */
 	initialize(memberExpressionParts, replacementIdentifier) {
 		this._memberExpressionParts = Iterable(memberExpressionParts.reverse());
-		this._replacementIdentifier = builders.identifier(replacementIdentifier);
+		this._replacementIdentifier = identifier(replacementIdentifier);
 	},
 
 	/**
@@ -41,4 +29,4 @@ export const flattenMemberExpression = {
 
 		this.traverse(memberExpressionNodePath);
 	}
-}
+};

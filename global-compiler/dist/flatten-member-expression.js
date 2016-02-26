@@ -4,40 +4,26 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _require = require("immutable");
+var Iterable = require("immutable").Iterable;
 
-var Iterable = _require.Iterable;
-
-var builders = require("recast").types.builders;
+var types = require("recast").types;
 
 var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpressionNode;
 
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
+var identifier = types.builders.identifier;
 
 /**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
-
-/**
- * Given the parts of a member expression flatten all occurences of it to the provided identifier.
+ * Given member expression parts flatten all their occurences to the provided identifier.
  */
 var flattenMemberExpression = {
+
 	/**
   * @param {string[]} memberExpressionParts - The parts of the member expression to flatten.
   * @param {string} replacementIdentifier - The name of the identifier to replace the flattened member expression.
   */
 	initialize: function initialize(memberExpressionParts, replacementIdentifier) {
 		this._memberExpressionParts = Iterable(memberExpressionParts.reverse());
-		this._replacementIdentifier = builders.identifier(replacementIdentifier);
+		this._replacementIdentifier = identifier(replacementIdentifier);
 	},
 
 	/**

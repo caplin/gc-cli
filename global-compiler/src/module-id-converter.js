@@ -1,26 +1,13 @@
-const builders = require('recast').types.builders;
-const namedTypes = require('recast').types.namedTypes;
+import {types} from 'recast';
 
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
+const {builders: {identifier, literal}, namedTypes: {CallExpression}} = types;
 
 /**
  * Transforms all CJS module ids in the provided `moduleIdsToConvert` `Map` to their value in the `Map`.
  * It will also transform the module identifier name.
  */
 export const moduleIdVisitor = {
+
 	/**
 	 * @param {Map<string, string>} moduleIdsToConvert - The module Ids to convert.
 	 */
@@ -47,7 +34,7 @@ export const moduleIdVisitor = {
  */
 function replaceModuleIdsToTransform(identifierNode, identifierParentNodePath, moduleIdsToConvert) {
 	const isRequire = (identifierNode.name === 'require');
-	const isParentCallExpression = (namedTypes.CallExpression.check(identifierParentNodePath.node));
+	const isParentCallExpression = CallExpression.check(identifierParentNodePath.node);
 
 	if (isRequire && isParentCallExpression) {
 		const moduleIdNodePath = identifierParentNodePath.get('arguments', 0);
@@ -57,8 +44,11 @@ function replaceModuleIdsToTransform(identifierNode, identifierParentNodePath, m
 		if (isRequireCall && isModuleIdToConvert) {
 			const moduleData = moduleIdsToConvert.get(moduleIdNodePath.node.value);
 
-			moduleIdNodePath.replace(builders.literal(moduleData[0]));
-			identifierParentNodePath.parent.get('id').replace(builders.identifier(moduleData[1]));
+			moduleIdNodePath.replace(literal(moduleData[0]));
+			identifierParentNodePath
+				.parent
+				.get('id')
+				.replace(identifier(moduleData[1]));
 		}
 	}
 }

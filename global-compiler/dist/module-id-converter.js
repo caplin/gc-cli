@@ -3,29 +3,20 @@
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-var builders = require("recast").types.builders;
-var namedTypes = require("recast").types.namedTypes;
 
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
+var types = require("recast").types;
 
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
+var _types$builders = types.builders;
+var identifier = _types$builders.identifier;
+var literal = _types$builders.literal;
+var CallExpression = types.namedTypes.CallExpression;
 
 /**
  * Transforms all CJS module ids in the provided `moduleIdsToConvert` `Map` to their value in the `Map`.
  * It will also transform the module identifier name.
  */
 var moduleIdVisitor = {
+
 	/**
   * @param {Map<string, string>} moduleIdsToConvert - The module Ids to convert.
   */
@@ -53,7 +44,7 @@ exports.moduleIdVisitor = moduleIdVisitor;
  */
 function replaceModuleIdsToTransform(identifierNode, identifierParentNodePath, moduleIdsToConvert) {
 	var isRequire = identifierNode.name === "require";
-	var isParentCallExpression = namedTypes.CallExpression.check(identifierParentNodePath.node);
+	var isParentCallExpression = CallExpression.check(identifierParentNodePath.node);
 
 	if (isRequire && isParentCallExpression) {
 		var moduleIdNodePath = identifierParentNodePath.get("arguments", 0);
@@ -63,8 +54,8 @@ function replaceModuleIdsToTransform(identifierNode, identifierParentNodePath, m
 		if (isRequireCall && isModuleIdToConvert) {
 			var moduleData = moduleIdsToConvert.get(moduleIdNodePath.node.value);
 
-			moduleIdNodePath.replace(builders.literal(moduleData[0]));
-			identifierParentNodePath.parent.get("id").replace(builders.identifier(moduleData[1]));
+			moduleIdNodePath.replace(literal(moduleData[0]));
+			identifierParentNodePath.parent.get("id").replace(identifier(moduleData[1]));
 		}
 	}
 }
