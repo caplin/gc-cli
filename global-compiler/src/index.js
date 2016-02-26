@@ -33,3 +33,4 @@ export {varNamespaceAliasExpanderVisitor} from './var-namespace-alias-expander';
 export {addRequireForGlobalIdentifierVisitor} from './add-require-for-global-identifier';
 export {replaceLibraryIncludesWithRequiresVisitor} from './replace-library-includes-with-requires';
 export {removeRedundantRequiresVisitor} from './remove-redundant-requires';
+export {requireFixturesVisitor} from './require-fixtures';

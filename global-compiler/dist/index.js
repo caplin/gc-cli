@@ -40,3 +40,4 @@ exports.varNamespaceAliasExpanderVisitor = require("./var-namespace-alias-expand
 exports.addRequireForGlobalIdentifierVisitor = require("./add-require-for-global-identifier").addRequireForGlobalIdentifierVisitor;
 exports.replaceLibraryIncludesWithRequiresVisitor = require("./replace-library-includes-with-requires").replaceLibraryIncludesWithRequiresVisitor;
 exports.removeRedundantRequiresVisitor = require("./remove-redundant-requires").removeRedundantRequiresVisitor;
+exports.requireFixturesVisitor = require("./require-fixtures").requireFixturesVisitor;
