@@ -47,7 +47,9 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 		[List.of('JsMockito'), 'jsmockito'],
 		[List.of('JsHamcrest'), 'jshamcrest'],
 		[List.of('Mock4JS'), 'mock4js'],
-		[List.of('moment', '()', 'tz'), 'moment-timezone']
+		[List.of('moment', '()', 'tz'), 'moment-timezone'],
+		[List.of('interact'), 'interact'],
+		[List.of('openajax'), 'openajax']
 	]);
 
 	optionsObject.libraryIncludesToRequire = new Set(['chosen']);
