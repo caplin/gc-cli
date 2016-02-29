@@ -1,9 +1,9 @@
-#!/usr/bin/env node
+#!/usr/bin/env babel-node
 "use strict";
 
 var parseArgs = require('minimist');
 
-var gcCli = require('../dist/index');
+var gcCli = require('../src/index');
 
 var commandParseOptions = {
 	alias: {
