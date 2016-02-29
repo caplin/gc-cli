@@ -4,7 +4,7 @@
   "scripts": {
     "lint": "eslint src/. test/.",
     "test": "mocha --compilers js:babel/register test/**",
-    "test:debug": "node --debug _mocha",
+    "test:debug": "node --debug _mocha"
   },
   "repository": {
     "type": "git",
