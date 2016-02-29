@@ -1,5 +1,7 @@
-#!/usr/bin/env babel-node
+#!/usr/bin/env node
 "use strict";
+
+require("babel-register");
 
 var parseArgs = require('minimist');
 
