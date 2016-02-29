@@ -4,43 +4,29 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var namedTypes = require("recast").types.namedTypes;
+var shim = require("array-includes").shim;
 
-var _require = require("recast");
+var _recast = require("recast");
 
-var visit = _require.visit;
-
-var _require2 = require("array-includes");
-
-var shim = _require2.shim;
+var types = _recast.types;
+var visit = _recast.visit;
 
 var _utilsUtilities = require("./utils/utilities");
 
 var getNamespacePath = _utilsUtilities.getNamespacePath;
 var isNamespaceAlias = _utilsUtilities.isNamespaceAlias;
+var _types$namedTypes = types.namedTypes;
+var MemberExpression = _types$namedTypes.MemberExpression;
+var VariableDeclarator = _types$namedTypes.VariableDeclarator;
 
 shim();
-
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
 
 /**
  * This transform will discover aliases to namespace paths, bound as vars, and when these aliases are
  * detected in the AST it will expand the alias identifier to the complete namespace path.
  */
 var varNamespaceAliasExpanderVisitor = {
+
 	/**
   * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
   */
@@ -80,9 +66,9 @@ exports.varNamespaceAliasExpanderVisitor = varNamespaceAliasExpanderVisitor;
 function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
 	var parentNodePath = identifierNodePath.parent;
 
-	if (namedTypes.MemberExpression.check(parentNodePath.node) && parentNodePath.get("property") === identifierNodePath) {
+	if (MemberExpression.check(parentNodePath.node) && parentNodePath.get("property") === identifierNodePath) {
 		return false;
-	} else if (namedTypes.VariableDeclarator.check(parentNodePath.node)) {
+	} else if (VariableDeclarator.check(parentNodePath.node)) {
 		return false;
 	}
 
@@ -94,7 +80,8 @@ function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
  *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
  * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
- * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to remove on completion.
+ * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to
+ *                                                       remove on completion.
  */
 function expandIdentifierIfItsANamespaceAlias(identifierNodePath, namespaceRoots, namespaceAliasBindingsToRemove) {
 	var identifierBindings = getIdentifierBindings(identifierNodePath);
@@ -139,7 +126,7 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 	if (identifierBindings.length === 1) {
 		var identifierBinding = identifierBindings[0];
 
-		if (namedTypes.VariableDeclarator.check(identifierBinding.parent.node)) {
+		if (VariableDeclarator.check(identifierBinding.parent.node)) {
 			var varNameNodePath = identifierBinding.parent.get("id");
 			var varValueNodePath = identifierBinding.parent.get("init");
 
@@ -153,7 +140,8 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 /**
  * Once namespace aliases have been expanded to a namespace we can remove the alias bindings.
  *
- * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to remove on completion.
+ * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to
+ *                                                       remove on completion.
  */
 function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
 	var _iteratorNormalCompletion = true;
@@ -174,6 +162,7 @@ function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
 				_parent.replace();
 			}
 
+			// eslint-disable-next-line
 			console.log("References to", aliasName, "have been expanded to", namespace);
 		}
 	} catch (err) {

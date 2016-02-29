@@ -1,34 +1,24 @@
-const {namedTypes} = require('recast').types;
-const {visit} = require('recast');
-const {shim} = require('array-includes');
+import {shim} from 'array-includes';
+import {
+	types,
+	visit
+} from 'recast';
 
 import {
 	getNamespacePath,
 	isNamespaceAlias
 } from './utils/utilities';
 
+const {namedTypes: {MemberExpression, VariableDeclarator}} = types;
+
 shim();
-
-/**
- * SpiderMonkey AST node.
- * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
- *
- * @typedef {Object} AstNode
- * @property {string} type - A string representing the AST variant type.
- */
-
-/**
- * AstTypes NodePath.
- *
- * @typedef {Object} NodePath
- * @property {AstNode} node - SpiderMonkey AST node.
- */
 
 /**
  * This transform will discover aliases to namespace paths, bound as vars, and when these aliases are
  * detected in the AST it will expand the alias identifier to the complete namespace path.
  */
 export const varNamespaceAliasExpanderVisitor = {
+
 	/**
 	 * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
 	 */
@@ -42,7 +32,9 @@ export const varNamespaceAliasExpanderVisitor = {
 	 */
 	visitIdentifier(identifierNodePath) {
 		if (couldIdentifierBeBoundToANamespaceAlias(identifierNodePath)) {
-			expandIdentifierIfItsANamespaceAlias(identifierNodePath, this._namespaceRoots, this._namespaceAliasBindingsToRemove);
+			expandIdentifierIfItsANamespaceAlias(
+				identifierNodePath, this._namespaceRoots, this._namespaceAliasBindingsToRemove
+			);
 		}
 
 		this.traverse(identifierNodePath);
@@ -56,7 +48,7 @@ export const varNamespaceAliasExpanderVisitor = {
 
 		removeNamespaceAliases(this._namespaceAliasBindingsToRemove);
 	}
-}
+};
 
 /**
  * Checks if the provided identifier could be bound to a namespace alias.
@@ -67,9 +59,9 @@ export const varNamespaceAliasExpanderVisitor = {
 function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
 	const parentNodePath = identifierNodePath.parent;
 
-	if (namedTypes.MemberExpression.check(parentNodePath.node) && parentNodePath.get('property') === identifierNodePath) {
+	if (MemberExpression.check(parentNodePath.node) && parentNodePath.get('property') === identifierNodePath) {
 		return false;
-	} else if (namedTypes.VariableDeclarator.check(parentNodePath.node)) {
+	} else if (VariableDeclarator.check(parentNodePath.node)) {
 		return false;
 	}
 
@@ -81,7 +73,8 @@ function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
  *
  * @param {NodePath} identifierNodePath - Identifier NodePath.
  * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
- * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to remove on completion.
+ * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to
+ *                                                       remove on completion.
  */
 function expandIdentifierIfItsANamespaceAlias(identifierNodePath, namespaceRoots, namespaceAliasBindingsToRemove) {
 	const identifierBindings = getIdentifierBindings(identifierNodePath);
@@ -126,9 +119,9 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 	if (identifierBindings.length === 1) {
 		const identifierBinding = identifierBindings[0];
 
-		if (namedTypes.VariableDeclarator.check(identifierBinding.parent.node)) {
-			const varNameNodePath = identifierBinding.parent.get("id");
-			const varValueNodePath = identifierBinding.parent.get("init");
+		if (VariableDeclarator.check(identifierBinding.parent.node)) {
+			const varNameNodePath = identifierBinding.parent.get('id');
+			const varValueNodePath = identifierBinding.parent.get('init');
 
 			if (isNamespaceAlias(varNameNodePath, varValueNodePath, namespaceRoots)) {
 				return varValueNodePath;
@@ -140,7 +133,8 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 /**
  * Once namespace aliases have been expanded to a namespace we can remove the alias bindings.
  *
- * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to remove on completion.
+ * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to
+ *                                                       remove on completion.
  */
 function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
 	for (let namespaceAlias of namespaceAliasBindingsToRemove) {
@@ -154,6 +148,7 @@ function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
 			parent.replace();
 		}
 
+		// eslint-disable-next-line
 		console.log('References to', aliasName, 'have been expanded to', namespace);
 	}
 }
