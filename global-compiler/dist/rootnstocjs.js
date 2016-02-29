@@ -54,14 +54,6 @@ function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
 	var firstCharOfLastNamespacePart = lastNamespacePart.substr(0, 1);
 	var isParentClassLike = firstCharOfLastNamespacePart === firstCharOfLastNamespacePart.toLocaleUpperCase();
 
-	if (isConstant) {
-		// eslint-disable-next-line
-		console.log(identifierName, "assumed to be constant of class", namespaceParts.join("."));
-	} else if (isParentClassLike) {
-		// eslint-disable-next-line
-		console.log(identifierName, "assumed to be property of class", namespaceParts.join("."));
-	}
-
 	return isConstant || isParentClassLike;
 }
 
