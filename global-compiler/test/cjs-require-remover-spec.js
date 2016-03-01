@@ -20,6 +20,6 @@ describe('CJS require remover', function() {
 		visit(givenAST, cjsRequireRemoverVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		assert.equal(print(givenAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 	});
 });

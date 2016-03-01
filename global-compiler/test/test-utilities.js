@@ -25,5 +25,5 @@ export function getAST(spec, testResourceFileName) {
 export function verifyASTIsAsExpected(spec, testResourceFileName, convertedAST) {
 	const expectedCode = readTestResourceCode(spec, testResourceFileName);
 
-	equal(print(convertedAST).code, expectedCode);
+	equal(print(convertedAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 }

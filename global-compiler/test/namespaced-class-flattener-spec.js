@@ -29,7 +29,7 @@ describe('Namespaced class flattening', () => {
 		visit(givenAST, namespacedClassFlattenerVisitor);
 
 		// Then
-		equal(print(givenAST).code, expectedCode);
+		equal(print(givenAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 	});
 
 	it('should remove object namespacing.', () => {
@@ -40,7 +40,7 @@ describe('Namespaced class flattening', () => {
 		visit(givenObjectAST, namespacedClassFlattenerVisitor);
 
 		// Then
-		equal(print(givenObjectAST).code, expectedObjectCode);
+		equal(print(givenObjectAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedObjectCode);
 	});
 
 	it('should remove two level object namespacing.', () => {
@@ -51,6 +51,6 @@ describe('Namespaced class flattening', () => {
 		visit(givenTwoLevelObjectAST, namespacedClassFlattenerVisitor);
 
 		// Then
-		equal(print(givenTwoLevelObjectAST).code, expectedTwoLevelObjectCode);
+		equal(print(givenTwoLevelObjectAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedTwoLevelObjectCode);
 	});
 });
