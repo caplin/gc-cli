@@ -84,6 +84,7 @@ function registerCaplinTestGlobals(options) {
 	options.libraryIdentifiersToRequire.set(List.of("assertNoException"), "jsunitextensions->assertNoException");
 	options.libraryIdentifiersToRequire.set(List.of("assertArrayEquals"), "jsunitextensions->assertArrayEquals");
 	options.libraryIdentifiersToRequire.set(List.of("assertVariantEquals"), "jsunitextensions->assertVariantEquals");
+	options.libraryIdentifiersToRequire.set(List.of("assertMapEquals"), "jsunitextensions->assertMapEquals");
 	options.libraryIdentifiersToRequire.set(List.of("triggerKeyEvent"), "jsunitextensions->triggerKeyEvent");
 	options.libraryIdentifiersToRequire.set(List.of("triggerMouseEvent"), "jsunitextensions->triggerMouseEvent");
 	options.libraryIdentifiersToRequire.set(List.of("Clock"), "jsunitextensions->Clock");
