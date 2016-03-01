@@ -153,7 +153,7 @@ export function transformSLJSUsage() {
 		// Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
 		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
-		const freeSLJSVariation = verifyVarIsAvailableVisitor.getFreeVariation('streamlink');
+		const freeSLJSVariation = verifyVarIsAvailableVisitor.getFreeVariation('sljs');
 
 		// Replace all calls to a certain namespace with calls to the new SLJS identifier.
 		flattenMemberExpression.initialize(['caplin', 'streamlink'], freeSLJSVariation);
