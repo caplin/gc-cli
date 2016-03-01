@@ -1,13 +1,16 @@
-var chalk = require('chalk');
-var through2 = require('through2');
-var parse = require('recast').parse;
-var print = require('recast').print;
-var visit = require('recast').visit;
+/* eslint-disable no-invalid-this, func-names */
+
 import {
 	Iterable,
 	List
 } from 'immutable';
-const {builders} = require('recast').types;
+import {
+	parse,
+	print,
+	types,
+	visit
+} from 'recast';
+import through2 from 'through2';
 
 import {
 	orMatchers,
@@ -45,6 +48,8 @@ import {
 	getServiceNodesReceiver
 } from './receivers/service-registry';
 
+const {builders: {literal, identifier}} = types;
+
 const caplinRequireMatcher = composeMatchers(
 	literalMatcher('caplin'),
 	callExpressionMatcher({callee: identifierMatcher('require')}),
@@ -64,8 +69,6 @@ const caplinInheritanceMatchers = new Map();
 
 caplinInheritanceMatchers.set('Literal', caplinRequireMatcher);
 caplinInheritanceMatchers.set('Identifier', caplinInheritanceMatcher);
-
-const {literal, identifier} = builders;
 
 const caplinRequireTransformer = composeTransformers(
 	literal('topiarist'),
@@ -96,7 +99,10 @@ function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
 	if (caplinInheritanceExpressions.length > 0) {
 		caplinRequireTransformer(caplinRequireVarDeclaration);
 	} else if (caplinRequireVarDeclaration) {
-		caplinRequireVarDeclaration.parent.parent.prune();
+		caplinRequireVarDeclaration
+			.parent
+			.parent
+			.prune();
 	}
 
 	caplinInheritanceExpressions.forEach((identifierNodePath, index) => {
@@ -115,7 +121,7 @@ function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
  */
 export function parseJSFile() {
 	return through2.obj(function(vinylFile, encoding, callback) {
-		var fileAST = parse(vinylFile.contents.toString());
+		const fileAST = parse(vinylFile.contents.toString());
 
 		vinylFile.ast = fileAST;
 		this.push(vinylFile);
@@ -144,17 +150,17 @@ export function expandVarNamespaceAliases(rootNamespaces) {
  */
 export function transformSLJSUsage() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		//Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
+		// Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
 		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
-		var freeSLJSVariation = verifyVarIsAvailableVisitor.getFreeVariation('streamlink');
+		const freeSLJSVariation = verifyVarIsAvailableVisitor.getFreeVariation('sljs');
 
-		//Replace all calls to a certain namespace with calls to the new SLJS identifier.
+		// Replace all calls to a certain namespace with calls to the new SLJS identifier.
 		flattenMemberExpression.initialize(['caplin', 'streamlink'], freeSLJSVariation);
 		visit(fileMetadata.ast, flattenMemberExpression);
 
-		//Add a require that requires SLJS into the module.
-		var libraryIdentifiersToRequire = new Map([
+		// Add a require that requires SLJS into the module.
+		const libraryIdentifiersToRequire = new Map([
 			[Iterable([freeSLJSVariation]), 'sljs']
 		]);
 
@@ -175,7 +181,7 @@ export function transformSLJSUsage() {
  */
 export function convertGlobalsToRequires(rootNamespaces, insertExport) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		var className = getFileNamespaceParts(fileMetadata).pop();
+		const className = getFileNamespaceParts(fileMetadata).pop();
 
 		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className, insertExport);
 		transformASTAndPushToNextStream(fileMetadata, rootNamespaceVisitor, this, callback);
@@ -225,6 +231,7 @@ export function removeCJSModuleRequires(moduleIDsToRemove) {
  * It is meant to allow discoverability of global references to libraries in modules and conversion to module imports.
  *
  * @param {Map<Iterable<string>, string>} libraryIdentifiersToRequire - The identifiers that should be required.
+ * @returns {Function} Stream transform.
  */
 export function addRequiresForLibraries(libraryIdentifiersToRequire) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
@@ -235,6 +242,8 @@ export function addRequiresForLibraries(libraryIdentifiersToRequire) {
 
 /**
  * This transform adds a require for `caplin-bootstrap` if the `caplin` identifier is present in the module.
+ *
+ * @returns {Function} Stream transform.
  */
 export function addRequiresForCaplinBootstrap() {
 	const caplinBootstrapIdentifier = new Map([
@@ -252,18 +261,24 @@ export function addRequiresForCaplinBootstrap() {
  */
 export function transformI18nUsage() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		//Verify that the i18n variable is free to use in this module, if not generate a variation on it that is.
+		// Verify that the i18n variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
 		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
-		var freeI18NVariation = verifyVarIsAvailableVisitor.getFreeVariation('i18n');
+		const freeI18NVariation = verifyVarIsAvailableVisitor.getFreeVariation('i18n');
 
-		//Convert all requires with a certain ID to another ID and variable identifer.
-		var moduleIdsToConvert = new Map([['ct', ['br/I18n', freeI18NVariation]]]);
+		// Convert all requires with a certain ID to another ID and variable identifer.
+		const moduleIdsToConvert = new Map([
+			['ct', ['br/I18n', freeI18NVariation]],
+			['br', ['br/I18n', freeI18NVariation]]
+		]);
+
 		moduleIdVisitor.initialize(moduleIdsToConvert);
 		visit(fileMetadata.ast, moduleIdVisitor);
 
-		//Replace all calls to a certain namespace with calls to the new i18n identifier.
+		// Replace all calls to a certain namespace with calls to the new i18n identifier.
 		flattenMemberExpression.initialize(['ct', 'i18n'], freeI18NVariation);
+		visit(fileMetadata.ast, flattenMemberExpression);
+		flattenMemberExpression.initialize(['br', 'I18n'], freeI18NVariation);
 		visit(fileMetadata.ast, flattenMemberExpression);
 
 		this.push(fileMetadata);
@@ -304,8 +319,8 @@ export function pruneRedundantRequires() {
  */
 export function convertASTToBuffer() {
 	return through2.obj(function(fileMetadata, encoding, callback) {
-		var convertedCode = print(fileMetadata.ast, {wrapColumn: 120}).code;
-		var convertedCodeBuffer = new Buffer(convertedCode);
+		const convertedCode = print(fileMetadata.ast, {wrapColumn: 120}).code;
+		const convertedCodeBuffer = new Buffer(convertedCode);
 
 		fileMetadata.contents = convertedCodeBuffer;
 		this.push(fileMetadata);

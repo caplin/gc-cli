@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "lint": "eslint src/. test/.",
-    "test": "mocha --compilers js:babel/register test/**",
+    "test": "mocha --compilers js:babel/register test/**/*spec.js",
     "test:debug": "node --debug _mocha"
   },
   "repository": {

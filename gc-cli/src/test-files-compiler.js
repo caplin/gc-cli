@@ -1,12 +1,13 @@
-import {unlink} from "fs";
-import {join} from "path";
+import {unlink} from 'fs';
+import {join} from 'path';
 
 import {List} from 'immutable';
-var vinylFs = require('vinyl-fs');
-var through2 = require('through2');
+import vinylFs from 'vinyl-fs';
+import through2 from 'through2';
 
 import {
 	createRemoveGlobalizeSourceModulesCallVisitor,
+	requireFixturesVisitor,
 	wrapModuleInIIFEVisitor,
 	flattenProgramIIFEVisitor
 } from '../../global-compiler';
@@ -27,22 +28,6 @@ import {
 import {compileSourceFiles} from './src-files-compiler';
 import {transformASTAndPushToNextStream} from './utils/utilities';
 
-function registerCaplinTestGlobals(options) {
-	// All the Caplin test globals and where they should be required from.
-	options.libraryIdentifiersToRequire.set(List.of('SL4B_Accessor'), 'sl4bdummy->SL4B_Accessor');
-	options.libraryIdentifiersToRequire.set(List.of('assertFails'), 'jsunitextensions->assertFails');
-	options.libraryIdentifiersToRequire.set(List.of('assertAssertError'), 'jsunitextensions->assertAssertError');
-	options.libraryIdentifiersToRequire.set(List.of('assertNoException'), 'jsunitextensions->assertNoException');
-	options.libraryIdentifiersToRequire.set(List.of('assertArrayEquals'), 'jsunitextensions->assertArrayEquals');
-	options.libraryIdentifiersToRequire.set(List.of('assertVariantEquals'), 'jsunitextensions->assertVariantEquals');
-	options.libraryIdentifiersToRequire.set(List.of('triggerKeyEvent'), 'jsunitextensions->triggerKeyEvent');
-	options.libraryIdentifiersToRequire.set(List.of('triggerMouseEvent'), 'jsunitextensions->triggerMouseEvent');
-	options.libraryIdentifiersToRequire.set(List.of('Clock'), 'jsunitextensions->Clock');
-	options.libraryIdentifiersToRequire.set(List.of('ApiProtector'), 'jstestdriverextensions->ApiProtector');
-	options.libraryIdentifiersToRequire.set(List.of('CaplinTestCase'), 'jstestdriverextensions->CaplinTestCase');
-	options.libraryIdentifiersToRequire.set(List.of('defineTestCase'), 'jstestdriverextensions->defineTestCase');
-}
-
 /**
  * Options object.
  *
@@ -51,9 +36,12 @@ function registerCaplinTestGlobals(options) {
  * @property {boolean} compileTestFiles - True if files to compile are test files.
  * @property {Set} moduleIDsToRemove - Set of module IDs to remove following transforms.
  * @property {string[]} namespaces - Array of namespace roots to convert to CJS requires.
- * @property {Map<Iterable<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add CJS requires for.
- * @property {Set<string>} libraryIncludesToRequire - Library includes that should be transformed to requires when found.
- * @property {Iterable<string>} libraryIncludeIterable - The MemberExpression sequence that corresponds to a library include.
+ * @property {Map<Iterable<string>, string>} libraryIdentifiersToRequire - Map of library identifiers to add
+ *                                           CJS requires for.
+ * @property {Set<string>} libraryIncludesToRequire - Library includes that should be transformed to requires
+ *                                                  when found.
+ * @property {Iterable<string>} libraryIncludeIterable - The MemberExpression sequence that corresponds to a
+ *                                                     library include.
  */
 
 /**
@@ -65,46 +53,33 @@ function registerCaplinTestGlobals(options) {
  * @property {String} base - File base, path without file name.
  */
 
-/**
- * @param {OptionsObject} options - Options to configure transforms.
- */
-export function compileTestFiles(options) {
-	registerCaplinTestGlobals(options);
-
-	const outputDirectory = options.outputDirectory;
-
-	return vinylFs.src([options.filesToCompile, '!**/bundle.js'])
-		.pipe(parseJSFile())
-		.pipe(through2.obj(removeGlobalizeSourceModulesCall))
-		.pipe(through2.obj(flattenProgramIIFE))
-		.pipe(expandVarNamespaceAliases(options.namespaces))
-		.pipe(transformSLJSUsage())
-		.pipe(convertGlobalsToRequires(options.namespaces, false))
-		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
-		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
-		.pipe(transformI18nUsage())
-		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
-		.pipe(addRequiresForCaplinBootstrap())
-		.pipe(pruneRedundantRequires())
-		.pipe(through2.obj(wrapModuleInIIFE))
-		.pipe(convertASTToBuffer())
-		.pipe(vinylFs.dest(options.outputDirectory))
-		.on('end', () => {
-			unlink(join(outputDirectory, '.js-style'), () => {});
-		});
+function registerCaplinTestGlobals(options) {
+	// All the Caplin test globals and where they should be required from.
+	options.libraryIdentifiersToRequire.set(List.of('SL4B_Accessor'), 'sl4bdummy->SL4B_Accessor');
+	options.libraryIdentifiersToRequire.set(List.of('assertFails'), 'jsunitextensions->assertFails');
+	options.libraryIdentifiersToRequire.set(List.of('assertAssertError'), 'jsunitextensions->assertAssertError');
+	options.libraryIdentifiersToRequire.set(List.of('assertNoException'), 'jsunitextensions->assertNoException');
+	options.libraryIdentifiersToRequire.set(List.of('assertArrayEquals'), 'jsunitextensions->assertArrayEquals');
+	options.libraryIdentifiersToRequire.set(List.of('assertVariantEquals'), 'jsunitextensions->assertVariantEquals');
+	options.libraryIdentifiersToRequire.set(List.of('assertMapEquals'), 'jsunitextensions->assertMapEquals');
+	options.libraryIdentifiersToRequire.set(List.of('triggerKeyEvent'), 'jsunitextensions->triggerKeyEvent');
+	options.libraryIdentifiersToRequire.set(List.of('triggerMouseEvent'), 'jsunitextensions->triggerMouseEvent');
+	options.libraryIdentifiersToRequire.set(List.of('Clock'), 'jsunitextensions->Clock');
+	options.libraryIdentifiersToRequire.set(List.of('ApiProtector'), 'jstestdriverextensions->ApiProtector');
+	options.libraryIdentifiersToRequire.set(List.of('CaplinTestCase'), 'jstestdriverextensions->CaplinTestCase');
+	options.libraryIdentifiersToRequire.set(List.of('defineTestCase'), 'jstestdriverextensions->defineTestCase');
 }
 
 /**
- * @param {OptionsObject} options - Options to configure transforms.
+ * Stream transform implementation.
+ * (http://nodejs.org/docs/latest/api/stream.html#stream_transform_transform_chunk_encoding_callback).
+ *
+ * @param {FileMetadata} fileMetadata - File meta data for file being transformed.
+ * @param {String} encoding - If the chunk is a string, then this is the encoding type.
+ * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
-export function compileTestAndSrcTestFiles(optionsObject) {
-	var testConversionStream = compileTestFiles(optionsObject);
-
-	testConversionStream.on('end', () => {
-		optionsObject.filesToCompile = 'src-test/**/*.js';
-		optionsObject.outputDirectory = 'src-test';
-		compileSourceFiles(optionsObject);
-	});
+function requireFixtures(fileMetadata, encoding, callback) {
+	transformASTAndPushToNextStream(fileMetadata, requireFixturesVisitor, this, callback);
 }
 
 /**
@@ -117,6 +92,7 @@ export function compileTestAndSrcTestFiles(optionsObject) {
  */
 function removeGlobalizeSourceModulesCall(fileMetadata, encoding, callback) {
 	const removeGlobalizeSourceModulesCallVisitor = createRemoveGlobalizeSourceModulesCallVisitor();
+
 	transformASTAndPushToNextStream(fileMetadata, removeGlobalizeSourceModulesCallVisitor, this, callback);
 }
 
@@ -142,4 +118,49 @@ function flattenProgramIIFE(fileMetadata, encoding, callback) {
  */
 function wrapModuleInIIFE(fileMetadata, encoding, callback) {
 	transformASTAndPushToNextStream(fileMetadata, wrapModuleInIIFEVisitor, this, callback);
+}
+
+/**
+ * @param {OptionsObject} options - Options to configure transforms.
+ * @returns {Stream}
+ */
+export function compileTestFiles(options) {
+	registerCaplinTestGlobals(options);
+
+	const outputDirectory = options.outputDirectory;
+
+	return vinylFs
+		.src([options.filesToCompile, '!**/bundle.js'])
+		.pipe(parseJSFile())
+		.pipe(through2.obj(removeGlobalizeSourceModulesCall))
+		.pipe(through2.obj(flattenProgramIIFE))
+		.pipe(expandVarNamespaceAliases(options.namespaces))
+		.pipe(transformSLJSUsage())
+		.pipe(convertGlobalsToRequires(options.namespaces, false))
+		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))
+		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
+		.pipe(transformI18nUsage())
+		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
+		.pipe(addRequiresForCaplinBootstrap())
+		.pipe(pruneRedundantRequires())
+		.pipe(through2.obj(requireFixtures))
+		.pipe(through2.obj(wrapModuleInIIFE))
+		.pipe(convertASTToBuffer())
+		.pipe(vinylFs.dest(options.outputDirectory))
+		.on('end', () => {
+			unlink(join(outputDirectory, '.js-style'), () => {});
+		});
+}
+
+/**
+ * @param {OptionsObject} optionsObject - Options to configure transforms.
+ */
+export function compileTestAndSrcTestFiles(optionsObject) {
+	const testConversionStream = compileTestFiles(optionsObject);
+
+	testConversionStream.on('end', () => {
+		optionsObject.filesToCompile = 'src-test/**/*.js';
+		optionsObject.outputDirectory = 'src-test';
+		compileSourceFiles(optionsObject);
+	});
 }

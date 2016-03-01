@@ -1,2 +1,3 @@
 node_modules/
 gc-cli/spec/resources/test-output/
+npm-debug.log

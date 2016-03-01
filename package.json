@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "lint": "eslint .",
-    "test": "cd global-compiler && npm t"
+    "test": "cd global-compiler && npm t && cd .. && cd gc-cli && npm t",
   },
   "repository": {
     "type": "git",

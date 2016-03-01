@@ -19,6 +19,6 @@ describe('var namespace alias expander', () => {
 		visit(givenAST, varNamespaceAliasExpanderVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		assert.equal(print(givenAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 	});
 });

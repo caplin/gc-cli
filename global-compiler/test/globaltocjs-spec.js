@@ -31,7 +31,7 @@ describe('Global to CJS conversion', function() {
 		visit(givenAST, rootNamespaceVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		assert.equal(print(givenAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 	});
 
 	it('should replace globals with CJS requires but not add an export.', function() {
@@ -42,7 +42,7 @@ describe('Global to CJS conversion', function() {
 		visit(givenNoExportAST, rootNamespaceVisitor);
 
 		//Then.
-		assert.equal(print(givenNoExportAST).code, expectedNoExportCode);
+		assert.equal(print(givenNoExportAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedNoExportCode);
 	});
 
 	it('should not add an export if one is already present.', function() {
@@ -53,7 +53,7 @@ describe('Global to CJS conversion', function() {
 		visit(givenExportAST, rootNamespaceVisitor);
 
 		//Then.
-		assert.equal(print(givenExportAST).code, expectedExportCode);
+		assert.equal(print(givenExportAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedExportCode);
 	});
 
 	it('should replace globals with CJS requires and export class instance.', function() {
@@ -64,6 +64,6 @@ describe('Global to CJS conversion', function() {
 		visit(givenIIFEConstructorAST, rootNamespaceVisitor);
 
 		// Then.
-		assert.equal(print(givenIIFEConstructorAST).code, expectedIIFEConstructorCode);
+		assert.equal(print(givenIIFEConstructorAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedIIFEConstructorCode);
 	});
 });
