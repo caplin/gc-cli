@@ -45,7 +45,6 @@ export function getFileNamespaceParts(fileMetadata) {
 		.replace(sep + 'src' + sep, '')
 		.replace(sep + 'src-test' + sep, '');
 
-
 	// Remove the JS file suffix and break up the path string by directory separator
 	return filePathWithoutSrc.replace(/\.js$/, '').split(sep);
 }
