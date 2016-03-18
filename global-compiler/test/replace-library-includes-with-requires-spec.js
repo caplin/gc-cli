@@ -23,6 +23,6 @@ describe('replace library includes with requires', function() {
 		visit(givenAST, replaceLibraryIncludesWithRequiresVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		assert.equal(print(givenAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 	});
 });

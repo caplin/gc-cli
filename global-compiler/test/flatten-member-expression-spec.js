@@ -19,6 +19,6 @@ describe('Flatten member expression', function() {
 		visit(givenAST, flattenMemberExpression);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		assert.equal(print(givenAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 	});
 });

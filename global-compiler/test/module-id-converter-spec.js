@@ -21,6 +21,6 @@ describe('Module ID converter', function() {
 		visit(givenAST, moduleIdVisitor);
 
 		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		assert.equal(print(givenAST).code.replace(new RegExp('\r\n', 'g'), '\n'), expectedCode);
 	});
 });

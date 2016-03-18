@@ -59,9 +59,9 @@ describe('GlobalCompiler conversion', () => {
 			const output = fs.readFileSync('output/my/long/name/space/SimpleClass.js', fileOptions);
 			const outputIIFE = fs.readFileSync('output/my/long/name/space/SimpleIIFEClass.js', fileOptions);
 
-			assert.equal(output, expected);
-			assert.equal(outputIIFE, expectedIIFE);
-			assert.equal(testsStyleFileOutput, expectedTestStyleFile);
+			assert.equal(output.replace(new RegExp('\r\n', 'g'), '\n'), expected);
+			assert.equal(outputIIFE.replace(new RegExp('\r\n', 'g'), '\n'), expectedIIFE);
+			assert.equal(testsStyleFileOutput.replace(new RegExp('\r\n', 'g'), '\n'), expectedTestStyleFile);
 
 			done();
 		}, 500);
@@ -78,7 +78,7 @@ describe('GlobalCompiler conversion', () => {
 		setTimeout(() => {
 			const output = fs.readFileSync('test-output/test-unit/js-test-driver/tests/MyTest.js', fileOptions);
 
-			assert.equal(output, expectedTest);
+			assert.equal(output.replace(new RegExp('\r\n', 'g'), '\n'), expectedTest);
 
 			done();
 		}, 500);

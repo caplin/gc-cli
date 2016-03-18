@@ -1,3 +1,4 @@
+import {sep} from 'path';
 import {equal} from 'assert';
 
 import {describe, it} from 'mocha';
@@ -9,8 +10,8 @@ describe('utilities', () => {
 		// Given.
 		const expectedFileNamespace = 'name.space.long.MyClass';
 		const stubVinylFile = {
-			cwd: '/home/user/trader/lib/mylib',
-			path: '/home/user/trader/lib/mylib/src/name/space/long/MyClass.js'
+			cwd: ['home', 'user', 'trader', 'lib', 'mylib'].join(sep),
+			path: ['home', 'user', 'trader', 'lib', 'mylib', 'src', 'name', 'space', 'long', 'MyClass.js'].join(sep)
 		};
 
 		// When.
