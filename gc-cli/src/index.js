@@ -22,10 +22,11 @@ import {compileSourceFilesAndCleanUpJSStyleFiles} from './src-files-compiler';
  * @param {Object} options CLI arguments to configure transforms
  * @returns {OptionsObject} An OptionsObject based on the provided CLI arguments
  */
+// eslint-disable-next-line
 export function createOptionsObject({namespaces, compileTestFiles, removeRequires, outputDirectory, _}) {
 	const optionsObject = {
 		namespaces: namespaces.split(','),
-		compileTestFiles: compileTestFiles,
+		compileTestFiles,
 		moduleIDsToRemove: new Set([removeRequires])
 	};
 

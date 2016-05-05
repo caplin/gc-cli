@@ -32,6 +32,10 @@ import {
 	transformASTAndPushToNextStream
 } from './utils/utilities';
 
+function NO_OP() {
+	// Ignored callback.
+}
+
 /**
  * File metadata consists of a Vinyl file and an AST property.
  *
@@ -43,11 +47,13 @@ import {
 
 /**
  * @param {OptionsObject} options - Options to configure transforms.
+ * @return {Object}
  */
 export function compileSourceFiles(options) {
 	const outputDirectory = options.outputDirectory;
 
-	return vinylFs.src([options.filesToCompile, '!**/bundle.js'])
+	return vinylFs
+		.src([options.filesToCompile, '!**/bundle.js'])
 		.pipe(parseJSFile())
 		.pipe(expandVarNamespaceAliases(options.namespaces))
 		.pipe(through2.obj(stripFauxCJSExports))
@@ -65,7 +71,7 @@ export function compileSourceFiles(options) {
 		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', () => {
-			unlink(join(outputDirectory, '.js-style'), () => {});
+			unlink(join(outputDirectory, '.js-style'), NO_OP);
 		});
 }
 
@@ -74,7 +80,7 @@ export function compileSourceFiles(options) {
  */
 export function compileSourceFilesAndCleanUpJSStyleFiles(options) {
 	compileSourceFiles(options)
-		.on('end', createJSStyleFiles())
+		.on('end', createJSStyleFiles);
 }
 
 /**
@@ -86,9 +92,9 @@ export function compileSourceFilesAndCleanUpJSStyleFiles(options) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function stripFauxCJSExports(fileMetadata, encoding, callback) {
-	var classNamespace = getFileNamespace(fileMetadata);
-
+	const classNamespace = getFileNamespace(fileMetadata);
 	const removeClassNameClassExportVisitor = createRemoveClassNameClassExportVisitor(classNamespace);
+
 	transformASTAndPushToNextStream(fileMetadata, removeClassNameClassExportVisitor, this, callback);
 }
 
@@ -101,7 +107,7 @@ function stripFauxCJSExports(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenIIFEClass(fileMetadata, encoding, callback) {
-	var classNamespace = getFileNamespace(fileMetadata);
+	const classNamespace = getFileNamespace(fileMetadata);
 
 	iifeClassFlattenerVisitor.initialize(classNamespace);
 	transformASTAndPushToNextStream(fileMetadata, iifeClassFlattenerVisitor, this, callback);
@@ -116,7 +122,7 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenClass(fileMetadata, encoding, callback) {
-	var classNamespace = getFileNamespace(fileMetadata);
+	const classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedClassFlattenerVisitor.initialize(classNamespace);
 	transformASTAndPushToNextStream(fileMetadata, namespacedClassFlattenerVisitor, this, callback);
@@ -127,22 +133,20 @@ function flattenClass(fileMetadata, encoding, callback) {
  *
  * @returns {Function} Stream transform implementation which formats JS files.
  */
-function formatCode(formatterOptions) {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+function formatCode() {
+	return through2.obj(function pushFormattedCode(fileMetadata, encoding, callback) {
 		// Format the transformed code, vinyl-fs needs file contents to be a Buffer
 		fileMetadata.contents = new Buffer(defaultFormatCode(fileMetadata.contents.toString()));
 		this.push(fileMetadata);
 		callback();
-	})
+	});
 }
 
 /**
  * Creates files required to notify module loader of file type.
  */
 function createJSStyleFiles() {
-	return function() {
-		unlink('.js-style', () => {});
-		writeFile(join('test', '.js-style'), 'namespaced-js', () => {});
-		writeFile(join('tests', '.js-style'), 'namespaced-js', () => {});
-	}
+	unlink('.js-style', NO_OP);
+	writeFile(join('test', '.js-style'), 'namespaced-js', NO_OP);
+	writeFile(join('tests', '.js-style'), 'namespaced-js', NO_OP);
 }
