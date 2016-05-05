@@ -34,3 +34,4 @@ export {addRequireForGlobalIdentifierVisitor} from './add-require-for-global-ide
 export {replaceLibraryIncludesWithRequiresVisitor} from './replace-library-includes-with-requires';
 export {removeRedundantRequiresVisitor} from './remove-redundant-requires';
 export {requireFixturesVisitor} from './require-fixtures';
+export {addAliasesRequiresVisitor} from './add-aliases-requires';
