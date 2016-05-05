@@ -7,19 +7,22 @@ import {visit} from 'recast';
  * @param {Object} visitor - AST visitor.
  * @param {Object} streamTransform - Stream transform instance.
  * @param {Function} callback - Used to flush data down the stream.
+ * @return {undefined}
  */
 export function transformASTAndPushToNextStream(fileMetadata, visitor, streamTransform, callback) {
 	try {
 		visit(fileMetadata.ast, visitor);
 	} catch (error) {
-		console.error(visitor);
-		console.error(fileMetadata);
-		console.error(error);
-		callback(error);
+		console.error(visitor); // eslint-disable-line
+		console.error(fileMetadata); // eslint-disable-line
+		console.error(error); // eslint-disable-line
+
+		return callback(error);
 	}
 
 	streamTransform.push(fileMetadata);
-	callback();
+
+	return callback();
 }
 
 /**
@@ -42,8 +45,8 @@ export function getFileNamespaceParts(fileMetadata) {
 	// Namespaced files are only present in src files so we need to remove the src prefix from the
 	// file path. Test files aren't namespaced so this function isn't called by the test transform
 	const filePathWithoutSrc = filePathRelativeToCWD
-		.replace(sep + 'src' + sep, '')
-		.replace(sep + 'src-test' + sep, '');
+		.replace(`${sep}src${sep}`, '')
+		.replace(`${sep}src-test${sep}`, '');
 
 	// Remove the JS file suffix and break up the path string by directory separator
 	return filePathWithoutSrc.replace(/\.js$/, '').split(sep);
