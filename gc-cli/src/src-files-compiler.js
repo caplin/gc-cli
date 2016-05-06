@@ -1,8 +1,5 @@
 import {join} from 'path';
-import {
-	writeFile,
-	unlink
-} from 'fs';
+import {writeFile} from 'fs';
 
 import vinylFs from 'vinyl-fs';
 import through2 from 'through2';
@@ -73,16 +70,8 @@ export function compileSourceFiles(options) {
 		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', () => {
-			unlink(join(outputDirectory, '.js-style'), NO_OP);
+			writeFile(join(outputDirectory, '.js-style'), 'common-js', NO_OP);
 		});
-}
-
-/**
- * @param {OptionsObject} options - Options to configure transforms.
- */
-export function compileSourceFilesAndCleanUpJSStyleFiles(options) {
-	compileSourceFiles(options)
-		.on('end', createJSStyleFiles);
 }
 
 /**
@@ -142,13 +131,4 @@ function formatCode() {
 		this.push(fileMetadata);
 		callback();
 	});
-}
-
-/**
- * Creates files required to notify module loader of file type.
- */
-function createJSStyleFiles() {
-	unlink('.js-style', NO_OP);
-	writeFile(join('test', '.js-style'), 'namespaced-js', NO_OP);
-	writeFile(join('tests', '.js-style'), 'namespaced-js', NO_OP);
 }

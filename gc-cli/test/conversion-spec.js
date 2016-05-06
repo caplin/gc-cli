@@ -1,11 +1,11 @@
-"format es6";
+/* eslint-disable id-length */
 
-const fs = require('fs');
-const path = require('path');
-const assert = require('assert');
+import {equal} from 'assert';
+import {readFileSync} from 'fs';
+import {join} from 'path';
 
-const del = require('del');
-const {parse, print} = require('recast');
+import del from 'del';
+import {afterEach, describe, it} from 'mocha';
 import {
 	processFile,
 	createOptionsObject
@@ -36,49 +36,45 @@ process.chdir('test/resources');
 
 const expectedDirectory = 'expected/';
 const fileOptions = {encoding: 'utf-8'};
-const expected = fs.readFileSync(expectedDirectory + 'expected.js', fileOptions);
-const expectedIIFE = fs.readFileSync(expectedDirectory + 'expected-iife.js', fileOptions);
-const expectedTest = fs.readFileSync(expectedDirectory + 'expected-test.js', fileOptions);
-const expectedStyleFile = fs.readFileSync(expectedDirectory + 'expected-js-style.txt', fileOptions);
-const expectedTestStyleFile = fs.readFileSync(expectedDirectory + 'expected-testjs-style.txt', fileOptions);
-const filesToCleanUp = ['output', 'test-output', '.js-style', path.join('tests', '.js-style')];
+const expected = readFileSync(`${expectedDirectory}expected.js`, fileOptions);
+const expectedIIFE = readFileSync(`${expectedDirectory}expected-iife.js`, fileOptions);
+const expectedTest = readFileSync(`${expectedDirectory}expected-test.js`, fileOptions);
+const filesToCleanUp = ['output', 'test-output', '.js-style', join('tests', '.js-style')];
 
 describe('GlobalCompiler conversion', () => {
 	afterEach((done) => del(filesToCleanUp, (error) => done(error)));
 
 	it('should convert namespaced code into CJS.', (done) => {
-		//Given.
-		var optionsObject = createOptionsObject(commandOptions);
+		// Given.
+		const optionsObject = createOptionsObject(commandOptions);
 
-		//When.
+		// When.
 		processFile(optionsObject);
 
-		//Then.
+		// Then.
 		setTimeout(() => {
-			const testsStyleFileOutput = fs.readFileSync(path.join('tests', '.js-style'), fileOptions);
-			const output = fs.readFileSync('output/my/long/name/space/SimpleClass.js', fileOptions);
-			const outputIIFE = fs.readFileSync('output/my/long/name/space/SimpleIIFEClass.js', fileOptions);
+			const output = readFileSync('output/my/long/name/space/SimpleClass.js', fileOptions);
+			const outputIIFE = readFileSync('output/my/long/name/space/SimpleIIFEClass.js', fileOptions);
 
-			assert.equal(output, expected);
-			assert.equal(outputIIFE, expectedIIFE);
-			assert.equal(testsStyleFileOutput, expectedTestStyleFile);
+			equal(output, expected);
+			equal(outputIIFE, expectedIIFE);
 
 			done();
 		}, 500);
 	});
 
 	it('should convert namespaced tests into CJS.', (done) => {
-		//Given.
+		// Given.
 		const optionsObject = createOptionsObject(testCommandOptions);
 
-		//When.
+		// When.
 		processFile(optionsObject);
 
-		//Then.
+		// Then.
 		setTimeout(() => {
-			const output = fs.readFileSync('test-output/test-unit/js-test-driver/tests/MyTest.js', fileOptions);
+			const output = readFileSync('test-output/test-unit/js-test-driver/tests/MyTest.js', fileOptions);
 
-			assert.equal(output, expectedTest);
+			equal(output, expectedTest);
 
 			done();
 		}, 500);

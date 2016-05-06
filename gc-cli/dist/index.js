@@ -36,7 +36,7 @@ var List = require("immutable").List;
 
 var compileTestAndSrcTestFiles = require("./test-files-compiler").compileTestAndSrcTestFiles;
 
-var compileSourceFilesAndCleanUpJSStyleFiles = require("./src-files-compiler").compileSourceFilesAndCleanUpJSStyleFiles;
+var compileSourceFiles = require("./src-files-compiler").compileSourceFiles;
 
 var findApplicationAliases = require("./utils/utilities").findApplicationAliases;
 
@@ -76,7 +76,7 @@ function processFile(optionsObject) {
 	if (optionsObject.compileTestFiles) {
 		compileTestAndSrcTestFiles(optionsObject);
 	} else {
-		compileSourceFilesAndCleanUpJSStyleFiles(optionsObject);
+		compileSourceFiles(optionsObject);
 	}
 }
 

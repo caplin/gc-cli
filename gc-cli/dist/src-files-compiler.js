@@ -16,21 +16,13 @@ var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["defau
  * @return {Object}
  */
 exports.compileSourceFiles = compileSourceFiles;
-
-/**
- * @param {OptionsObject} options - Options to configure transforms.
- */
-exports.compileSourceFilesAndCleanUpJSStyleFiles = compileSourceFilesAndCleanUpJSStyleFiles;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
 var join = require("path").join;
 
-var _fs = require("fs");
-
-var writeFile = _fs.writeFile;
-var unlink = _fs.unlink;
+var writeFile = require("fs").writeFile;
 
 var vinylFs = _interopRequire(require("vinyl-fs"));
 
@@ -69,12 +61,8 @@ function compileSourceFiles(options) {
 	var outputDirectory = options.outputDirectory;
 
 	return vinylFs.src([options.filesToCompile, "!**/bundle.js"]).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(addAliasRequires(options.applicationAliases)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
-		unlink(join(outputDirectory, ".js-style"), NO_OP);
+		writeFile(join(outputDirectory, ".js-style"), "common-js", NO_OP);
 	});
-}
-
-function compileSourceFilesAndCleanUpJSStyleFiles(options) {
-	compileSourceFiles(options).on("end", createJSStyleFiles);
 }
 
 /**
@@ -134,15 +122,6 @@ function formatCode() {
 		this.push(fileMetadata);
 		callback();
 	});
-}
-
-/**
- * Creates files required to notify module loader of file type.
- */
-function createJSStyleFiles() {
-	unlink(".js-style", NO_OP);
-	writeFile(join("test", ".js-style"), "namespaced-js", NO_OP);
-	writeFile(join("tests", ".js-style"), "namespaced-js", NO_OP);
 }
 
 // Ignored callback.

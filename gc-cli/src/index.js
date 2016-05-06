@@ -1,7 +1,7 @@
 import {List} from 'immutable';
 
 import {compileTestAndSrcTestFiles} from './test-files-compiler';
-import {compileSourceFilesAndCleanUpJSStyleFiles} from './src-files-compiler';
+import {compileSourceFiles} from './src-files-compiler';
 import {findApplicationAliases} from './utils/utilities';
 
 /**
@@ -69,7 +69,7 @@ export function processFile(optionsObject) {
 	if (optionsObject.compileTestFiles) {
 		compileTestAndSrcTestFiles(optionsObject);
 	} else {
-		compileSourceFilesAndCleanUpJSStyleFiles(optionsObject);
+		compileSourceFiles(optionsObject);
 	}
 }
 
