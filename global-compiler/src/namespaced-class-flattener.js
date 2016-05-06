@@ -35,6 +35,7 @@ const {
  * MyClass.protoype.myMethod = function(){};
  */
 export const namespacedClassFlattenerVisitor = {
+
 	/**
 	 * @param {string} fullyQualifiedName The fully qualified class name
 	 */
@@ -101,6 +102,7 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
 	} else if (MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
 	} else {
+		// eslint-disable-next-line
 		console.log('Namespaced expression not transformed, grandparent node type ::', grandParent.node.type);
 	}
 }
