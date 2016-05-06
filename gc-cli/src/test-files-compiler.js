@@ -13,6 +13,7 @@ import {
 } from '../../global-compiler';
 
 import {
+	addAliasRequires,
 	parseJSFile,
 	transformSLJSUsage,
 	convertASTToBuffer,
@@ -135,6 +136,7 @@ export function compileTestFiles(options) {
 		.pipe(through2.obj(removeGlobalizeSourceModulesCall))
 		.pipe(through2.obj(flattenProgramIIFE))
 		.pipe(expandVarNamespaceAliases(options.namespaces))
+		.pipe(addAliasRequires(options.applicationAliases))
 		.pipe(transformSLJSUsage())
 		.pipe(convertGlobalsToRequires(options.namespaces, false))
 		.pipe(removeCJSModuleRequires(options.moduleIDsToRemove))

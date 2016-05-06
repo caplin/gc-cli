@@ -13,6 +13,7 @@ import {
 import through2 from 'through2';
 
 import {
+	addAliasesRequiresVisitor,
 	orMatchers,
 	literalMatcher,
 	composeMatchers,
@@ -139,6 +140,19 @@ export function expandVarNamespaceAliases(rootNamespaces) {
 	return through2.obj(function(fileMetadata, encoding, callback) {
 		varNamespaceAliasExpanderVisitor.initialize(rootNamespaces);
 		transformASTAndPushToNextStream(fileMetadata, varNamespaceAliasExpanderVisitor, this, callback);
+	});
+}
+
+/**
+ * Add requires for any aliases found in the module's strings.
+ *
+ * @param {Set<string>} applicationAliases
+ * @returns {Function} Stream transform.
+ */
+export function addAliasRequires(applicationAliases) {
+	return through2.obj(function(fileMetadata, encoding, callback) {
+		addAliasesRequiresVisitor.initialize(applicationAliases);
+		transformASTAndPushToNextStream(fileMetadata, addAliasesRequiresVisitor, this, callback);
 	});
 }
 

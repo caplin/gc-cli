@@ -35,6 +35,7 @@ var flattenProgramIIFEVisitor = _globalCompiler.flattenProgramIIFEVisitor;
 
 var _commonTransforms = require("./common-transforms");
 
+var addAliasRequires = _commonTransforms.addAliasRequires;
 var parseJSFile = _commonTransforms.parseJSFile;
 var transformSLJSUsage = _commonTransforms.transformSLJSUsage;
 var convertASTToBuffer = _commonTransforms.convertASTToBuffer;
@@ -84,6 +85,7 @@ function registerCaplinTestGlobals(options) {
 	options.libraryIdentifiersToRequire.set(List.of("assertNoException"), "jsunitextensions->assertNoException");
 	options.libraryIdentifiersToRequire.set(List.of("assertArrayEquals"), "jsunitextensions->assertArrayEquals");
 	options.libraryIdentifiersToRequire.set(List.of("assertVariantEquals"), "jsunitextensions->assertVariantEquals");
+	options.libraryIdentifiersToRequire.set(List.of("assertMapEquals"), "jsunitextensions->assertMapEquals");
 	options.libraryIdentifiersToRequire.set(List.of("triggerKeyEvent"), "jsunitextensions->triggerKeyEvent");
 	options.libraryIdentifiersToRequire.set(List.of("triggerMouseEvent"), "jsunitextensions->triggerMouseEvent");
 	options.libraryIdentifiersToRequire.set(List.of("Clock"), "jsunitextensions->Clock");
@@ -146,7 +148,7 @@ function compileTestFiles(options) {
 
 	var outputDirectory = options.outputDirectory;
 
-	return vinylFs.src([options.filesToCompile, "!**/bundle.js"]).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(pruneRedundantRequires()).pipe(through2.obj(requireFixtures)).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
+	return vinylFs.src([options.filesToCompile, "!**/bundle.js"]).pipe(parseJSFile()).pipe(through2.obj(removeGlobalizeSourceModulesCall)).pipe(through2.obj(flattenProgramIIFE)).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(addAliasRequires(options.applicationAliases)).pipe(transformSLJSUsage()).pipe(convertGlobalsToRequires(options.namespaces, false)).pipe(removeCJSModuleRequires(options.moduleIDsToRemove)).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(pruneRedundantRequires()).pipe(through2.obj(requireFixtures)).pipe(through2.obj(wrapModuleInIIFE)).pipe(convertASTToBuffer()).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
 		unlink(join(outputDirectory, ".js-style"), function () {});
 	});
 }

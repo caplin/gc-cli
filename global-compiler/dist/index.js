@@ -41,3 +41,4 @@ exports.addRequireForGlobalIdentifierVisitor = require("./add-require-for-global
 exports.replaceLibraryIncludesWithRequiresVisitor = require("./replace-library-includes-with-requires").replaceLibraryIncludesWithRequiresVisitor;
 exports.removeRedundantRequiresVisitor = require("./remove-redundant-requires").removeRedundantRequiresVisitor;
 exports.requireFixturesVisitor = require("./require-fixtures").requireFixturesVisitor;
+exports.addAliasesRequiresVisitor = require("./add-aliases-requires").addAliasesRequiresVisitor;

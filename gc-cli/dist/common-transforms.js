@@ -20,6 +20,14 @@ exports.parseJSFile = parseJSFile;
 exports.expandVarNamespaceAliases = expandVarNamespaceAliases;
 
 /**
+ * Add requires for any aliases found in the module's strings.
+ *
+ * @param {Set<string>} applicationAliases
+ * @returns {Function} Stream transform.
+ */
+exports.addAliasRequires = addAliasRequires;
+
+/**
  * This transform is use case specific in that it replaces global references to SLJS with required ones.
  * The transform is multi-stage as it uses more generic transforms.
  *
@@ -125,6 +133,7 @@ var through2 = _interopRequire(require("through2"));
 
 var _globalCompiler = require("../../global-compiler");
 
+var addAliasesRequiresVisitor = _globalCompiler.addAliasesRequiresVisitor;
 var orMatchers = _globalCompiler.orMatchers;
 var literalMatcher = _globalCompiler.literalMatcher;
 var composeMatchers = _globalCompiler.composeMatchers;
@@ -211,6 +220,13 @@ function expandVarNamespaceAliases(rootNamespaces) {
 	return through2.obj(function (fileMetadata, encoding, callback) {
 		varNamespaceAliasExpanderVisitor.initialize(rootNamespaces);
 		transformASTAndPushToNextStream(fileMetadata, varNamespaceAliasExpanderVisitor, this, callback);
+	});
+}
+
+function addAliasRequires(applicationAliases) {
+	return through2.obj(function (fileMetadata, encoding, callback) {
+		addAliasesRequiresVisitor.initialize(applicationAliases);
+		transformASTAndPushToNextStream(fileMetadata, addAliasesRequiresVisitor, this, callback);
 	});
 }
 

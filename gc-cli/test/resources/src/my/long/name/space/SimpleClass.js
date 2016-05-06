@@ -1,5 +1,5 @@
 my.long.name.space.SimpleClass = function() {
-	this._service = caplin.core.ServiceRegistry.getService('myservice');
+	this._service = caplin.core.ServiceRegistry.getService('test.alias');
 }
 
 caplin.extend(my.long.name.space.SimpleClass, my.long.name.space.SuperClass);

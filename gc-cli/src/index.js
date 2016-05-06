@@ -2,6 +2,7 @@ import {List} from 'immutable';
 
 import {compileTestAndSrcTestFiles} from './test-files-compiler';
 import {compileSourceFilesAndCleanUpJSStyleFiles} from './src-files-compiler';
+import {findApplicationAliases} from './utils/utilities';
 
 /**
  * Options object.
@@ -55,6 +56,7 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 
 	optionsObject.libraryIncludesToRequire = new Set(['chosen']);
 	optionsObject.libraryIncludeIterable = List.of('caplin', 'thirdparty');
+	optionsObject.applicationAliases = findApplicationAliases();
 
 	return optionsObject;
 }

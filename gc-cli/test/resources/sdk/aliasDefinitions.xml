@@ -1,0 +1,3 @@
+<aliasDefinitions xmlns="http://schema.bladerunnerjs.org/aliasDefinitions">
+	<alias name="other.alias" defaultClass="other.MyClass" />
+</aliasDefinitions>

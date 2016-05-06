@@ -8,7 +8,9 @@ my.long.name.space.SimpleIIFEClass = (function() {
 		this._otherMember = new caplin.other.Class();
 	}
 
-	SimpleIIFEClass.prototype.anotherMethod = function() {}
+	SimpleIIFEClass.prototype.anotherMethod = function() {
+		var someXML = '<other.alias />';
+	}
 
 	return SimpleIIFEClass;
 }());

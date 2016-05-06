@@ -19,6 +19,7 @@
  * @param {Object} options CLI arguments to configure transforms
  * @returns {OptionsObject} An OptionsObject based on the provided CLI arguments
  */
+// eslint-disable-next-line
 "use strict";
 
 exports.createOptionsObject = createOptionsObject;
@@ -36,6 +37,8 @@ var List = require("immutable").List;
 var compileTestAndSrcTestFiles = require("./test-files-compiler").compileTestAndSrcTestFiles;
 
 var compileSourceFilesAndCleanUpJSStyleFiles = require("./src-files-compiler").compileSourceFilesAndCleanUpJSStyleFiles;
+
+var findApplicationAliases = require("./utils/utilities").findApplicationAliases;
 
 function createOptionsObject(_ref) {
 	var namespaces = _ref.namespaces;
@@ -60,10 +63,11 @@ function createOptionsObject(_ref) {
 		optionsObject.outputDirectory = outputDirectory || "src";
 	}
 
-	optionsObject.libraryIdentifiersToRequire = new Map([[List.of("emitr"), "emitr"], [List.of("jQuery"), "jquery"], [List.of("sinon"), "sinonjs"], [List.of("queryString"), "query-string"], [List.of("JsMockito"), "jsmockito"], [List.of("JsHamcrest"), "jshamcrest"], [List.of("Mock4JS"), "mock4js"], [List.of("moment", "()", "tz"), "moment-timezone"]]);
+	optionsObject.libraryIdentifiersToRequire = new Map([[List.of("emitr"), "emitr"], [List.of("jQuery"), "jquery"], [List.of("sinon"), "sinonjs"], [List.of("queryString"), "query-string"], [List.of("JsMockito"), "jsmockito"], [List.of("JsHamcrest"), "jshamcrest"], [List.of("Mock4JS"), "mock4js"], [List.of("moment", "()", "tz"), "moment-timezone"], [List.of("interact"), "interact"], [List.of("openajax"), "openajax"]]);
 
 	optionsObject.libraryIncludesToRequire = new Set(["chosen"]);
 	optionsObject.libraryIncludeIterable = List.of("caplin", "thirdparty");
+	optionsObject.applicationAliases = findApplicationAliases();
 
 	return optionsObject;
 }

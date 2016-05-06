@@ -16,6 +16,8 @@
     "array-includes": "^1.0.5",
     "capitalize": "^0.5.0",
     "chalk": "^0.5.1",
+    "elementtree": "^0.1.6",
+    "glob": "^7.0.3",
     "immutable": "^3.0.3",
     "js-formatter": "git://github.com/briandipalma/js-formatter",
     "minimist": "^1.1.0",

@@ -14,6 +14,7 @@ import {
 } from '../../global-compiler';
 
 import {
+	addAliasRequires,
 	parseJSFile,
 	transformSLJSUsage,
 	convertASTToBuffer,
@@ -59,6 +60,7 @@ export function compileSourceFiles(options) {
 		.pipe(through2.obj(stripFauxCJSExports))
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))
+		.pipe(addAliasRequires(options.applicationAliases))
 		.pipe(transformSLJSUsage())
 		.pipe(transformGetServiceToRequire())
 		.pipe(convertGlobalsToRequires(options.namespaces))

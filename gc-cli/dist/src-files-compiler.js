@@ -13,6 +13,7 @@ var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["defau
 
 /**
  * @param {OptionsObject} options - Options to configure transforms.
+ * @return {Object}
  */
 exports.compileSourceFiles = compileSourceFiles;
 
@@ -45,6 +46,7 @@ var namespacedClassFlattenerVisitor = _globalCompiler.namespacedClassFlattenerVi
 
 var _commonTransforms = require("./common-transforms");
 
+var addAliasRequires = _commonTransforms.addAliasRequires;
 var parseJSFile = _commonTransforms.parseJSFile;
 var transformSLJSUsage = _commonTransforms.transformSLJSUsage;
 var convertASTToBuffer = _commonTransforms.convertASTToBuffer;
@@ -62,16 +64,17 @@ var _utilsUtilities = require("./utils/utilities");
 var getFileNamespace = _utilsUtilities.getFileNamespace;
 var transformASTAndPushToNextStream = _utilsUtilities.transformASTAndPushToNextStream;
 
+function NO_OP() {}
 function compileSourceFiles(options) {
 	var outputDirectory = options.outputDirectory;
 
-	return vinylFs.src([options.filesToCompile, "!**/bundle.js"]).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
-		unlink(join(outputDirectory, ".js-style"), function () {});
+	return vinylFs.src([options.filesToCompile, "!**/bundle.js"]).pipe(parseJSFile()).pipe(expandVarNamespaceAliases(options.namespaces)).pipe(through2.obj(stripFauxCJSExports)).pipe(through2.obj(flattenIIFEClass)).pipe(through2.obj(flattenClass)).pipe(addAliasRequires(options.applicationAliases)).pipe(transformSLJSUsage()).pipe(transformGetServiceToRequire()).pipe(convertGlobalsToRequires(options.namespaces)).pipe(transformClassesToUseTopiarist()).pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire)).pipe(transformI18nUsage()).pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable)).pipe(addRequiresForCaplinBootstrap()).pipe(convertASTToBuffer()).pipe(formatCode(options.formatterOptions)).pipe(vinylFs.dest(options.outputDirectory)).on("end", function () {
+		unlink(join(outputDirectory, ".js-style"), NO_OP);
 	});
 }
 
 function compileSourceFilesAndCleanUpJSStyleFiles(options) {
-	compileSourceFiles(options).on("end", createJSStyleFiles());
+	compileSourceFiles(options).on("end", createJSStyleFiles);
 }
 
 /**
@@ -84,8 +87,8 @@ function compileSourceFilesAndCleanUpJSStyleFiles(options) {
  */
 function stripFauxCJSExports(fileMetadata, encoding, callback) {
 	var classNamespace = getFileNamespace(fileMetadata);
-
 	var removeClassNameClassExportVisitor = createRemoveClassNameClassExportVisitor(classNamespace);
+
 	transformASTAndPushToNextStream(fileMetadata, removeClassNameClassExportVisitor, this, callback);
 }
 
@@ -124,8 +127,8 @@ function flattenClass(fileMetadata, encoding, callback) {
  *
  * @returns {Function} Stream transform implementation which formats JS files.
  */
-function formatCode(formatterOptions) {
-	return through2.obj(function (fileMetadata, encoding, callback) {
+function formatCode() {
+	return through2.obj(function pushFormattedCode(fileMetadata, encoding, callback) {
 		// Format the transformed code, vinyl-fs needs file contents to be a Buffer
 		fileMetadata.contents = new Buffer(defaultFormatCode(fileMetadata.contents.toString()));
 		this.push(fileMetadata);
@@ -137,9 +140,9 @@ function formatCode(formatterOptions) {
  * Creates files required to notify module loader of file type.
  */
 function createJSStyleFiles() {
-	return function () {
-		unlink(".js-style", function () {});
-		writeFile(join("test", ".js-style"), "namespaced-js", function () {});
-		writeFile(join("tests", ".js-style"), "namespaced-js", function () {});
-	};
+	unlink(".js-style", NO_OP);
+	writeFile(join("test", ".js-style"), "namespaced-js", NO_OP);
+	writeFile(join("tests", ".js-style"), "namespaced-js", NO_OP);
 }
+
+// Ignored callback.

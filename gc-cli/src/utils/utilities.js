@@ -1,5 +1,8 @@
-import {sep} from 'path';
+import {readdirSync, readFileSync} from 'fs';
+import {dirname, join, sep} from 'path';
 
+import {parse} from 'elementtree';
+import {sync} from 'glob';
 import {visit} from 'recast';
 
 /**
@@ -50,4 +53,46 @@ export function getFileNamespaceParts(fileMetadata) {
 
 	// Remove the JS file suffix and break up the path string by directory separator
 	return filePathWithoutSrc.replace(/\.js$/, '').split(sep);
+}
+
+/**
+ * Finds all the aliases defined/available in an application.
+ *
+ * @return {Set<string>}
+ */
+export function findApplicationAliases() {
+	const brjsProjectRoot = findBRJSProjectRoot();
+
+	return gatherApplicationAliases(brjsProjectRoot);
+}
+
+function findBRJSProjectRoot() {
+	let current = process.cwd();
+	let currentDirectoryContents = readdirSync(current);
+
+	while (currentDirectoryContents.includes('apps') === false &&
+		currentDirectoryContents.includes('sdk') === false && current !== dirname(current)) {
+		current = dirname(current);
+		currentDirectoryContents = readdirSync(current);
+	}
+
+	return current;
+}
+
+function gatherApplicationAliases(brjsProjectRoot) {
+	const aliasDefinitionsFileNames = sync('**/aliasDefinitions.xml', {cwd: brjsProjectRoot});
+	const applicationAliases = new Set();
+
+	aliasDefinitionsFileNames
+		.map((aliasDefinitionsFileName) => readFileSync(join(brjsProjectRoot, aliasDefinitionsFileName), 'utf8'))
+		.map((aliasDefinitionsFile) => parse(aliasDefinitionsFile))
+		.forEach((aliasDefinitionsXMLDoc) => {
+			const aliasDefinitionElements = aliasDefinitionsXMLDoc.findall('./alias');
+
+			for (let aliasDefinitionElement of aliasDefinitionElements) {
+				applicationAliases.add(aliasDefinitionElement.get('name'));
+			}
+		});
+
+	return applicationAliases;
 }
