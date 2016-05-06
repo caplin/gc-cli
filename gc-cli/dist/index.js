@@ -65,7 +65,7 @@ function createOptionsObject(_ref) {
 
 	optionsObject.libraryIdentifiersToRequire = new Map([[List.of("emitr"), "emitr"], [List.of("jQuery"), "jquery"], [List.of("sinon"), "sinonjs"], [List.of("queryString"), "query-string"], [List.of("JsMockito"), "jsmockito"], [List.of("JsHamcrest"), "jshamcrest"], [List.of("Mock4JS"), "mock4js"], [List.of("moment", "()", "tz"), "moment-timezone"], [List.of("moment"), "momentjs"], [List.of("interact"), "interact"], [List.of("openajax"), "openajax"]]);
 
-	optionsObject.libraryIncludesToRequire = new Set(["chosen"]);
+	optionsObject.libraryIncludesToRequire = new Set(["chosen", "es6-shim"]);
 	optionsObject.libraryIncludeIterable = List.of("caplin", "thirdparty");
 	optionsObject.applicationAliases = findApplicationAliases();
 

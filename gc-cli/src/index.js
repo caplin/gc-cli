@@ -55,7 +55,7 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 		[List.of('openajax'), 'openajax']
 	]);
 
-	optionsObject.libraryIncludesToRequire = new Set(['chosen']);
+	optionsObject.libraryIncludesToRequire = new Set(['chosen', 'es6-shim']);
 	optionsObject.libraryIncludeIterable = List.of('caplin', 'thirdparty');
 	optionsObject.applicationAliases = findApplicationAliases();
 
