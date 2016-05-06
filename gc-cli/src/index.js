@@ -50,6 +50,7 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 		[List.of('JsHamcrest'), 'jshamcrest'],
 		[List.of('Mock4JS'), 'mock4js'],
 		[List.of('moment', '()', 'tz'), 'moment-timezone'],
+		[List.of('moment'), 'momentjs'],
 		[List.of('interact'), 'interact'],
 		[List.of('openajax'), 'openajax']
 	]);
