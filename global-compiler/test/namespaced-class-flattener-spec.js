@@ -43,4 +43,17 @@ describe('Namespaced class flattening', () => {
 		// Then
 		verifyASTIsAsExpected('namespaced-class-flattener', 'expected-twolevel', givenTwoLevelObjectAST);
 	});
+
+	it('should add var when flattening assignment expression with right member expression node.', () => {
+		// Given
+		const givenAssignmentAST = getAST('namespaced-class-flattener', 'given-assignment-expression');
+
+		namespacedClassFlattenerVisitor.initialize('fxexecution.orderticket.MetalOrderTradeConstants');
+
+		// When
+		visit(givenAssignmentAST, namespacedClassFlattenerVisitor);
+
+		// Then
+		verifyASTIsAsExpected('namespaced-class-flattener', 'expected-assignment-expression', givenAssignmentAST);
+	});
 });

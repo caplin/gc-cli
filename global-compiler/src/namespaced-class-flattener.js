@@ -91,7 +91,8 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
 		// Move the constructor comments onto the function declaration that replaces it
 		constructorFunctionDeclaration.comments = grandParent.parent.node.comments;
 		grandParent.parent.replace(constructorFunctionDeclaration);
-	} else if (AssignmentExpression.check(grandParent.node) && ObjectExpression.check(grandParent.node.right)) {
+	} else if (AssignmentExpression.check(grandParent.node) &&
+		(ObjectExpression.check(grandParent.node.right) || MemberExpression.check(grandParent.node.right))) {
 		// Is the namespaced expression an object literal i.e. my.name.MyClass = {}
 		const classVariableDeclarator = variableDeclarator(classNameIdentifierNode, grandParent.node.right);
 		const classVariableDeclaration = variableDeclaration('var', [classVariableDeclarator]);
