@@ -59,7 +59,11 @@ export const varNamespaceAliasExpanderVisitor = {
 function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
 	const parentNodePath = identifierNodePath.parent;
 
-	if (MemberExpression.check(parentNodePath.node) && parentNodePath.get('property') === identifierNodePath) {
+	// If the identifier is part of a member expression `my.identifier` then it's not bound to a namespace alias.
+	// That is unless it's part of a computed member expression i.e. `my[identifier]` in which case it is.
+	if (MemberExpression.check(parentNodePath.node) &&
+		parentNodePath.get('property') === identifierNodePath &&
+		parentNodePath.node.computed === false) {
 		return false;
 	} else if (VariableDeclarator.check(parentNodePath.node)) {
 		return false;

@@ -99,3 +99,12 @@ my.name.space.feature.SomeClass.MY_CONSTANTS = {
 	UP: 1,
 	DOWN: 2
 };
+
+my.name.space.feature.SomeClass.prototype._aMethod = function(config) {
+	var TRADE_FIELDS = my.fxexecution.orderticket.trademodel.OrderTradeConstants.TRADE_FIELDS;
+	var FILLED = TRADE_FIELDS.FILLED;
+
+	if (config[FILLED]) {
+		this._trade.setFieldValue(FILLED, config[FILLED]);
+	}
+};

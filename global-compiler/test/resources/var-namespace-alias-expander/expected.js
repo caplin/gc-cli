@@ -79,3 +79,9 @@ my.name.space.feature.SomeClass.MY_CONSTANTS = {
 	UP: 1,
 	DOWN: 2
 };
+
+my.name.space.feature.SomeClass.prototype._aMethod = function(config) {
+    if (config[my.fxexecution.orderticket.trademodel.OrderTradeConstants.TRADE_FIELDS.FILLED]) {
+		this._trade.setFieldValue(my.fxexecution.orderticket.trademodel.OrderTradeConstants.TRADE_FIELDS.FILLED, config[my.fxexecution.orderticket.trademodel.OrderTradeConstants.TRADE_FIELDS.FILLED]);
+	}
+};
