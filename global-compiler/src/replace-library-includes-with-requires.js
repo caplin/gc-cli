@@ -48,7 +48,7 @@ export const replaceLibraryIncludesWithRequiresVisitor = {
 	initialize(moduleIDsToRequire, libraryIncludeIterable) {
 		this._libraryIncludesInModule = new Map();
 		this._moduleIDsRequiredInModule = new Set();
-		this._moduleIDsToRequire = moduleIDsToRequire;
+		this._moduleIDsToRequire = [...moduleIDsToRequire].map((moduleSource) => moduleSource.toLowerCase());
 		this._libraryIncludeIterable = libraryIncludeIterable.reverse();
 	},
 
@@ -59,11 +59,13 @@ export const replaceLibraryIncludesWithRequiresVisitor = {
 		if (isRequire(callExpressionNodePath)) {
 			const requireArgument = callExpressionNodePath.get('arguments', 0, 'value');
 
-			this._moduleIDsRequiredInModule.add(requireArgument.value);
+			// Normalize the module source, as `jquery` and `jQuery` load the same library in BRJS.
+			this._moduleIDsRequiredInModule.add(requireArgument.value.toLowerCase());
 		} else if (isALibraryInclude(callExpressionNodePath, this._libraryIncludeIterable)) {
 			const requireArgument = callExpressionNodePath.get('arguments', 0, 'value');
 
-			this._libraryIncludesInModule.set(callExpressionNodePath, requireArgument.value);
+			// Normalize the module source, as `jquery` and `jQuery` load the same library in BRJS.
+			this._libraryIncludesInModule.set(callExpressionNodePath, requireArgument.value.toLowerCase());
 		}
 
 		this.traverse(callExpressionNodePath);
@@ -78,7 +80,7 @@ export const replaceLibraryIncludesWithRequiresVisitor = {
 		for (let [callExpressionNodePath, libraryIncludeID] of this._libraryIncludesInModule) {
 			if (this._moduleIDsRequiredInModule.has(libraryIncludeID)) {
 				callExpressionNodePath.parent.replace();
-			} else if (this._moduleIDsToRequire.has(libraryIncludeID)) {
+			} else if (this._moduleIDsToRequire.includes(libraryIncludeID)) {
 				const libraryRequire = createRequireDeclaration(undefined, libraryIncludeID);
 
 				callExpressionNodePath.replace(libraryRequire);

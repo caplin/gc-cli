@@ -1,4 +1,5 @@
 var globalLibrary = require('globallibrary');
+var someLibrary = require('somelibrary');
 my.libraryinclude('otherlibrary');
 require("libraryplugin");
 

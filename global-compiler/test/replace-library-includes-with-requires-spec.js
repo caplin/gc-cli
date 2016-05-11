@@ -9,7 +9,7 @@ describe('replace library includes with requires', () => {
 	it('should remove library includes and add requires.', () => {
 		// Given.
 		const givenAST = getAST('replace-library-includes-with-requires', 'given');
-		const moduleIDsToRequire = new Set(['libraryplugin']);
+		const moduleIDsToRequire = new Set(['libraryPlugin']);
 		const libraryIncludeIterable = Iterable(['my', 'libraryinclude']);
 
 		replaceLibraryIncludesWithRequiresVisitor.initialize(moduleIDsToRequire, libraryIncludeIterable);

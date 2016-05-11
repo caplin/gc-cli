@@ -2,6 +2,8 @@
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
+var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
+
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
@@ -55,7 +57,9 @@ var replaceLibraryIncludesWithRequiresVisitor = {
 	initialize: function initialize(moduleIDsToRequire, libraryIncludeIterable) {
 		this._libraryIncludesInModule = new Map();
 		this._moduleIDsRequiredInModule = new Set();
-		this._moduleIDsToRequire = moduleIDsToRequire;
+		this._moduleIDsToRequire = [].concat(_toConsumableArray(moduleIDsToRequire)).map(function (moduleSource) {
+			return moduleSource.toLowerCase();
+		});
 		this._libraryIncludeIterable = libraryIncludeIterable.reverse();
 	},
 
@@ -66,11 +70,13 @@ var replaceLibraryIncludesWithRequiresVisitor = {
 		if (isRequire(callExpressionNodePath)) {
 			var requireArgument = callExpressionNodePath.get("arguments", 0, "value");
 
-			this._moduleIDsRequiredInModule.add(requireArgument.value);
+			// Normalize the module source, as `jquery` and `jQuery` load the same library in BRJS.
+			this._moduleIDsRequiredInModule.add(requireArgument.value.toLowerCase());
 		} else if (isALibraryInclude(callExpressionNodePath, this._libraryIncludeIterable)) {
 			var requireArgument = callExpressionNodePath.get("arguments", 0, "value");
 
-			this._libraryIncludesInModule.set(callExpressionNodePath, requireArgument.value);
+			// Normalize the module source, as `jquery` and `jQuery` load the same library in BRJS.
+			this._libraryIncludesInModule.set(callExpressionNodePath, requireArgument.value.toLowerCase());
 		}
 
 		this.traverse(callExpressionNodePath);
@@ -95,7 +101,7 @@ var replaceLibraryIncludesWithRequiresVisitor = {
 
 				if (this._moduleIDsRequiredInModule.has(libraryIncludeID)) {
 					callExpressionNodePath.parent.replace();
-				} else if (this._moduleIDsToRequire.has(libraryIncludeID)) {
+				} else if (this._moduleIDsToRequire.includes(libraryIncludeID)) {
 					var libraryRequire = createRequireDeclaration(undefined, libraryIncludeID);
 
 					callExpressionNodePath.replace(libraryRequire);
