@@ -19,6 +19,7 @@ describe('Add require for global identifier', () => {
 			[Iterable(['SL4B_Accessor']), 'sl4bdummy->SL4B_Accessor']
 		]);
 		const givenAST = getAST('add-require-for-global-identifier', 'given');
+
 		addRequireForGlobalIdentifierVisitor.initialize(identifiersToRequire, givenAST.program.body);
 
 		// When

@@ -1,28 +1,23 @@
-const fs = require('fs');
-const assert = require('assert');
+import {Iterable} from 'immutable';
+import {describe, it} from 'mocha';
+import {visit} from 'recast';
 
-const {Iterable} = require('immutable');
-const {parse, print, visit} = require('recast');
 import {replaceLibraryIncludesWithRequiresVisitor} from '../src/index';
+import {getAST, verifyASTIsAsExpected} from './test-utilities';
 
-const fileOptions = {encoding: 'utf-8'};
-const testResourcesLocation = 'test/resources/replace-library-includes-with-requires/';
-const givenCode = fs.readFileSync(testResourcesLocation + 'given.js', fileOptions);
-const expectedCode = fs.readFileSync(testResourcesLocation + 'expected.js', fileOptions);
-const givenAST = parse(givenCode);
-
-describe('replace library includes with requires', function() {
-	it('should remove library includes and add requires.', function() {
-		//Given.
+describe('replace library includes with requires', () => {
+	it('should remove library includes and add requires.', () => {
+		// Given.
+		const givenAST = getAST('replace-library-includes-with-requires', 'given');
 		const moduleIDsToRequire = new Set(['libraryplugin']);
 		const libraryIncludeIterable = Iterable(['my', 'libraryinclude']);
 
 		replaceLibraryIncludesWithRequiresVisitor.initialize(moduleIDsToRequire, libraryIncludeIterable);
 
-		//When.
+		// When.
 		visit(givenAST, replaceLibraryIncludesWithRequiresVisitor);
 
-		//Then.
-		assert.equal(print(givenAST).code, expectedCode);
+		// Then.
+		verifyASTIsAsExpected('replace-library-includes-with-requires', 'expected', givenAST);
 	});
 });
