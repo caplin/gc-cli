@@ -56,7 +56,7 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 	]);
 
 	optionsObject.libraryIncludesToRequire = new Set([
-		'chosen', 'es6-shim', 'jqueryplugins'
+		'chosen', 'es6-shim', 'jqueryplugins', 'explorercanvas'
 	]);
 	optionsObject.libraryIncludeIterable = List.of('caplin', 'thirdparty');
 	optionsObject.applicationAliases = findApplicationAliases();
