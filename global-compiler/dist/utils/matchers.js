@@ -1,4 +1,7 @@
+const { namedTypes } = require('recast').types;
 
+const NOOP = () => true;
+const { AssignmentExpression, Literal, CallExpression, Identifier, VariableDeclarator, MemberExpression } = namedTypes;
 
 /**
  * Creates a function that checks if a NodePath matches the provided matchers.
@@ -9,9 +12,11 @@
  * @param   {...Function} matchers - Matchers that a node must satisfy to be classed as matching.
  * @returns {Function} Function that checks if provided NodePath satifies matchers.
  */
-"use strict";
+export function composeMatchers(...matchers) {
+  const testNodePath = (nodePathToTest, matcher) => nodePathToTest && matcher(nodePathToTest);
 
-exports.composeMatchers = composeMatchers;
+  return nodePath => matchers.reduce(testNodePath, nodePath);
+}
 
 /**
  * Creates a function that checks if a NodePath matches any of the provided matchers.
@@ -20,7 +25,15 @@ exports.composeMatchers = composeMatchers;
  * @param   {...Function} matchers - Matchers that a node may be tested against.
  * @returns {Function}    Function that checks if provided NodePath satifies matchers.
  */
-exports.orMatchers = orMatchers;
+export function orMatchers(...matchers) {
+  return nodePath => {
+    const testNodePath = matcher => nodePath && matcher(nodePath);
+
+    if (matchers.some(testNodePath)) {
+      return nodePath.parent;
+    }
+  };
+}
 
 //	MATCHERS
 
@@ -31,7 +44,13 @@ exports.orMatchers = orMatchers;
  * @param   {string} value - Expected value of the literal.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.literalMatcher = literalMatcher;
+export function literalMatcher(value) {
+  return ({ node, parent }) => {
+    if (Literal.check(node) && node.value === value) {
+      return parent;
+    }
+  };
+}
 
 /**
  * Creates a predicate function that checks if a NodePath is an Identifier with the
@@ -40,7 +59,13 @@ exports.literalMatcher = literalMatcher;
  * @param   {string} name - Expected name of the identifier.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.identifierMatcher = identifierMatcher;
+export function identifierMatcher(name) {
+  return ({ node, parent }) => {
+    if (Identifier.check(node) && node.name === name) {
+      return parent;
+    }
+  };
+}
 
 /**
  * Creates a predicate function that checks if a NodePath is a CallExpression with the
@@ -49,7 +74,15 @@ exports.identifierMatcher = identifierMatcher;
  * @param   {Object} callExpressionPattern - Expected callee of the call expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.callExpressionMatcher = callExpressionMatcher;
+export function callExpressionMatcher({ callee } = { callee: NOOP }) {
+  return nodePath => {
+    const { node, parent } = nodePath;
+
+    if (CallExpression.check(node) && callee(nodePath.get('callee'))) {
+      return parent;
+    }
+  };
+}
 
 /**
  * Creates a predicate function that checks if a NodePath is a VariableDeclarator with the
@@ -58,7 +91,15 @@ exports.callExpressionMatcher = callExpressionMatcher;
  * @param   {Object} variableDeclaratorPattern - Expected id of the variable declarator.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.variableDeclaratorMatcher = variableDeclaratorMatcher;
+export function variableDeclaratorMatcher({ id }) {
+  return nodePath => {
+    const { node, parent } = nodePath;
+
+    if (VariableDeclarator.check(node) && id(nodePath.get('id'))) {
+      return parent;
+    }
+  };
+}
 
 /**
  * Creates a predicate function that checks if a NodePath is a MemberExpression with the
@@ -67,7 +108,15 @@ exports.variableDeclaratorMatcher = variableDeclaratorMatcher;
  * @param   {Object} memberExpressionPattern - Expected property of the member expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.memberExpressionMatcher = memberExpressionMatcher;
+export function memberExpressionMatcher({ property, object = NOOP }) {
+  return nodePath => {
+    const { node, parent } = nodePath;
+
+    if (MemberExpression.check(node) && property(nodePath.get('property')) && object(nodePath.get('object'))) {
+      return parent;
+    }
+  };
+}
 
 /**
  * Creates a predicate function that checks if a NodePath is an AssignmentExpression with the
@@ -76,126 +125,11 @@ exports.memberExpressionMatcher = memberExpressionMatcher;
  * @param   {Object} assignmentExpressionPattern - Expected properties of the assignment expression.
  * @returns {Function} Returns the NodePath parent if it fits search criteria.
  */
-exports.assignmentExpressionMatcher = assignmentExpressionMatcher;
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+export function assignmentExpressionMatcher({ right }) {
+  return nodePath => {
+    const { node, parent } = nodePath;
 
-var namedTypes = require("recast").types.namedTypes;
-
-var NOOP = function () {
-  return true;
-};
-var AssignmentExpression = namedTypes.AssignmentExpression;
-var Literal = namedTypes.Literal;
-var CallExpression = namedTypes.CallExpression;
-var Identifier = namedTypes.Identifier;
-var VariableDeclarator = namedTypes.VariableDeclarator;
-var MemberExpression = namedTypes.MemberExpression;
-
-function composeMatchers() {
-  for (var _len = arguments.length, matchers = Array(_len), _key = 0; _key < _len; _key++) {
-    matchers[_key] = arguments[_key];
-  }
-
-  var testNodePath = function (nodePathToTest, matcher) {
-    return nodePathToTest && matcher(nodePathToTest);
-  };
-
-  return function (nodePath) {
-    return matchers.reduce(testNodePath, nodePath);
-  };
-}
-
-function orMatchers() {
-  for (var _len = arguments.length, matchers = Array(_len), _key = 0; _key < _len; _key++) {
-    matchers[_key] = arguments[_key];
-  }
-
-  return function (nodePath) {
-    var testNodePath = function (matcher) {
-      return nodePath && matcher(nodePath);
-    };
-
-    if (matchers.some(testNodePath)) {
-      return nodePath.parent;
-    }
-  };
-}
-
-function literalMatcher(value) {
-  return function (_ref) {
-    var node = _ref.node;
-    var parent = _ref.parent;
-
-    if (Literal.check(node) && node.value === value) {
-      return parent;
-    }
-  };
-}
-
-function identifierMatcher(name) {
-  return function (_ref) {
-    var node = _ref.node;
-    var parent = _ref.parent;
-
-    if (Identifier.check(node) && node.name === name) {
-      return parent;
-    }
-  };
-}
-
-function callExpressionMatcher() {
-  var _ref = arguments[0] === undefined ? { callee: NOOP } : arguments[0];
-
-  var callee = _ref.callee;
-
-  return function (nodePath) {
-    var node = nodePath.node;
-    var parent = nodePath.parent;
-
-    if (CallExpression.check(node) && callee(nodePath.get("callee"))) {
-      return parent;
-    }
-  };
-}
-
-function variableDeclaratorMatcher(_ref) {
-  var id = _ref.id;
-
-  return function (nodePath) {
-    var node = nodePath.node;
-    var parent = nodePath.parent;
-
-    if (VariableDeclarator.check(node) && id(nodePath.get("id"))) {
-      return parent;
-    }
-  };
-}
-
-function memberExpressionMatcher(_ref) {
-  var property = _ref.property;
-  var _ref$object = _ref.object;
-  var object = _ref$object === undefined ? NOOP : _ref$object;
-
-  return function (nodePath) {
-    var node = nodePath.node;
-    var parent = nodePath.parent;
-
-    if (MemberExpression.check(node) && property(nodePath.get("property")) && object(nodePath.get("object"))) {
-      return parent;
-    }
-  };
-}
-
-function assignmentExpressionMatcher(_ref) {
-  var right = _ref.right;
-
-  return function (nodePath) {
-    var node = nodePath.node;
-    var parent = nodePath.parent;
-
-    if (AssignmentExpression.check(node) && right(nodePath.get("right"))) {
+    if (AssignmentExpression.check(node) && right(nodePath.get('right'))) {
       return parent;
     }
   };

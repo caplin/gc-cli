@@ -1,27 +1,20 @@
-"use strict";
+import { Iterable } from 'immutable';
+import { types } from 'recast';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+import { isNamespacedExpressionNode } from './utils/utilities';
 
-var Iterable = require("immutable").Iterable;
-
-var types = require("recast").types;
-
-var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpressionNode;
-
-var identifier = types.builders.identifier;
+const { builders: { identifier } } = types;
 
 /**
  * Given member expression parts flatten all their occurences to the provided identifier.
  */
-var flattenMemberExpression = {
+export const flattenMemberExpression = {
 
 	/**
   * @param {string[]} memberExpressionParts - The parts of the member expression to flatten.
   * @param {string} replacementIdentifier - The name of the identifier to replace the flattened member expression.
   */
-	initialize: function initialize(memberExpressionParts, replacementIdentifier) {
+	initialize(memberExpressionParts, replacementIdentifier) {
 		this._memberExpressionParts = Iterable(memberExpressionParts.reverse());
 		this._replacementIdentifier = identifier(replacementIdentifier);
 	},
@@ -29,7 +22,7 @@ var flattenMemberExpression = {
 	/**
   * @param {NodePath} memberExpressionNodePath - MemberExpression NodePath.
   */
-	visitMemberExpression: function visitMemberExpression(memberExpressionNodePath) {
+	visitMemberExpression(memberExpressionNodePath) {
 		if (isNamespacedExpressionNode(memberExpressionNodePath.node, this._memberExpressionParts)) {
 			memberExpressionNodePath.replace(this._replacementIdentifier);
 		}
@@ -37,4 +30,3 @@ var flattenMemberExpression = {
 		this.traverse(memberExpressionNodePath);
 	}
 };
-exports.flattenMemberExpression = flattenMemberExpression;

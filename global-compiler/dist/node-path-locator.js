@@ -1,8 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
 /**
  * SpiderMonkey AST node.
  * https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
@@ -22,12 +17,12 @@ Object.defineProperty(exports, "__esModule", {
  * This visitor finds all NodePaths that match certain criteria.
  * It performs no mutations itself but will notify a listener for each matched NodePath.
  */
-var nodePathLocatorVisitor = {
+export const nodePathLocatorVisitor = {
 	/**
   * @param {Function} matchedNodesReceiver - Will receive a Map<string, NodePath[]> of matched NodePaths.
   * @param {Map<string, Function>} matchers - The matchers to test NodePaths against.
   */
-	initialize: function initialize(matchedNodesReceiver, matchers) {
+	initialize(matchedNodesReceiver, matchers) {
 		this._matchers = matchers;
 		this._matchedNodePaths = new Map();
 		this._matchedNodesReceiver = matchedNodesReceiver;
@@ -36,28 +31,28 @@ var nodePathLocatorVisitor = {
 	/**
   * @param {NodePath} literalNodePath - Literal NodePath.
   */
-	visitLiteral: function visitLiteral(literalNodePath) {
-		this._testNodePath("Literal", literalNodePath);
+	visitLiteral(literalNodePath) {
+		this._testNodePath('Literal', literalNodePath);
 	},
 
 	/**
   * @param {NodePath} identifierNodePath - Identifier NodePath.
   */
-	visitIdentifier: function visitIdentifier(identifierNodePath) {
-		this._testNodePath("Identifier", identifierNodePath);
+	visitIdentifier(identifierNodePath) {
+		this._testNodePath('Identifier', identifierNodePath);
 	},
 
 	/**
   * @param {NodePath} memberExpressionNodePath - MemberExpression NodePath.
   */
-	visitMemberExpression: function visitMemberExpression(memberExpressionNodePath) {
-		this._testNodePath("MemberExpression", memberExpressionNodePath);
+	visitMemberExpression(memberExpressionNodePath) {
+		this._testNodePath('MemberExpression', memberExpressionNodePath);
 	},
 
 	/**
   * @param {NodePath} programNodePath - Program NodePath.
   */
-	visitProgram: function visitProgram(programNodePath) {
+	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
 		this._matchedNodesReceiver(this._matchedNodePaths);
@@ -67,8 +62,8 @@ var nodePathLocatorVisitor = {
   * @param {string} nodeType - The type of the Node wrapped by the NodePath.
   * @param {NodePath} nodePath - NodePath to test for a match.
   */
-	_testNodePath: function _testNodePath(nodeType, nodePath) {
-		var matcher = this._matchers.get(nodeType);
+	_testNodePath(nodeType, nodePath) {
+		const matcher = this._matchers.get(nodeType);
 
 		if (matcher && matcher(nodePath)) {
 			addToValueArray(nodeType, nodePath, this._matchedNodePaths);
@@ -78,7 +73,6 @@ var nodePathLocatorVisitor = {
 	}
 };
 
-exports.nodePathLocatorVisitor = nodePathLocatorVisitor;
 /**
  * If the provided Map does not have a value array for the key create one. Add value to provided Map.
  *

@@ -255,13 +255,13 @@ export function addRequiresForLibraries(libraryIdentifiersToRequire) {
 }
 
 /**
- * This transform adds a require for `caplin-bootstrap` if the `caplin` identifier is present in the module.
+ * This transform adds a require for `caplin/Bootstrap` if the `caplin` identifier is present in the module.
  *
  * @returns {Function} Stream transform.
  */
 export function addRequiresForCaplinBootstrap() {
 	const caplinBootstrapIdentifier = new Map([
-		[List.of('caplin'), 'caplin-bootstrap']
+		[List.of('caplin'), 'caplinBootstrap']
 	]);
 
 	return addRequiresForLibraries(caplinBootstrapIdentifier);

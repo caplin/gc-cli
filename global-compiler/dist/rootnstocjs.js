@@ -1,29 +1,12 @@
-"use strict";
+import { Iterable } from 'immutable';
+import { types } from 'recast';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+import { createRequireDeclaration, isNamespacedExpressionNode, calculateUniqueModuleVariableId } from './utils/utilities';
 
-var Iterable = require("immutable").Iterable;
-
-var types = require("recast").types;
-
-var _utilsUtilities = require("./utils/utilities");
-
-var createRequireDeclaration = _utilsUtilities.createRequireDeclaration;
-var isNamespacedExpressionNode = _utilsUtilities.isNamespacedExpressionNode;
-var calculateUniqueModuleVariableId = _utilsUtilities.calculateUniqueModuleVariableId;
-var _types$builders = types.builders;
-var assignmentExpression = _types$builders.assignmentExpression;
-var expressionStatement = _types$builders.expressionStatement;
-var identifier = _types$builders.identifier;
-var memberExpression = _types$builders.memberExpression;
-var _types$namedTypes = types.namedTypes;
-var AssignmentExpression = _types$namedTypes.AssignmentExpression;
-var CallExpression = _types$namedTypes.CallExpression;
-var Identifier = _types$namedTypes.Identifier;
-var MemberExpression = _types$namedTypes.MemberExpression;
-var ReturnStatement = _types$namedTypes.ReturnStatement;
+const {
+	builders: { assignmentExpression, expressionStatement, identifier, memberExpression },
+	namedTypes: { AssignmentExpression, CallExpression, Identifier, MemberExpression, ReturnStatement }
+} = types;
 
 /**
  * Does identifier value match a namespace root and is it at the root of an expression tree.
@@ -33,8 +16,8 @@ var ReturnStatement = _types$namedTypes.ReturnStatement;
  * @returns {boolean} true if this namespaced expression should be flattened.
  */
 function isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoot) {
-	var isNodeNamespaced = isNamespacedExpressionNode(identifierNodePath.node, namespaceRoot);
-	var isRootOfExpressionTree = identifierNodePath.parent.get("object") === identifierNodePath;
+	const isNodeNamespaced = isNamespacedExpressionNode(identifierNodePath.node, namespaceRoot);
+	const isRootOfExpressionTree = identifierNodePath.parent.get('object') === identifierNodePath;
 
 	return isNodeNamespaced && isRootOfExpressionTree;
 }
@@ -49,10 +32,10 @@ function isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoo
  * @returns {boolean} is astNode assumed to be a class property.
  */
 function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
-	var isConstant = identifierName.match(/^[A-Z_-]*$/);
-	var lastNamespacePart = namespaceParts[namespaceParts.length - 1];
-	var firstCharOfLastNamespacePart = lastNamespacePart.substr(0, 1);
-	var isParentClassLike = firstCharOfLastNamespacePart === firstCharOfLastNamespacePart.toLocaleUpperCase();
+	const isConstant = identifierName.match(/^[A-Z_-]*$/);
+	const lastNamespacePart = namespaceParts[namespaceParts.length - 1];
+	const firstCharOfLastNamespacePart = lastNamespacePart.substr(0, 1);
+	const isParentClassLike = firstCharOfLastNamespacePart === firstCharOfLastNamespacePart.toLocaleUpperCase();
 
 	return isConstant || isParentClassLike;
 }
@@ -67,9 +50,9 @@ function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
  */
 function isAstNodePartOfNamespace(astNode, parentNodePath, namespaceParts) {
 	if (MemberExpression.check(astNode) && Identifier.check(astNode.property)) {
-		var identifierName = astNode.property.name;
-		var isPrototype = identifierName === "prototype";
-		var isMethodCall = CallExpression.check(parentNodePath.node) && parentNodePath.get("callee").node === astNode;
+		const identifierName = astNode.property.name;
+		const isPrototype = identifierName === 'prototype';
+		const isMethodCall = CallExpression.check(parentNodePath.node) && parentNodePath.get('callee').node === astNode;
 
 		return !(isPrototype || isMethodCall || isAssumedToBeAClassProperty(identifierName, namespaceParts));
 	}
@@ -101,11 +84,11 @@ function populateNamespacePath(nodePathToCheck, nodesPath, namespaceParts) {
  * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
  */
 function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameData) {
-	var namespace = namespaceParts.join("/");
-	var namespaceData = fullyQualifiedNameData.get(namespace);
+	const namespace = namespaceParts.join('/');
+	let namespaceData = fullyQualifiedNameData.get(namespace);
 
 	if (namespaceData === undefined) {
-		namespaceData = { namespaceParts: namespaceParts, nodePathsToTransform: [], moduleVariableId: "" };
+		namespaceData = { namespaceParts, nodePathsToTransform: [], moduleVariableId: '' };
 		fullyQualifiedNameData.set(namespace, namespaceData);
 	}
 
@@ -119,8 +102,8 @@ function storeNodePathInFQNameData(namespaceParts, nodePath, fullyQualifiedNameD
  * @param {Map<string, NamespaceData>} fullyQualifiedNameData - fully qualified name data.
  */
 function findAndStoreNodePathToTransform(identifierNodePath, fullyQualifiedNameData) {
-	var nodesPath = [identifierNodePath];
-	var namespaceParts = [identifierNodePath.node.name];
+	const nodesPath = [identifierNodePath];
+	const namespaceParts = [identifierNodePath.node.name];
 
 	populateNamespacePath(identifierNodePath.parent, nodesPath, namespaceParts);
 	storeNodePathInFQNameData(namespaceParts, nodesPath.pop(), fullyQualifiedNameData);
@@ -134,11 +117,11 @@ function findAndStoreNodePathToTransform(identifierNodePath, fullyQualifiedNameD
  * @param  {Array<NodePath>} moduleExports
  */
 function storeModuleExports(identifierNodePath, moduleExports) {
-	var identifierNodeParent = identifierNodePath.parent;
-	var parentPropertyNodePath = identifierNodeParent.get("property");
+	const identifierNodeParent = identifierNodePath.parent;
+	const parentPropertyNodePath = identifierNodeParent.get('property');
 
 	// Is identifier in an `AssignmentExpression` of the form `module.exports =`
-	if (identifierNodePath.node.name === "module" && parentPropertyNodePath && parentPropertyNodePath.node.name === "exports" && AssignmentExpression.check(identifierNodeParent.parent.node) && identifierNodeParent.parent.node.left === identifierNodeParent.node) {
+	if (identifierNodePath.node.name === 'module' && parentPropertyNodePath && parentPropertyNodePath.node.name === 'exports' && AssignmentExpression.check(identifierNodeParent.parent.node) && identifierNodeParent.parent.node.left === identifierNodeParent.node) {
 		moduleExports.push(identifierNodePath);
 	}
 }
@@ -152,7 +135,7 @@ function storeModuleExports(identifierNodePath, moduleExports) {
  */
 function retrieveExportExpression(lastStatement, className) {
 	if (ReturnStatement.check(lastStatement.node)) {
-		var returnArgument = lastStatement.node.argument;
+		const returnArgument = lastStatement.node.argument;
 
 		lastStatement.replace();
 
@@ -169,8 +152,8 @@ function retrieveExportExpression(lastStatement, className) {
  * @returns {AstNode} module exports node.
  */
 function createExportStatement(exportedExpression) {
-	var exportsExpression = memberExpression(identifier("module"), identifier("exports"), false);
-	var exportsAssignmentExpression = assignmentExpression("=", exportsExpression, exportedExpression);
+	const exportsExpression = memberExpression(identifier('module'), identifier('exports'), false);
+	const exportsAssignmentExpression = assignmentExpression('=', exportsExpression, exportedExpression);
 
 	return expressionStatement(exportsAssignmentExpression);
 }
@@ -180,9 +163,9 @@ function createExportStatement(exportedExpression) {
  * @param {NodePath} programBodyNodePath - Program body statements.
  */
 function insertExportsStatement(className, programBodyNodePath) {
-	var lastStatement = programBodyNodePath.get(programBodyNodePath.value.length - 1);
-	var exportExpression = retrieveExportExpression(lastStatement, className);
-	var exportStatement = createExportStatement(exportExpression);
+	const lastStatement = programBodyNodePath.get(programBodyNodePath.value.length - 1);
+	const exportExpression = retrieveExportExpression(lastStatement, className);
+	const exportStatement = createExportStatement(exportExpression);
 
 	programBodyNodePath.push(exportStatement);
 }
@@ -194,9 +177,9 @@ function insertExportsStatement(className, programBodyNodePath) {
  * @param {Set} moduleIdentifiers - all variable names declared in the module.
  */
 function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifiers) {
-	fullyQualifiedNameData.forEach(function (namespaceData) {
-		var moduleVariableId = namespaceData.namespaceParts.pop();
-		var uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers, namespaceData.namespaceParts);
+	fullyQualifiedNameData.forEach(namespaceData => {
+		const moduleVariableId = namespaceData.namespaceParts.pop();
+		const uniqueModuleVariableId = calculateUniqueModuleVariableId(moduleVariableId, moduleIdentifiers, namespaceData.namespaceParts);
 
 		moduleIdentifiers.add(uniqueModuleVariableId);
 		namespaceData.moduleVariableId = uniqueModuleVariableId;
@@ -210,8 +193,8 @@ function findUniqueIdentifiersForModules(fullyQualifiedNameData, moduleIdentifie
  * @param {NodePath} programNodePath Program node path
  */
 function moveProgramCommentsIntoBody(programNodePath) {
-	var programComments = programNodePath.node.comments;
-	var programStatements = programNodePath.get("body");
+	const programComments = programNodePath.node.comments;
+	const programStatements = programNodePath.get('body');
 
 	// If the program node has comments and the first program statement has no comments
 	if (programComments && programStatements.value[0] && programStatements.value[0].comments === undefined) {
@@ -227,17 +210,12 @@ function moveProgramCommentsIntoBody(programNodePath) {
  * @param {AstNode[]} programStatements - Program body statements.
  */
 function transformAllNamespacedExpressions(fullyQualifiedNameData, programStatements) {
-	fullyQualifiedNameData.forEach(function (_ref, namespace) {
-		var moduleVariableId = _ref.moduleVariableId;
-		var nodePathsToTransform = _ref.nodePathsToTransform;
-
-		var moduleIdentifier = identifier(moduleVariableId);
-		var importDeclaration = createRequireDeclaration(moduleIdentifier, namespace);
+	fullyQualifiedNameData.forEach(({ moduleVariableId, nodePathsToTransform }, namespace) => {
+		const moduleIdentifier = identifier(moduleVariableId);
+		const importDeclaration = createRequireDeclaration(moduleIdentifier, namespace);
 
 		programStatements.unshift(importDeclaration);
-		nodePathsToTransform.forEach(function (nodePathToTransform) {
-			return nodePathToTransform.replace(moduleIdentifier);
-		});
+		nodePathsToTransform.forEach(nodePathToTransform => nodePathToTransform.replace(moduleIdentifier));
 	});
 }
 
@@ -247,14 +225,14 @@ function transformAllNamespacedExpressions(fullyQualifiedNameData, programStatem
  * @param {Set} moduleIdentifiers - all variable names declared in the module.
  */
 function preventClashesWithGlobals(moduleIdentifiers) {
-	moduleIdentifiers.add("Number").add("Error");
+	moduleIdentifiers.add('Number').add('Error');
 }
 
 /**
  * Converts all Expressions under the specified root namespaces.
  * They will be mutated to flat Identifiers along with newly inserted CJS require statements.
  */
-var rootNamespaceVisitor = {
+export const rootNamespaceVisitor = {
 
 	/**
   * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
@@ -262,29 +240,23 @@ var rootNamespaceVisitor = {
   * @param {string} className - The class name to export.
   * @param {boolean} [insertExport=true] - Should an export statement be added.
   */
-	initialize: function initialize(namespaceRoots, programStatements, className) {
-		var insertExport = arguments[3] === undefined ? true : arguments[3];
-
+	initialize(namespaceRoots, programStatements, className, insertExport = true) {
 		this._className = className;
 		this._insertExport = insertExport;
 		this._moduleExports = [];
 		this._moduleIdentifiers = new Set();
 		this._fullyQualifiedNameData = new Map();
 		this._programStatements = programStatements;
-		this._namespaceRoots = namespaceRoots.map(function (rootNamespace) {
-			return Iterable([rootNamespace]);
-		});
+		this._namespaceRoots = namespaceRoots.map(rootNamespace => Iterable([rootNamespace]));
 	},
 
 	/**
   * @param {NodePath} identifierNodePath - Identifier NodePath.
   */
-	visitIdentifier: function visitIdentifier(identifierNodePath) {
-		var _this = this;
-
-		this._namespaceRoots.forEach(function (namespaceRoot) {
+	visitIdentifier(identifierNodePath) {
+		this._namespaceRoots.forEach(namespaceRoot => {
 			if (isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoot)) {
-				findAndStoreNodePathToTransform(identifierNodePath, _this._fullyQualifiedNameData);
+				findAndStoreNodePathToTransform(identifierNodePath, this._fullyQualifiedNameData);
 			}
 		});
 
@@ -296,8 +268,8 @@ var rootNamespaceVisitor = {
 	/**
   * @param {NodePath} functionDeclarationNodePath - Function Declaration NodePath.
   */
-	visitFunctionDeclaration: function visitFunctionDeclaration(functionDeclarationNodePath) {
-		var functionName = functionDeclarationNodePath.node.id.name;
+	visitFunctionDeclaration(functionDeclarationNodePath) {
+		const functionName = functionDeclarationNodePath.node.id.name;
 
 		this._moduleIdentifiers.add(functionName);
 		this.traverse(functionDeclarationNodePath);
@@ -306,8 +278,8 @@ var rootNamespaceVisitor = {
 	/**
   * @param {NodePath} variableDeclaratorNodePath - VariableDeclarator NodePath.
   */
-	visitVariableDeclarator: function visitVariableDeclarator(variableDeclaratorNodePath) {
-		var variableName = variableDeclaratorNodePath.node.id.name;
+	visitVariableDeclarator(variableDeclaratorNodePath) {
+		const variableName = variableDeclaratorNodePath.node.id.name;
 
 		this._moduleIdentifiers.add(variableName);
 
@@ -317,16 +289,15 @@ var rootNamespaceVisitor = {
 	/**
   * @param {NodePath} programNodePath - Program NodePath.
   */
-	visitProgram: function visitProgram(programNodePath) {
+	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
 		moveProgramCommentsIntoBody(programNodePath);
 		preventClashesWithGlobals(this._moduleIdentifiers);
 		if (this._insertExport && this._moduleExports.length === 0) {
-			insertExportsStatement(this._className, programNodePath.get("body"));
+			insertExportsStatement(this._className, programNodePath.get('body'));
 		}
 		findUniqueIdentifiersForModules(this._fullyQualifiedNameData, this._moduleIdentifiers);
 		transformAllNamespacedExpressions(this._fullyQualifiedNameData, this._programStatements);
 	}
 };
-exports.rootNamespaceVisitor = rootNamespaceVisitor;
