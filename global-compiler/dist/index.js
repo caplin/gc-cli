@@ -1,25 +1,44 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 // Matcher exports
-export { orMatchers, literalMatcher, composeMatchers, identifierMatcher, callExpressionMatcher, memberExpressionMatcher, variableDeclaratorMatcher } from './utils/matchers';
+
+var _utilsMatchers = require("./utils/matchers");
+
+exports.orMatchers = _utilsMatchers.orMatchers;
+exports.literalMatcher = _utilsMatchers.literalMatcher;
+exports.composeMatchers = _utilsMatchers.composeMatchers;
+exports.identifierMatcher = _utilsMatchers.identifierMatcher;
+exports.callExpressionMatcher = _utilsMatchers.callExpressionMatcher;
+exports.memberExpressionMatcher = _utilsMatchers.memberExpressionMatcher;
+exports.variableDeclaratorMatcher = _utilsMatchers.variableDeclaratorMatcher;
 
 // Transformer exports
-export { extractParent, extractProperties, composeTransformers } from './utils/transformers';
+
+var _utilsTransformers = require("./utils/transformers");
+
+exports.extractParent = _utilsTransformers.extractParent;
+exports.extractProperties = _utilsTransformers.extractProperties;
+exports.composeTransformers = _utilsTransformers.composeTransformers;
 
 // Visitor exports
-export { rootNamespaceVisitor } from './rootnstocjs';
-export { moduleIdVisitor } from './module-id-converter';
-export { nodePathLocatorVisitor } from './node-path-locator';
-export { wrapModuleInIIFEVisitor } from './wrap-module-in-iife';
-export { cjsRequireRemoverVisitor } from './cjs-require-remover';
-export { iifeClassFlattenerVisitor } from './iife-class-flattener';
-export { flattenProgramIIFEVisitor } from './flatten-program-iife';
-export { flattenMemberExpression } from './flatten-member-expression';
-export { verifyVarIsAvailableVisitor } from './verify-var-is-available';
-export { createRemoveClassNameClassExportVisitor } from './remove-class-name-class-export';
-export { createRemoveGlobalizeSourceModulesCallVisitor } from './remove-globalize-source-modules-call';
-export { namespacedClassFlattenerVisitor } from './namespaced-class-flattener';
-export { varNamespaceAliasExpanderVisitor } from './var-namespace-alias-expander';
-export { addRequireForGlobalIdentifierVisitor } from './add-require-for-global-identifier';
-export { replaceLibraryIncludesWithRequiresVisitor } from './replace-library-includes-with-requires';
-export { removeRedundantRequiresVisitor } from './remove-redundant-requires';
-export { requireFixturesVisitor } from './require-fixtures';
-export { addAliasesRequiresVisitor } from './add-aliases-requires';
+exports.rootNamespaceVisitor = require("./rootnstocjs").rootNamespaceVisitor;
+exports.moduleIdVisitor = require("./module-id-converter").moduleIdVisitor;
+exports.nodePathLocatorVisitor = require("./node-path-locator").nodePathLocatorVisitor;
+exports.wrapModuleInIIFEVisitor = require("./wrap-module-in-iife").wrapModuleInIIFEVisitor;
+exports.cjsRequireRemoverVisitor = require("./cjs-require-remover").cjsRequireRemoverVisitor;
+exports.iifeClassFlattenerVisitor = require("./iife-class-flattener").iifeClassFlattenerVisitor;
+exports.flattenProgramIIFEVisitor = require("./flatten-program-iife").flattenProgramIIFEVisitor;
+exports.flattenMemberExpression = require("./flatten-member-expression").flattenMemberExpression;
+exports.verifyVarIsAvailableVisitor = require("./verify-var-is-available").verifyVarIsAvailableVisitor;
+exports.createRemoveClassNameClassExportVisitor = require("./remove-class-name-class-export").createRemoveClassNameClassExportVisitor;
+exports.createRemoveGlobalizeSourceModulesCallVisitor = require("./remove-globalize-source-modules-call").createRemoveGlobalizeSourceModulesCallVisitor;
+exports.namespacedClassFlattenerVisitor = require("./namespaced-class-flattener").namespacedClassFlattenerVisitor;
+exports.varNamespaceAliasExpanderVisitor = require("./var-namespace-alias-expander").varNamespaceAliasExpanderVisitor;
+exports.addRequireForGlobalIdentifierVisitor = require("./add-require-for-global-identifier").addRequireForGlobalIdentifierVisitor;
+exports.replaceLibraryIncludesWithRequiresVisitor = require("./replace-library-includes-with-requires").replaceLibraryIncludesWithRequiresVisitor;
+exports.removeRedundantRequiresVisitor = require("./remove-redundant-requires").removeRedundantRequiresVisitor;
+exports.requireFixturesVisitor = require("./require-fixtures").requireFixturesVisitor;
+exports.addAliasesRequiresVisitor = require("./add-aliases-requires").addAliasesRequiresVisitor;

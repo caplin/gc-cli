@@ -1,9 +1,23 @@
-import { shim } from 'array-includes';
-import { types, visit } from 'recast';
+"use strict";
 
-import { getNamespacePath, isNamespaceAlias } from './utils/utilities';
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-const { namedTypes: { MemberExpression, VariableDeclarator } } = types;
+var shim = require("array-includes").shim;
+
+var _recast = require("recast");
+
+var types = _recast.types;
+var visit = _recast.visit;
+
+var _utilsUtilities = require("./utils/utilities");
+
+var getNamespacePath = _utilsUtilities.getNamespacePath;
+var isNamespaceAlias = _utilsUtilities.isNamespaceAlias;
+var _types$namedTypes = types.namedTypes;
+var MemberExpression = _types$namedTypes.MemberExpression;
+var VariableDeclarator = _types$namedTypes.VariableDeclarator;
 
 shim();
 
@@ -11,12 +25,12 @@ shim();
  * This transform will discover aliases to namespace paths, bound as vars, and when these aliases are
  * detected in the AST it will expand the alias identifier to the complete namespace path.
  */
-export const varNamespaceAliasExpanderVisitor = {
+var varNamespaceAliasExpanderVisitor = {
 
 	/**
   * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
   */
-	initialize(namespaceRoots) {
+	initialize: function initialize(namespaceRoots) {
 		this._namespaceRoots = namespaceRoots;
 		this._namespaceAliasBindingsToRemove = new Set();
 	},
@@ -24,7 +38,7 @@ export const varNamespaceAliasExpanderVisitor = {
 	/**
   * @param {NodePath} identifierNodePath - Identifier NodePath.
   */
-	visitIdentifier(identifierNodePath) {
+	visitIdentifier: function visitIdentifier(identifierNodePath) {
 		if (couldIdentifierBeBoundToANamespaceAlias(identifierNodePath)) {
 			expandIdentifierIfItsANamespaceAlias(identifierNodePath, this._namespaceRoots, this._namespaceAliasBindingsToRemove);
 		}
@@ -35,13 +49,14 @@ export const varNamespaceAliasExpanderVisitor = {
 	/**
   * @param {NodePath} programNodePath - Program NodePath.
   */
-	visitProgram(programNodePath) {
+	visitProgram: function visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
 		removeNamespaceAliases(this._namespaceAliasBindingsToRemove);
 	}
 };
 
+exports.varNamespaceAliasExpanderVisitor = varNamespaceAliasExpanderVisitor;
 /**
  * Checks if the provided identifier could be bound to a namespace alias.
  *
@@ -49,11 +64,11 @@ export const varNamespaceAliasExpanderVisitor = {
  * @returns {boolean} true if it's possible for the identifier to be bound to an alias.
  */
 function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
-	const parentNodePath = identifierNodePath.parent;
+	var parentNodePath = identifierNodePath.parent;
 
 	// If the identifier is part of a member expression `my.identifier` then it's not bound to a namespace alias.
 	// That is unless it's part of a computed member expression i.e. `my[identifier]` in which case it is.
-	if (MemberExpression.check(parentNodePath.node) && parentNodePath.get('property') === identifierNodePath && parentNodePath.node.computed === false) {
+	if (MemberExpression.check(parentNodePath.node) && parentNodePath.get("property") === identifierNodePath && parentNodePath.node.computed === false) {
 		return false;
 	} else if (VariableDeclarator.check(parentNodePath.node)) {
 		return false;
@@ -71,8 +86,8 @@ function couldIdentifierBeBoundToANamespaceAlias(identifierNodePath) {
  *                                                       remove on completion.
  */
 function expandIdentifierIfItsANamespaceAlias(identifierNodePath, namespaceRoots, namespaceAliasBindingsToRemove) {
-	const identifierBindings = getIdentifierBindings(identifierNodePath);
-	const namespaceAliasValue = getNamespaceAliasValue(identifierBindings, namespaceRoots);
+	var identifierBindings = getIdentifierBindings(identifierNodePath);
+	var namespaceAliasValue = getNamespaceAliasValue(identifierBindings, namespaceRoots);
 
 	if (namespaceAliasValue) {
 		identifierNodePath.replace(namespaceAliasValue.node);
@@ -87,11 +102,11 @@ function expandIdentifierIfItsANamespaceAlias(identifierNodePath, namespaceRoots
  * @returns {NodePath[]} Array of all identifier's bindings in the scope it's bound in.
  */
 function getIdentifierBindings(identifierNodePath) {
-	const identifierName = identifierNodePath.node.name;
-	const identifierScope = identifierNodePath.scope.lookup(identifierName);
+	var identifierName = identifierNodePath.node.name;
+	var identifierScope = identifierNodePath.scope.lookup(identifierName);
 
 	if (identifierScope) {
-		const identifierBindings = identifierScope.getBindings()[identifierName].slice();
+		var identifierBindings = identifierScope.getBindings()[identifierName].slice();
 
 		addIdentifierAssignments(identifierBindings, identifierScope.path, identifierName);
 
@@ -111,11 +126,11 @@ function getIdentifierBindings(identifierNodePath) {
  */
 function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 	if (identifierBindings.length === 1) {
-		const identifierBinding = identifierBindings[0];
+		var identifierBinding = identifierBindings[0];
 
 		if (VariableDeclarator.check(identifierBinding.parent.node)) {
-			const varNameNodePath = identifierBinding.parent.get('id');
-			const varValueNodePath = identifierBinding.parent.get('init');
+			var varNameNodePath = identifierBinding.parent.get("id");
+			var varValueNodePath = identifierBinding.parent.get("init");
 
 			if (isNamespaceAlias(varNameNodePath, varValueNodePath, namespaceRoots)) {
 				return varValueNodePath;
@@ -131,19 +146,40 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
  *                                                       remove on completion.
  */
 function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
-	for (let namespaceAlias of namespaceAliasBindingsToRemove) {
-		const parent = namespaceAlias.parent;
-		const aliasName = namespaceAlias.get('id', 'name').value;
-		const namespace = getNamespacePath(namespaceAlias.get('init').node, []).reverse().join('.');
+	var _iteratorNormalCompletion = true;
+	var _didIteratorError = false;
+	var _iteratorError = undefined;
 
-		namespaceAlias.replace();
+	try {
+		for (var _iterator = namespaceAliasBindingsToRemove[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+			var namespaceAlias = _step.value;
 
-		if (parent.get('declarations').value.length === 0) {
-			parent.replace();
+			var _parent = namespaceAlias.parent;
+			var aliasName = namespaceAlias.get("id", "name").value;
+			var namespace = getNamespacePath(namespaceAlias.get("init").node, []).reverse().join(".");
+
+			namespaceAlias.replace();
+
+			if (_parent.get("declarations").value.length === 0) {
+				_parent.replace();
+			}
+
+			// eslint-disable-next-line
+			console.log("References to", aliasName, "have been expanded to", namespace);
 		}
-
-		// eslint-disable-next-line
-		console.log('References to', aliasName, 'have been expanded to', namespace);
+	} catch (err) {
+		_didIteratorError = true;
+		_iteratorError = err;
+	} finally {
+		try {
+			if (!_iteratorNormalCompletion && _iterator["return"]) {
+				_iterator["return"]();
+			}
+		} finally {
+			if (_didIteratorError) {
+				throw _iteratorError;
+			}
+		}
 	}
 }
 
@@ -159,9 +195,9 @@ function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
  * @param {string} identifierName - Name of identifier.
  */
 function addIdentifierAssignments(identifierBindings, identifierScopeNodePath, identifierName) {
-	const assignmentVisitor = {
-		visitAssignmentExpression(assignmentExpressionNodePath) {
-			const leftSide = assignmentExpressionNodePath.value.left;
+	var assignmentVisitor = {
+		visitAssignmentExpression: function visitAssignmentExpression(assignmentExpressionNodePath) {
+			var leftSide = assignmentExpressionNodePath.value.left;
 
 			if (leftSide.name === identifierName && !identifierBindings.includes(leftSide)) {
 				identifierBindings.push(leftSide);

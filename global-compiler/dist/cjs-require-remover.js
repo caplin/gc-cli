@@ -1,5 +1,10 @@
-const builders = require('recast').types.builders;
-const namedTypes = require('recast').types.namedTypes;
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+var builders = require("recast").types.builders;
+var namedTypes = require("recast").types.namedTypes;
 
 /**
  * SpiderMonkey AST node.
@@ -19,18 +24,18 @@ const namedTypes = require('recast').types.namedTypes;
 /**
  * Removes all CJS module ids in the provided `moduleIdsToRemove` `Set`.
  */
-export const cjsRequireRemoverVisitor = {
+var cjsRequireRemoverVisitor = {
 	/**
   * @param {Set<string>} moduleIdsToRemove - The module requires to remove.
   */
-	initialize(moduleIdsToRemove) {
+	initialize: function initialize(moduleIdsToRemove) {
 		this._moduleIdsToRemove = moduleIdsToRemove;
 	},
 
 	/**
   * @param {NodePath} variableDeclarationNodePath - VariableDeclaration NodePath.
   */
-	visitVariableDeclaration(variableDeclarationNodePath) {
+	visitVariableDeclaration: function visitVariableDeclaration(variableDeclarationNodePath) {
 		if (isARequireThatMustBeRemoved(variableDeclarationNodePath, this._moduleIdsToRemove)) {
 			variableDeclarationNodePath.replace();
 		}
@@ -39,6 +44,7 @@ export const cjsRequireRemoverVisitor = {
 	}
 };
 
+exports.cjsRequireRemoverVisitor = cjsRequireRemoverVisitor;
 /**
  * Checks if the given Node Path is for a require statement that should be removed.
  *
@@ -46,17 +52,17 @@ export const cjsRequireRemoverVisitor = {
  * @param {Set<string>} moduleIdsToRemove - The module require Ids to remove.
  */
 function isARequireThatMustBeRemoved(variableDeclarationNodePath, moduleIdsToRemove) {
-	const varDeclarations = variableDeclarationNodePath.get('declarations');
-	const varDeclarator = varDeclarations.get(0);
-	const varInit = varDeclarator.get('init');
+	var varDeclarations = variableDeclarationNodePath.get("declarations");
+	var varDeclarator = varDeclarations.get(0);
+	var varInit = varDeclarator.get("init");
 
 	if (namedTypes.CallExpression.check(varInit.node)) {
-		const varCallee = varInit.get('callee');
-		const moduleIdNodePath = varInit.get('arguments', 0);
+		var varCallee = varInit.get("callee");
+		var moduleIdNodePath = varInit.get("arguments", 0);
 
-		const isRequireCall = varCallee.node.name === 'require';
-		const hasOnlyOneVarDeclarator = varDeclarations.value.length === 1;
-		const isModuleToRemove = moduleIdsToRemove.has(moduleIdNodePath.node.value);
+		var isRequireCall = varCallee.node.name === "require";
+		var hasOnlyOneVarDeclarator = varDeclarations.value.length === 1;
+		var isModuleToRemove = moduleIdsToRemove.has(moduleIdNodePath.node.value);
 
 		return isRequireCall && hasOnlyOneVarDeclarator && isModuleToRemove;
 	}

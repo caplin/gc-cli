@@ -1,16 +1,23 @@
-import { types } from 'recast';
-import { log } from 'winston';
+"use strict";
 
-import { createRequireDeclaration } from './utils/utilities';
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-const { builders: { expressionStatement } } = types;
+var types = require("recast").types;
+
+var log = require("winston").log;
+
+var createRequireDeclaration = require("./utils/utilities").createRequireDeclaration;
+
+var expressionStatement = types.builders.expressionStatement;
 
 /**
  * Add requires for any aliases found in the module strings. The requires are in the
  * `require(alias!found-alias)` form.
  */
-export const addAliasesRequiresVisitor = {
-	initialize(availableAliases) {
+var addAliasesRequiresVisitor = {
+	initialize: function initialize(availableAliases) {
 		this._aliasesInModule = new Set();
 		this._availableAliases = availableAliases;
 	},
@@ -18,13 +25,34 @@ export const addAliasesRequiresVisitor = {
 	/**
   * @param {NodePath} literalNodePath - Literal NodePath.
   */
-	visitLiteral(literalNodePath) {
-		const literalValue = literalNodePath.get('value').value;
+	visitLiteral: function visitLiteral(literalNodePath) {
+		var literalValue = literalNodePath.get("value").value;
 
-		if (typeof literalValue === 'string') {
-			for (let availableAlias of this._availableAliases) {
-				if (literalValue.includes(availableAlias)) {
-					this._aliasesInModule.add(availableAlias);
+		if (typeof literalValue === "string") {
+			var _iteratorNormalCompletion = true;
+			var _didIteratorError = false;
+			var _iteratorError = undefined;
+
+			try {
+				for (var _iterator = this._availableAliases[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+					var availableAlias = _step.value;
+
+					if (literalValue.includes(availableAlias)) {
+						this._aliasesInModule.add(availableAlias);
+					}
+				}
+			} catch (err) {
+				_didIteratorError = true;
+				_iteratorError = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion && _iterator["return"]) {
+						_iterator["return"]();
+					}
+				} finally {
+					if (_didIteratorError) {
+						throw _iteratorError;
+					}
 				}
 			}
 		}
@@ -35,19 +63,41 @@ export const addAliasesRequiresVisitor = {
 	/**
   * @param {NodePath} programNodePath - Program NodePath.
   */
-	visitProgram(programNodePath) {
+	visitProgram: function visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
-		const programStatements = programNodePath.get('body').value;
+		var programStatements = programNodePath.get("body").value;
 
-		for (let aliasInModule of this._aliasesInModule) {
-			const moduleSource = `alias!${ aliasInModule }`;
-			const requireCall = createRequireDeclaration(undefined, moduleSource);
-			const requireExpressionStatement = expressionStatement(requireCall);
+		var _iteratorNormalCompletion = true;
+		var _didIteratorError = false;
+		var _iteratorError = undefined;
 
-			log(`Adding ${ moduleSource } require.`);
+		try {
+			for (var _iterator = this._aliasesInModule[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				var aliasInModule = _step.value;
 
-			programStatements.unshift(requireExpressionStatement);
+				var moduleSource = "alias!" + aliasInModule;
+				var requireCall = createRequireDeclaration(undefined, moduleSource);
+				var requireExpressionStatement = expressionStatement(requireCall);
+
+				log("Adding " + moduleSource + " require.");
+
+				programStatements.unshift(requireExpressionStatement);
+			}
+		} catch (err) {
+			_didIteratorError = true;
+			_iteratorError = err;
+		} finally {
+			try {
+				if (!_iteratorNormalCompletion && _iterator["return"]) {
+					_iterator["return"]();
+				}
+			} finally {
+				if (_didIteratorError) {
+					throw _iteratorError;
+				}
+			}
 		}
 	}
 };
+exports.addAliasesRequiresVisitor = addAliasesRequiresVisitor;

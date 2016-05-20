@@ -6,9 +6,36 @@
  * that will be used to transform the provided NodePath.
  * @returns {Function} Function that will transform a provided NodePath.
  */
-export function composeTransformers(...transforms) {
-  return nodePath => {
-    transforms.reduce((previousNodePath, transform) => {
+"use strict";
+
+exports.composeTransformers = composeTransformers;
+
+/**
+ * Returns a function that when provided with a NodePath will return it's parent.
+ *
+ * @returns {Function} Will return a NodePath's parent.
+ */
+exports.extractParent = extractParent;
+
+/**
+ * Returns a function that when provided with a NodePath will extract the
+ * requested child NodePath.
+ *
+ * @param   {(string|number)[]} ...properties Properties to extract.
+ * @returns {Function}          Child NodePath extractor.
+ */
+exports.extractProperties = extractProperties;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function composeTransformers() {
+  for (var _len = arguments.length, transforms = Array(_len), _key = 0; _key < _len; _key++) {
+    transforms[_key] = arguments[_key];
+  }
+
+  return function (nodePath) {
+    transforms.reduce(function (previousNodePath, transform) {
       if (transform instanceof Function) {
         return transform(previousNodePath);
       } else {
@@ -20,22 +47,18 @@ export function composeTransformers(...transforms) {
   };
 }
 
-/**
- * Returns a function that when provided with a NodePath will return it's parent.
- *
- * @returns {Function} Will return a NodePath's parent.
- */
-export function extractParent() {
-  return nodePath => nodePath.parent;
+function extractParent() {
+  return function (nodePath) {
+    return nodePath.parent;
+  };
 }
 
-/**
- * Returns a function that when provided with a NodePath will extract the
- * requested child NodePath.
- *
- * @param   {(string|number)[]} ...properties Properties to extract.
- * @returns {Function}          Child NodePath extractor.
- */
-export function extractProperties(...properties) {
-  return nodePath => nodePath.get(...properties);
+function extractProperties() {
+  for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
+    properties[_key] = arguments[_key];
+  }
+
+  return function (nodePath) {
+    return nodePath.get.apply(nodePath, properties);
+  };
 }

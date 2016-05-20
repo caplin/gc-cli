@@ -1,9 +1,21 @@
-import { composeMatchers, identifierMatcher, callExpressionMatcher, memberExpressionMatcher } from '../../../global-compiler';
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _globalCompiler = require("../../../global-compiler");
+
+var composeMatchers = _globalCompiler.composeMatchers;
+var identifierMatcher = _globalCompiler.identifierMatcher;
+var callExpressionMatcher = _globalCompiler.callExpressionMatcher;
+var memberExpressionMatcher = _globalCompiler.memberExpressionMatcher;
 
 // Matches caplin.core.ServiceRegistry.getService('service')
-const getServiceMatcher = composeMatchers(identifierMatcher('caplin'), memberExpressionMatcher({ property: identifierMatcher('core') }), memberExpressionMatcher({ property: identifierMatcher('ServiceRegistry') }), memberExpressionMatcher({ property: identifierMatcher('getService') }), callExpressionMatcher());
+var getServiceMatcher = composeMatchers(identifierMatcher("caplin"), memberExpressionMatcher({ property: identifierMatcher("core") }), memberExpressionMatcher({ property: identifierMatcher("ServiceRegistry") }), memberExpressionMatcher({ property: identifierMatcher("getService") }), callExpressionMatcher());
 
 // Map<string, Function> matchers to test NodePaths against
-export const getServiceMatchers = new Map();
+var getServiceMatchers = new Map();
 
-getServiceMatchers.set('Identifier', getServiceMatcher);
+exports.getServiceMatchers = getServiceMatchers;
+getServiceMatchers.set("Identifier", getServiceMatcher);

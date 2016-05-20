@@ -1,22 +1,32 @@
-import { types } from 'recast';
+"use strict";
 
-const {
-	namedTypes: { CallExpression, ExpressionStatement, Identifier, Literal, MemberExpression, VariableDeclarator }
-} = types;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var types = require("recast").types;
+
+var _types$namedTypes = types.namedTypes;
+var CallExpression = _types$namedTypes.CallExpression;
+var ExpressionStatement = _types$namedTypes.ExpressionStatement;
+var Identifier = _types$namedTypes.Identifier;
+var Literal = _types$namedTypes.Literal;
+var MemberExpression = _types$namedTypes.MemberExpression;
+var VariableDeclarator = _types$namedTypes.VariableDeclarator;
 
 /**
  * Removes redundant requires from modules, e.g. requires that don't bind a module variable if there is a
  * require for the same module that does bind one.
  */
-export const removeRedundantRequiresVisitor = {
-	initialize() {
+var removeRedundantRequiresVisitor = {
+	initialize: function initialize() {
 		this._moduleRequires = new Map();
 	},
 
 	/**
   * @param {NodePath} callExpressionNodePath - VariableDeclaration NodePath.
   */
-	visitCallExpression(callExpressionNodePath) {
+	visitCallExpression: function visitCallExpression(callExpressionNodePath) {
 		storeRequireCalls(callExpressionNodePath, this._moduleRequires);
 
 		this.traverse(callExpressionNodePath);
@@ -25,13 +35,14 @@ export const removeRedundantRequiresVisitor = {
 	/**
   * @param {NodePath} programNodePath - Program NodePath.
   */
-	visitProgram(programNodePath) {
+	visitProgram: function visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
 		sortRequiresAndPruneRedundantRequires(this._moduleRequires);
 	}
 };
 
+exports.removeRedundantRequiresVisitor = removeRedundantRequiresVisitor;
 /**
  * Checks if the given Node Path is a require statement.
  *
@@ -39,10 +50,10 @@ export const removeRedundantRequiresVisitor = {
  * @returns {boolean}
  */
 function isARequire(callExpressionNodePath) {
-	const args = callExpressionNodePath.get('arguments').value;
-	const argumentsAreOK = args.length === 1 && Literal.check(args[0]);
-	const callee = callExpressionNodePath.get('callee');
-	const calleeIsOK = callee.node.name === 'require' && Identifier.check(callee.node);
+	var args = callExpressionNodePath.get("arguments").value;
+	var argumentsAreOK = args.length === 1 && Literal.check(args[0]);
+	var callee = callExpressionNodePath.get("callee");
+	var calleeIsOK = callee.node.name === "require" && Identifier.check(callee.node);
 
 	return argumentsAreOK && calleeIsOK;
 }
@@ -54,7 +65,7 @@ function isARequire(callExpressionNodePath) {
  * @return {string}
  */
 function getModuleSource(callExpressionNodePath) {
-	const args = callExpressionNodePath.get('arguments').value;
+	var args = callExpressionNodePath.get("arguments").value;
 
 	return args[0].value;
 }
@@ -67,8 +78,8 @@ function getModuleSource(callExpressionNodePath) {
  */
 function storeRequireCalls(callExpressionNodePath, moduleRequires) {
 	if (isARequire(callExpressionNodePath)) {
-		const moduleSource = getModuleSource(callExpressionNodePath);
-		const moduleSourceRequires = moduleRequires.get(moduleSource) || [];
+		var moduleSource = getModuleSource(callExpressionNodePath);
+		var moduleSourceRequires = moduleRequires.get(moduleSource) || [];
 
 		moduleSourceRequires.push(callExpressionNodePath);
 		moduleRequires.set(moduleSource, moduleSourceRequires);
@@ -82,11 +93,11 @@ function storeRequireCalls(callExpressionNodePath, moduleRequires) {
  * @return {string}
  */
 function getImportSpecifier(requireCallExpressionNodePath) {
-	const parentNode = requireCallExpressionNodePath.parentPath.node;
+	var parentNode = requireCallExpressionNodePath.parentPath.node;
 
 	if (ExpressionStatement.check(parentNode)) {
 		// A stand alone require, default import e.g. `require('mylib')`.
-		return 'default';
+		return "default";
 	}
 
 	if (MemberExpression.check(parentNode)) {
@@ -96,7 +107,7 @@ function getImportSpecifier(requireCallExpressionNodePath) {
 
 	if (VariableDeclarator.check(parentNode)) {
 		// Default import that's bound to a variable e.g. `var lib = require('mylib')`.
-		return 'default';
+		return "default";
 	}
 }
 
@@ -107,11 +118,11 @@ function getImportSpecifier(requireCallExpressionNodePath) {
  * @return {string}
  */
 function getModuleLocalImportBinding(requireCallExpressionNodePath) {
-	const parentNode = requireCallExpressionNodePath.parentPath.node;
+	var parentNode = requireCallExpressionNodePath.parentPath.node;
 
 	if (ExpressionStatement.check(parentNode)) {
 		// A stand alone require with no local binding, default import e.g. `require('mylib')`.
-		return '';
+		return "";
 	}
 
 	if (MemberExpression.check(parentNode)) {
@@ -133,11 +144,32 @@ function getModuleLocalImportBinding(requireCallExpressionNodePath) {
  * @param  {Map<string, Array<NodePath>>} requireMetadataToRequireNodePaths
  */
 function pruneRedundantRequires(requireMetadataToRequireNodePaths) {
-	const moduleRequiresWithNoBindings = requireMetadataToRequireNodePaths.get('default');
+	var moduleRequiresWithNoBindings = requireMetadataToRequireNodePaths.get("default");
 
 	if (requireMetadataToRequireNodePaths.size > 1 && moduleRequiresWithNoBindings) {
-		for (let unboundRequire of moduleRequiresWithNoBindings) {
-			unboundRequire.prune();
+		var _iteratorNormalCompletion = true;
+		var _didIteratorError = false;
+		var _iteratorError = undefined;
+
+		try {
+			for (var _iterator = moduleRequiresWithNoBindings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				var unboundRequire = _step.value;
+
+				unboundRequire.prune();
+			}
+		} catch (err) {
+			_didIteratorError = true;
+			_iteratorError = err;
+		} finally {
+			try {
+				if (!_iteratorNormalCompletion && _iterator["return"]) {
+					_iterator["return"]();
+				}
+			} finally {
+				if (_didIteratorError) {
+					throw _iteratorError;
+				}
+			}
 		}
 	}
 }
@@ -149,10 +181,10 @@ function pruneRedundantRequires(requireMetadataToRequireNodePaths) {
  * @param  {Map<string, Array<NodePath>>} requireMetadataToRequireNodePaths
  */
 function groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths) {
-	const importSpecifier = getImportSpecifier(callExpressionNodePath);
-	const moduleLocalImportBinding = getModuleLocalImportBinding(callExpressionNodePath);
-	const requireMetadata = importSpecifier + moduleLocalImportBinding;
-	const callExpressionsForSpecificRequire = requireMetadataToRequireNodePaths.get(requireMetadata) || [];
+	var importSpecifier = getImportSpecifier(callExpressionNodePath);
+	var moduleLocalImportBinding = getModuleLocalImportBinding(callExpressionNodePath);
+	var requireMetadata = importSpecifier + moduleLocalImportBinding;
+	var callExpressionsForSpecificRequire = requireMetadataToRequireNodePaths.get(requireMetadata) || [];
 
 	callExpressionsForSpecificRequire.push(callExpressionNodePath);
 	requireMetadataToRequireNodePaths.set(requireMetadata, callExpressionsForSpecificRequire);
@@ -165,7 +197,7 @@ function groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequ
  * @return {boolean}
  */
 function filterInlineCalls(requireCallExpressionNodePath) {
-	let currentNodePath = requireCallExpressionNodePath.parentPath;
+	var currentNodePath = requireCallExpressionNodePath.parentPath;
 
 	while (MemberExpression.check(currentNodePath.node)) {
 		currentNodePath = currentNodePath.parentPath;
@@ -185,17 +217,59 @@ function filterInlineCalls(requireCallExpressionNodePath) {
  */
 function sortRequiresAndPruneRedundantRequires(moduleRequires) {
 	// For all the requires for a specific module source.
-	for (let callExpressionNodePaths of moduleRequires.values()) {
-		const requireMetadataToRequireNodePaths = new Map();
+	var _iteratorNormalCompletion = true;
+	var _didIteratorError = false;
+	var _iteratorError = undefined;
 
-		// Group the requires by their metadata.
-		for (let callExpressionNodePath of callExpressionNodePaths) {
-			if (filterInlineCalls(callExpressionNodePath)) {
-				groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths);
+	try {
+		for (var _iterator = moduleRequires.values()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+			var callExpressionNodePaths = _step.value;
+
+			var requireMetadataToRequireNodePaths = new Map();
+
+			// Group the requires by their metadata.
+			var _iteratorNormalCompletion2 = true;
+			var _didIteratorError2 = false;
+			var _iteratorError2 = undefined;
+
+			try {
+				for (var _iterator2 = callExpressionNodePaths[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var callExpressionNodePath = _step2.value;
+
+					if (filterInlineCalls(callExpressionNodePath)) {
+						groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths);
+					}
+				}
+			} catch (err) {
+				_didIteratorError2 = true;
+				_iteratorError2 = err;
+			} finally {
+				try {
+					if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+						_iterator2["return"]();
+					}
+				} finally {
+					if (_didIteratorError2) {
+						throw _iteratorError2;
+					}
+				}
+			}
+
+			// Remove any requires for a module source that are superfluous.
+			pruneRedundantRequires(requireMetadataToRequireNodePaths);
+		}
+	} catch (err) {
+		_didIteratorError = true;
+		_iteratorError = err;
+	} finally {
+		try {
+			if (!_iteratorNormalCompletion && _iterator["return"]) {
+				_iterator["return"]();
+			}
+		} finally {
+			if (_didIteratorError) {
+				throw _iteratorError;
 			}
 		}
-
-		// Remove any requires for a module source that are superfluous.
-		pruneRedundantRequires(requireMetadataToRequireNodePaths);
 	}
 }

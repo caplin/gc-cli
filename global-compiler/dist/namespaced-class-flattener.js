@@ -1,22 +1,27 @@
-import { types } from 'recast';
-import { List } from 'immutable';
+"use strict";
 
-import { isNamespacedExpressionNode } from './utils/utilities';
+var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
 
-const {
-	namedTypes: {
-		ObjectExpression,
-		MemberExpression,
-		FunctionExpression,
-		AssignmentExpression
-	},
-	builders: {
-		identifier,
-		variableDeclarator,
-		variableDeclaration,
-		functionDeclaration
-	}
-} = types;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var types = require("recast").types;
+
+var List = require("immutable").List;
+
+var isNamespacedExpressionNode = require("./utils/utilities").isNamespacedExpressionNode;
+
+var _types$namedTypes = types.namedTypes;
+var ObjectExpression = _types$namedTypes.ObjectExpression;
+var MemberExpression = _types$namedTypes.MemberExpression;
+var FunctionExpression = _types$namedTypes.FunctionExpression;
+var AssignmentExpression = _types$namedTypes.AssignmentExpression;
+var _types$builders = types.builders;
+var identifier = _types$builders.identifier;
+var variableDeclarator = _types$builders.variableDeclarator;
+var variableDeclaration = _types$builders.variableDeclaration;
+var functionDeclaration = _types$builders.functionDeclaration;
 
 /**
  * Flattens all Expression trees that match the provided fully qualified class name. They will be
@@ -34,23 +39,23 @@ const {
  *
  * MyClass.protoype.myMethod = function(){};
  */
-export const namespacedClassFlattenerVisitor = {
+var namespacedClassFlattenerVisitor = {
 
 	/**
   * @param {string} fullyQualifiedName The fully qualified class name
   */
-	initialize(fullyQualifiedName) {
-		const nameParts = fullyQualifiedName.split('.').reverse();
+	initialize: function initialize(fullyQualifiedName) {
+		var nameParts = fullyQualifiedName.split(".").reverse();
 
-		this._namespaceList = List.of(...nameParts);
+		this._namespaceList = List.of.apply(List, _toConsumableArray(nameParts));
 		this._className = this._namespaceList.first();
 	},
 
 	/**
   * @param {NodePath} identifierNodePath Identifier NodePath
   */
-	visitIdentifier(identifierNodePath) {
-		const { parent } = identifierNodePath;
+	visitIdentifier: function visitIdentifier(identifierNodePath) {
+		var parent = identifierNodePath.parent;
 
 		if (isClassNamespaceLeaf(identifierNodePath, parent, this._namespaceList)) {
 			replaceClassNamespaceWithIdentifier(parent, identifierNodePath.node, this._className);
@@ -60,6 +65,7 @@ export const namespacedClassFlattenerVisitor = {
 	}
 };
 
+exports.namespacedClassFlattenerVisitor = namespacedClassFlattenerVisitor;
 /**
  * Checks if identifier is the leaf of class namespaced expression. The leaf being the class name.
  *
@@ -70,8 +76,8 @@ export const namespacedClassFlattenerVisitor = {
  */
 function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, namespaceList) {
 	// Is the identifier being tested the leaf of an expression
-	const isIdentifierLeafNode = identifierParentNodePath.get('property') === identifierNodePath;
-	const isClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
+	var isIdentifierLeafNode = identifierParentNodePath.get("property") === identifierNodePath;
+	var isClassNamespace = isNamespacedExpressionNode(identifierParentNodePath.node, namespaceList);
 
 	return isClassNamespace && isIdentifierLeafNode;
 }
@@ -82,19 +88,19 @@ function isClassNamespaceLeaf(identifierNodePath, identifierParentNodePath, name
  * @param {string}   className               The class name
  */
 function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameIdentifierNode, className) {
-	const grandParent = namespacedClassNodePath.parent;
+	var grandParent = namespacedClassNodePath.parent;
 
 	// Is the namespaced expression a class constructor
 	if (AssignmentExpression.check(grandParent.node) && FunctionExpression.check(grandParent.node.right)) {
-		const constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
+		var constructorFunctionDeclaration = createConstructorFunctionDeclaration(grandParent.node, className);
 
 		// Move the constructor comments onto the function declaration that replaces it
 		constructorFunctionDeclaration.comments = grandParent.parent.node.comments;
 		grandParent.parent.replace(constructorFunctionDeclaration);
 	} else if (AssignmentExpression.check(grandParent.node) && (ObjectExpression.check(grandParent.node.right) || MemberExpression.check(grandParent.node.right))) {
 		// Is the namespaced expression an object literal i.e. my.name.MyClass = {}
-		const classVariableDeclarator = variableDeclarator(classNameIdentifierNode, grandParent.node.right);
-		const classVariableDeclaration = variableDeclaration('var', [classVariableDeclarator]);
+		var classVariableDeclarator = variableDeclarator(classNameIdentifierNode, grandParent.node.right);
+		var classVariableDeclaration = variableDeclaration("var", [classVariableDeclarator]);
 
 		// Move the constructor comments onto the function declaration that replaces it
 		classVariableDeclaration.comments = grandParent.parent.node.comments;
@@ -103,7 +109,7 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
 		namespacedClassNodePath.replace(classNameIdentifierNode);
 	} else {
 		// eslint-disable-next-line
-		console.log('Namespaced expression not transformed, grandparent node type ::', grandParent.node.type);
+		console.log("Namespaced expression not transformed, grandparent node type ::", grandParent.node.type);
 	}
 }
 
@@ -115,8 +121,9 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
  * @returns {AstNode} Constructor function declaration
  */
 function createConstructorFunctionDeclaration(assignmentExpression, className) {
-	const { right: functionExpression } = assignmentExpression;
-	const classConstructorDeclaration = functionDeclaration(identifier(className), functionExpression.params, functionExpression.body);
+	var functionExpression = assignmentExpression.right;
+
+	var classConstructorDeclaration = functionDeclaration(identifier(className), functionExpression.params, functionExpression.body);
 
 	return classConstructorDeclaration;
 }

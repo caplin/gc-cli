@@ -1,8 +1,4 @@
-import { List } from 'immutable';
 
-import { compileTestAndSrcTestFiles } from './test-files-compiler';
-import { compileSourceFiles } from './src-files-compiler';
-import { findApplicationAliases } from './utils/utilities';
 
 /**
  * Options object.
@@ -24,10 +20,36 @@ import { findApplicationAliases } from './utils/utilities';
  * @returns {OptionsObject} An OptionsObject based on the provided CLI arguments
  */
 // eslint-disable-next-line
-export function createOptionsObject({ namespaces, compileTestFiles, removeRequires, outputDirectory, _ }) {
-	const optionsObject = {
-		namespaces: namespaces.split(','),
-		compileTestFiles,
+"use strict";
+
+exports.createOptionsObject = createOptionsObject;
+
+/**
+ * @param {OptionsObject} optionsObject - Options to configure transforms.
+ */
+exports.processFile = processFile;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var List = require("immutable").List;
+
+var compileTestAndSrcTestFiles = require("./test-files-compiler").compileTestAndSrcTestFiles;
+
+var compileSourceFiles = require("./src-files-compiler").compileSourceFiles;
+
+var findApplicationAliases = require("./utils/utilities").findApplicationAliases;
+
+function createOptionsObject(_ref) {
+	var namespaces = _ref.namespaces;
+	var compileTestFiles = _ref.compileTestFiles;
+	var removeRequires = _ref.removeRequires;
+	var outputDirectory = _ref.outputDirectory;
+	var _ = _ref._;
+
+	var optionsObject = {
+		namespaces: namespaces.split(","),
+		compileTestFiles: compileTestFiles,
 		moduleIDsToRemove: new Set([removeRequires])
 	};
 
@@ -36,24 +58,21 @@ export function createOptionsObject({ namespaces, compileTestFiles, removeRequir
 	optionsObject.filesToCompile = filesToCompile(_, compileTestFiles);
 
 	if (compileTestFiles) {
-		optionsObject.outputDirectory = outputDirectory || 'tests';
+		optionsObject.outputDirectory = outputDirectory || "tests";
 	} else {
-		optionsObject.outputDirectory = outputDirectory || 'src';
+		optionsObject.outputDirectory = outputDirectory || "src";
 	}
 
-	optionsObject.libraryIdentifiersToRequire = new Map([[List.of('emitr'), 'emitr'], [List.of('jQuery'), 'jquery'], [List.of('sinon'), 'sinonjs'], [List.of('queryString'), 'query-string'], [List.of('JsMockito'), 'jsmockito'], [List.of('JsHamcrest'), 'jshamcrest'], [List.of('Mock4JS'), 'mock4js'], [List.of('moment', '()', 'tz'), 'moment-timezone'], [List.of('moment'), 'momentjs'], [List.of('interact'), 'interact'], [List.of('openajax'), 'openajax']]);
+	optionsObject.libraryIdentifiersToRequire = new Map([[List.of("emitr"), "emitr"], [List.of("jQuery"), "jquery"], [List.of("sinon"), "sinonjs"], [List.of("queryString"), "query-string"], [List.of("JsMockito"), "jsmockito"], [List.of("JsHamcrest"), "jshamcrest"], [List.of("Mock4JS"), "mock4js"], [List.of("moment", "()", "tz"), "moment-timezone"], [List.of("moment"), "momentjs"], [List.of("interact"), "interact"], [List.of("openajax"), "openajax"]]);
 
-	optionsObject.libraryIncludesToRequire = new Set(['chosen', 'es6-shim', 'jqueryplugins', 'explorercanvas']);
-	optionsObject.libraryIncludeIterable = List.of('caplin', 'thirdparty');
+	optionsObject.libraryIncludesToRequire = new Set(["chosen", "es6-shim", "jqueryplugins", "explorercanvas"]);
+	optionsObject.libraryIncludeIterable = List.of("caplin", "thirdparty");
 	optionsObject.applicationAliases = findApplicationAliases();
 
 	return optionsObject;
 }
 
-/**
- * @param {OptionsObject} optionsObject - Options to configure transforms.
- */
-export function processFile(optionsObject) {
+function processFile(optionsObject) {
 	if (optionsObject.compileTestFiles) {
 		compileTestAndSrcTestFiles(optionsObject);
 	} else {
@@ -73,8 +92,8 @@ function filesToCompile(cliProvidedFiles, compileTestFiles) {
 	if (cliProvidedFiles.length > 0) {
 		return cliProvidedFiles;
 	} else if (compileTestFiles) {
-		return 'tests/**/*.js';
+		return "tests/**/*.js";
 	}
 
-	return 'src/**/*.js';
+	return "src/**/*.js";
 }

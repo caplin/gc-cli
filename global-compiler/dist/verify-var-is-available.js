@@ -1,4 +1,10 @@
-import { calculateUniqueModuleVariableId } from './utils/utilities';
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var calculateUniqueModuleVariableId = require("./utils/utilities").calculateUniqueModuleVariableId;
 
 /**
  * SpiderMonkey AST node.
@@ -18,8 +24,8 @@ import { calculateUniqueModuleVariableId } from './utils/utilities';
 /**
  * Will find a free variation of a variable name for use within a module AST.
  */
-export const verifyVarIsAvailableVisitor = {
-	initialize() {
+var verifyVarIsAvailableVisitor = {
+	initialize: function initialize() {
 		this._identifiersInModuleScope = new Set();
 	},
 
@@ -29,14 +35,14 @@ export const verifyVarIsAvailableVisitor = {
   * @param {string} varName - variable name seed to search for a variation.
   * @returns {string} a unique variable name for the module.
   */
-	getFreeVariation(varName) {
+	getFreeVariation: function getFreeVariation(varName) {
 		return calculateUniqueModuleVariableId(varName, this._identifiersInModuleScope);
 	},
 
 	/**
   * @param {NodePath} functionDeclarationNodePath - Function Declaration NodePath.
   */
-	visitFunctionDeclaration(functionDeclarationNodePath) {
+	visitFunctionDeclaration: function visitFunctionDeclaration(functionDeclarationNodePath) {
 		this._identifiersInModuleScope.add(functionDeclarationNodePath.node.id.name);
 
 		this.traverse(functionDeclarationNodePath);
@@ -45,9 +51,10 @@ export const verifyVarIsAvailableVisitor = {
 	/**
   * @param {NodePath} variableDeclaratorNodePath - VariableDeclarator NodePath.
   */
-	visitVariableDeclarator(variableDeclaratorNodePath) {
+	visitVariableDeclarator: function visitVariableDeclarator(variableDeclaratorNodePath) {
 		this._identifiersInModuleScope.add(variableDeclaratorNodePath.node.id.name);
 
 		this.traverse(variableDeclaratorNodePath);
 	}
 };
+exports.verifyVarIsAvailableVisitor = verifyVarIsAvailableVisitor;

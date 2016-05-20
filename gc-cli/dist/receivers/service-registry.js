@@ -1,13 +1,20 @@
-import { getServiceTransformer } from '../transformers/service-registry';
+"use strict";
 
-export function getServiceNodesReceiver(matchedNodePaths) {
-	const getServiceExpressions = matchedNodePaths.get('Identifier') || [];
+exports.getServiceNodesReceiver = getServiceNodesReceiver;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-	getServiceExpressions.forEach(identifierNodePath => {
+var getServiceTransformer = require("../transformers/service-registry").getServiceTransformer;
+
+function getServiceNodesReceiver(matchedNodePaths) {
+	var getServiceExpressions = matchedNodePaths.get("Identifier") || [];
+
+	getServiceExpressions.forEach(function (identifierNodePath) {
 		// Get the service Literal NodePath - the service alias
-		const serviceLiteral = identifierNodePath.parent.parent.parent.parent.get('arguments', 0);
+		var serviceLiteral = identifierNodePath.parent.parent.parent.parent.get("arguments", 0);
 		// Create a transformer to replace the getService call with a `require(service!)`
-		const serviceTransformer = getServiceTransformer(serviceLiteral.value.value);
+		var serviceTransformer = getServiceTransformer(serviceLiteral.value.value);
 
 		serviceTransformer(identifierNodePath);
 	});
