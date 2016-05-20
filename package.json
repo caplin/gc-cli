@@ -3,10 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "lint": "eslint .",
-    "build": "npm run lint && npm run test && npm run compile",
-    "test": "cd global-compiler; npm t; cd ..; cd gc-cli; npm t",
-    "precompile": "cd global-compiler; npm run precompile; cd ..; cd gc-cli; npm run precompile",
-    "compile": "cd global-compiler; npm run compile; cd ..; cd gc-cli; npm run compile"
+    "build": "npm run lint && npm run test",
+    "test": "cd global-compiler; npm t; cd ..; cd gc-cli; npm t"
   },
   "repository": {
     "type": "git",
@@ -31,8 +29,7 @@
     "@briandipalma/eslint-config-bdp": "^8.3.0",
     "del": "^1.1.1",
     "eslint": "^2.10.2",
-    "mocha": "^2.1.0",
-    "rimraf": "^2.3.2"
+    "mocha": "^2.1.0"
   },
   "preferGlobal": true,
   "bin": "./gc-cli/bin/gc-cli.js"
