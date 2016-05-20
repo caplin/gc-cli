@@ -1,4 +1,5 @@
 import {types} from 'recast';
+import {warn} from 'winston';
 
 import {
 	createRequireDeclaration,
@@ -77,7 +78,7 @@ export const replaceLibraryIncludesWithRequiresVisitor = {
 	visitProgram(programNodePath) {
 		this.traverse(programNodePath);
 
-		for (let [callExpressionNodePath, libraryIncludeID] of this._libraryIncludesInModule) {
+		for (const [callExpressionNodePath, libraryIncludeID] of this._libraryIncludesInModule) {
 			if (this._moduleIDsRequiredInModule.has(libraryIncludeID)) {
 				callExpressionNodePath.parent.replace();
 			} else if (this._moduleIDsToRequire.includes(libraryIncludeID)) {
@@ -86,8 +87,7 @@ export const replaceLibraryIncludesWithRequiresVisitor = {
 				callExpressionNodePath.replace(libraryRequire);
 				this._moduleIDsRequiredInModule.add(libraryIncludeID);
 			} else {
-				// eslint-disable-next-line
-				console.log(`*** Library include for ${libraryIncludeID} has not been replaced with a require ***`);
+				warn(`Library include for ${libraryIncludeID} has not been replaced with a require`);
 			}
 		}
 	}

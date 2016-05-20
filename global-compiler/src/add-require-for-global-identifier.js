@@ -1,4 +1,3 @@
-import {log} from 'winston';
 import {types} from 'recast';
 
 import {createRequireDeclaration} from './utils/utilities';
@@ -104,7 +103,7 @@ function filterSequences(matchedGlobalIdentifiers, preexistingImportSpecifiers) 
 	// into a Set filters out duplicates.
 	const moduleSpecifiersToRequire = new Set();
 
-	for (let [, sequenceToRequire] of matchedGlobalIdentifiers) {
+	for (const [, sequenceToRequire] of matchedGlobalIdentifiers) {
 		const importSpecifierAlreadyPresent = preexistingImportSpecifiers.has(sequenceToRequire.first());
 
 		// If an import specifier already exists for the library don't add another require for it.
@@ -127,13 +126,11 @@ function addRequiresForGlobalIdentifiers(sequencesToRequire, identifiersToRequir
 	// If you have a match on the longer and a match on the shorter of two libraries using the same identifiers.
 	// The longer needs the shorter as it's a plugin so all you need to do is require the longer as it should
 	// require the shorter itself. The require statement will have a variable with a name equals to the shorter.
-	for (let sequenceToRequire of sequencesToRequire) {
+	for (const sequenceToRequire of sequencesToRequire) {
 		// 'sl4bdummy->SL4B_Accessor' allows the user to import `SL4B_Accessor` from `sl4bdummy`.
 		const [moduleSource, importSpecifier] = identifiersToRequire.get(sequenceToRequire).split('->');
 		const moduleIdentifier = identifier(sequenceToRequire.first());
 		const importDeclaration = createRequireDeclaration(moduleIdentifier, moduleSource, importSpecifier);
-
-		log(`Adding ${moduleSource} require with id ${moduleIdentifier} and export ${importSpecifier}`);
 
 		programStatements.unshift(importDeclaration);
 	}
@@ -168,7 +165,7 @@ export const addRequireForGlobalIdentifierVisitor = {
 	 * @param {NodePath} identifierNodePath Identifier NodePath
 	 */
 	visitIdentifier(identifierNodePath) {
-		for (let [identifierSequence] of this._identifiersToRequire) {
+		for (const [identifierSequence] of this._identifiersToRequire) {
 			if (isIdentifierToRequire(identifierNodePath, identifierSequence)) {
 				this._matchedGlobalIdentifiers.set(identifierNodePath, identifierSequence);
 			}

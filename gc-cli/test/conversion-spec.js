@@ -42,7 +42,11 @@ const expectedTest = readFileSync(`${expectedDirectory}expected-test.js`, fileOp
 const filesToCleanUp = ['output', 'test-output', '.js-style', join('tests', '.js-style')];
 
 describe('GlobalCompiler conversion', () => {
-	afterEach((done) => del(filesToCleanUp, (error) => done(error)));
+	afterEach((done) => {
+		del(filesToCleanUp)
+			.then(() => done())
+			.catch((error) => done(error));
+	});
 
 	it('should convert namespaced code into CJS.', (done) => {
 		// Given.

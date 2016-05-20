@@ -1,5 +1,3 @@
-/* eslint-disable no-invalid-this, func-names */
-
 import {
 	Iterable,
 	List
@@ -121,12 +119,11 @@ function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
  * @returns {Function} Stream transform implementation which parses JS files.
  */
 export function parseJSFile() {
-	return through2.obj(function(vinylFile, encoding, callback) {
+	return through2.obj((vinylFile, encoding, callback) => {
 		const fileAST = parse(vinylFile.contents.toString());
 
 		vinylFile.ast = fileAST;
-		this.push(vinylFile);
-		callback();
+		callback(null, vinylFile);
 	});
 }
 
@@ -137,9 +134,9 @@ export function parseJSFile() {
  * @returns {Function} Stream transform implementation which .
  */
 export function expandVarNamespaceAliases(rootNamespaces) {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		varNamespaceAliasExpanderVisitor.initialize(rootNamespaces);
-		transformASTAndPushToNextStream(fileMetadata, varNamespaceAliasExpanderVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, varNamespaceAliasExpanderVisitor, callback);
 	});
 }
 
@@ -150,9 +147,9 @@ export function expandVarNamespaceAliases(rootNamespaces) {
  * @returns {Function} Stream transform.
  */
 export function addAliasRequires(applicationAliases) {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		addAliasesRequiresVisitor.initialize(applicationAliases);
-		transformASTAndPushToNextStream(fileMetadata, addAliasesRequiresVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, addAliasesRequiresVisitor, callback);
 	});
 }
 
@@ -163,7 +160,7 @@ export function addAliasRequires(applicationAliases) {
  * @returns {Function} Stream transform implementation which transforms SLJS usage.
  */
 export function transformSLJSUsage() {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		// Verify that the streamlink variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
 		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
@@ -181,8 +178,7 @@ export function transformSLJSUsage() {
 		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
 		visit(fileMetadata.ast, addRequireForGlobalIdentifierVisitor);
 
-		this.push(fileMetadata);
-		callback();
+		callback(null, fileMetadata);
 	});
 }
 
@@ -194,11 +190,11 @@ export function transformSLJSUsage() {
  * @returns {Function} Stream transform implementation which replaces all global namespaced code with module references.
  */
 export function convertGlobalsToRequires(rootNamespaces, insertExport) {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		const className = getFileNamespaceParts(fileMetadata).pop();
 
 		rootNamespaceVisitor.initialize(rootNamespaces, fileMetadata.ast.program.body, className, insertExport);
-		transformASTAndPushToNextStream(fileMetadata, rootNamespaceVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, rootNamespaceVisitor, callback);
 	});
 }
 
@@ -208,9 +204,9 @@ export function convertGlobalsToRequires(rootNamespaces, insertExport) {
  * @returns {Function} Stream transform implementation which replaces caplin with topiarist classes.
  */
 export function transformClassesToUseTopiarist() {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		nodePathLocatorVisitor.initialize(caplinInheritanceMatchedNodesReceiver, caplinInheritanceMatchers);
-		transformASTAndPushToNextStream(fileMetadata, nodePathLocatorVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, nodePathLocatorVisitor, callback);
 	});
 }
 
@@ -221,9 +217,9 @@ export function transformClassesToUseTopiarist() {
  */
 export function transformGetServiceToRequire() {
 	// This transform expects all namespace aliases to be expanded.
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		nodePathLocatorVisitor.initialize(getServiceNodesReceiver, getServiceMatchers);
-		transformASTAndPushToNextStream(fileMetadata, nodePathLocatorVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, nodePathLocatorVisitor, callback);
 	});
 }
 
@@ -234,9 +230,9 @@ export function transformGetServiceToRequire() {
  * @returns {Function} Stream transform implementation which removes specified cjs requires.
  */
 export function removeCJSModuleRequires(moduleIDsToRemove) {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		cjsRequireRemoverVisitor.initialize(moduleIDsToRemove);
-		transformASTAndPushToNextStream(fileMetadata, cjsRequireRemoverVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, cjsRequireRemoverVisitor, callback);
 	});
 }
 
@@ -248,9 +244,9 @@ export function removeCJSModuleRequires(moduleIDsToRemove) {
  * @returns {Function} Stream transform.
  */
 export function addRequiresForLibraries(libraryIdentifiersToRequire) {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
-		transformASTAndPushToNextStream(fileMetadata, addRequireForGlobalIdentifierVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, addRequireForGlobalIdentifierVisitor, callback);
 	});
 }
 
@@ -274,7 +270,7 @@ export function addRequiresForCaplinBootstrap() {
  * @returns {Function} Stream transform implementation which replaces i18n usage with another library.
  */
 export function transformI18nUsage() {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		// Verify that the i18n variable is free to use in this module, if not generate a variation on it that is.
 		verifyVarIsAvailableVisitor.initialize();
 		visit(fileMetadata.ast, verifyVarIsAvailableVisitor);
@@ -295,8 +291,7 @@ export function transformI18nUsage() {
 		flattenMemberExpression.initialize(['br', 'I18n'], freeI18NVariation);
 		visit(fileMetadata.ast, flattenMemberExpression);
 
-		this.push(fileMetadata);
-		callback();
+		callback(null, fileMetadata);
 	});
 }
 
@@ -308,9 +303,9 @@ export function transformI18nUsage() {
  * @returns {Function} Stream transform implementation which replaces library includes with module requires.
  */
 export function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, libraryIncludeIterable) {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		replaceLibraryIncludesWithRequiresVisitor.initialize(libraryIncludesToRequire, libraryIncludeIterable);
-		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, replaceLibraryIncludesWithRequiresVisitor, callback);
 	});
 }
 
@@ -320,9 +315,9 @@ export function replaceLibraryIncludesWithRequires(libraryIncludesToRequire, lib
  * @returns {Function} Stream transform implementation which removes redundant requires.
  */
 export function pruneRedundantRequires() {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		removeRedundantRequiresVisitor.initialize();
-		transformASTAndPushToNextStream(fileMetadata, removeRedundantRequiresVisitor, this, callback);
+		transformASTAndPushToNextStream(fileMetadata, removeRedundantRequiresVisitor, callback);
 	});
 }
 
@@ -332,12 +327,11 @@ export function pruneRedundantRequires() {
  * @returns {Function} Stream transform implementation which sets parsed AST on `contents` of FileMetadata.
  */
 export function convertASTToBuffer() {
-	return through2.obj(function(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		const convertedCode = print(fileMetadata.ast, {wrapColumn: 120}).code;
 		const convertedCodeBuffer = new Buffer(convertedCode);
 
 		fileMetadata.contents = convertedCodeBuffer;
-		this.push(fileMetadata);
-		callback();
+		callback(null, fileMetadata);
 	});
 }

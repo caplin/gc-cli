@@ -4,28 +4,30 @@ import {dirname, join, sep} from 'path';
 import {parse} from 'elementtree';
 import {sync} from 'glob';
 import {visit} from 'recast';
+import {error} from 'winston';
+
+export function NO_OP() {
+	// Ignored callback.
+}
 
 /**
  * @param {FileMetadata} fileMetadata - File metadata for file being visited.
  * @param {Object} visitor - AST visitor.
- * @param {Object} streamTransform - Stream transform instance.
  * @param {Function} callback - Used to flush data down the stream.
  * @return {undefined}
  */
-export function transformASTAndPushToNextStream(fileMetadata, visitor, streamTransform, callback) {
+export function transformASTAndPushToNextStream(fileMetadata, visitor, callback) {
 	try {
 		visit(fileMetadata.ast, visitor);
-	} catch (error) {
-		console.error(visitor); // eslint-disable-line
-		console.error(fileMetadata); // eslint-disable-line
-		console.error(error); // eslint-disable-line
+	} catch (visitorError) {
+		error(visitor);
+		error(fileMetadata);
+		error(visitorError);
 
-		return callback(error);
+		return callback(visitorError);
 	}
 
-	streamTransform.push(fileMetadata);
-
-	return callback();
+	return callback(null, fileMetadata);
 }
 
 /**
@@ -89,7 +91,7 @@ function gatherApplicationAliases(brjsProjectRoot) {
 		.forEach((aliasDefinitionsXMLDoc) => {
 			const aliasDefinitionElements = aliasDefinitionsXMLDoc.findall('./alias');
 
-			for (let aliasDefinitionElement of aliasDefinitionElements) {
+			for (const aliasDefinitionElement of aliasDefinitionElements) {
 				applicationAliases.add(aliasDefinitionElement.get('name'));
 			}
 		});

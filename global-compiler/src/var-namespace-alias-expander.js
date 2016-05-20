@@ -2,6 +2,7 @@ import {
 	types,
 	visit
 } from 'recast';
+import {info} from 'winston';
 
 import {
 	getNamespacePath,
@@ -138,10 +139,12 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
  *                                                       remove on completion.
  */
 function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
-	for (let namespaceAlias of namespaceAliasBindingsToRemove) {
+	for (const namespaceAlias of namespaceAliasBindingsToRemove) {
 		const parent = namespaceAlias.parent;
 		const aliasName = namespaceAlias.get('id', 'name').value;
-		const namespace = getNamespacePath(namespaceAlias.get('init').node, []).reverse().join('.');
+		const namespace = getNamespacePath(namespaceAlias.get('init').node, [])
+			.reverse()
+			.join('.');
 
 		namespaceAlias.replace();
 
@@ -149,8 +152,7 @@ function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
 			parent.replace();
 		}
 
-		// eslint-disable-next-line
-		console.log('References to', aliasName, 'have been expanded to', namespace);
+		info(`References to ${aliasName} have been expanded to ${namespace}`);
 	}
 }
 

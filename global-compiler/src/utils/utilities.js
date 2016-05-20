@@ -34,6 +34,7 @@ export function isNamespacedExpressionNode(expressionNode, namespaceIterable) {
  *
  * @param {string} varName - variable name seed to search for a variation.
  * @param {Set<string>} moduleIdentifiers - all variable names declared in the module.
+ * @param {string[]} namespaceParts
  * @returns {string} a unique variable name for the module.
  */
 export function calculateUniqueModuleVariableId(varName, moduleIdentifiers, namespaceParts = []) {
@@ -96,6 +97,7 @@ export function getNamespacePath(namespaceExpressionNode, namespaceParts) {
 		namespaceParts.push(namespaceExpressionNode.name);
 	} else if (MemberExpression.check(namespaceExpressionNode)) {
 		namespaceParts.push(namespaceExpressionNode.property.name);
+
 		return getNamespacePath(namespaceExpressionNode.object, namespaceParts);
 	}
 

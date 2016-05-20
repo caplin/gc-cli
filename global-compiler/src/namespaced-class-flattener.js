@@ -1,5 +1,6 @@
-import {types} from 'recast';
 import {List} from 'immutable';
+import {types} from 'recast';
+import {warn} from 'winston';
 
 import {isNamespacedExpressionNode} from './utils/utilities';
 
@@ -103,8 +104,7 @@ function replaceClassNamespaceWithIdentifier(namespacedClassNodePath, classNameI
 	} else if (MemberExpression.check(namespacedClassNodePath.node)) {
 		namespacedClassNodePath.replace(classNameIdentifierNode);
 	} else {
-		// eslint-disable-next-line
-		console.log('Namespaced expression not transformed, grandparent node type ::', grandParent.node.type);
+		warn('Namespaced expression not transformed, grandparent node type ::', grandParent.node.type);
 	}
 }
 

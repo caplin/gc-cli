@@ -26,13 +26,10 @@ import {
 } from './common-transforms';
 
 import {
+	NO_OP,
 	getFileNamespace,
 	transformASTAndPushToNextStream
 } from './utils/utilities';
-
-function NO_OP() {
-	// Ignored callback.
-}
 
 /**
  * File metadata consists of a Vinyl file and an AST property.
@@ -86,7 +83,7 @@ function stripFauxCJSExports(fileMetadata, encoding, callback) {
 	const classNamespace = getFileNamespace(fileMetadata);
 	const removeClassNameClassExportVisitor = createRemoveClassNameClassExportVisitor(classNamespace);
 
-	transformASTAndPushToNextStream(fileMetadata, removeClassNameClassExportVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, removeClassNameClassExportVisitor, callback);
 }
 
 /**
@@ -101,7 +98,7 @@ function flattenIIFEClass(fileMetadata, encoding, callback) {
 	const classNamespace = getFileNamespace(fileMetadata);
 
 	iifeClassFlattenerVisitor.initialize(classNamespace);
-	transformASTAndPushToNextStream(fileMetadata, iifeClassFlattenerVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, iifeClassFlattenerVisitor, callback);
 }
 
 /**
@@ -116,7 +113,7 @@ function flattenClass(fileMetadata, encoding, callback) {
 	const classNamespace = getFileNamespace(fileMetadata);
 
 	namespacedClassFlattenerVisitor.initialize(classNamespace);
-	transformASTAndPushToNextStream(fileMetadata, namespacedClassFlattenerVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, namespacedClassFlattenerVisitor, callback);
 }
 
 /**
@@ -125,10 +122,9 @@ function flattenClass(fileMetadata, encoding, callback) {
  * @returns {Function} Stream transform implementation which formats JS files.
  */
 function formatCode() {
-	return through2.obj(function pushFormattedCode(fileMetadata, encoding, callback) {
+	return through2.obj((fileMetadata, encoding, callback) => {
 		// Format the transformed code, vinyl-fs needs file contents to be a Buffer
 		fileMetadata.contents = new Buffer(defaultFormatCode(fileMetadata.contents.toString()));
-		this.push(fileMetadata);
-		callback();
+		callback(null, fileMetadata);
 	});
 }

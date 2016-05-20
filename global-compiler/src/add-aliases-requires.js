@@ -1,5 +1,4 @@
 import {types} from 'recast';
-import {log} from 'winston';
 
 import {createRequireDeclaration} from './utils/utilities';
 
@@ -22,7 +21,7 @@ export const addAliasesRequiresVisitor = {
 		const literalValue = literalNodePath.get('value').value;
 
 		if (typeof literalValue === 'string') {
-			for (let availableAlias of this._availableAliases) {
+			for (const availableAlias of this._availableAliases) {
 				if (literalValue.includes(availableAlias)) {
 					this._aliasesInModule.add(availableAlias);
 				}
@@ -40,12 +39,10 @@ export const addAliasesRequiresVisitor = {
 
 		const programStatements = programNodePath.get('body').value;
 
-		for (let aliasInModule of this._aliasesInModule) {
+		for (const aliasInModule of this._aliasesInModule) {
 			const moduleSource = `alias!${aliasInModule}`;
 			const requireCall = createRequireDeclaration(undefined, moduleSource);
 			const requireExpressionStatement = expressionStatement(requireCall);
-
-			log(`Adding ${moduleSource} require.`);
 
 			programStatements.unshift(requireExpressionStatement);
 		}

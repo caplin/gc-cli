@@ -27,7 +27,7 @@ import {
 	replaceLibraryIncludesWithRequires
 } from './common-transforms';
 import {compileSourceFiles} from './src-files-compiler';
-import {transformASTAndPushToNextStream} from './utils/utilities';
+import {NO_OP, transformASTAndPushToNextStream} from './utils/utilities';
 
 /**
  * Options object.
@@ -80,7 +80,7 @@ function registerCaplinTestGlobals(options) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function requireFixtures(fileMetadata, encoding, callback) {
-	transformASTAndPushToNextStream(fileMetadata, requireFixturesVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, requireFixturesVisitor, callback);
 }
 
 /**
@@ -94,7 +94,7 @@ function requireFixtures(fileMetadata, encoding, callback) {
 function removeGlobalizeSourceModulesCall(fileMetadata, encoding, callback) {
 	const removeGlobalizeSourceModulesCallVisitor = createRemoveGlobalizeSourceModulesCallVisitor();
 
-	transformASTAndPushToNextStream(fileMetadata, removeGlobalizeSourceModulesCallVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, removeGlobalizeSourceModulesCallVisitor, callback);
 }
 
 /**
@@ -106,7 +106,7 @@ function removeGlobalizeSourceModulesCall(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function flattenProgramIIFE(fileMetadata, encoding, callback) {
-	transformASTAndPushToNextStream(fileMetadata, flattenProgramIIFEVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, flattenProgramIIFEVisitor, callback);
 }
 
 /**
@@ -118,7 +118,7 @@ function flattenProgramIIFE(fileMetadata, encoding, callback) {
  * @param {Function} callback - Called (takes optional error argument) when processing the supplied object is complete.
  */
 function wrapModuleInIIFE(fileMetadata, encoding, callback) {
-	transformASTAndPushToNextStream(fileMetadata, wrapModuleInIIFEVisitor, this, callback);
+	transformASTAndPushToNextStream(fileMetadata, wrapModuleInIIFEVisitor, callback);
 }
 
 /**
@@ -150,7 +150,7 @@ export function compileTestFiles(options) {
 		.pipe(convertASTToBuffer())
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', () => {
-			unlink(join(outputDirectory, '.js-style'), () => {});
+			unlink(join(outputDirectory, '.js-style'), NO_OP);
 		});
 }
 
