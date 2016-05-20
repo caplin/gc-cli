@@ -1,4 +1,3 @@
-import {shim} from 'array-includes';
 import {
 	types,
 	visit
@@ -10,8 +9,6 @@ import {
 } from './utils/utilities';
 
 const {namedTypes: {MemberExpression, VariableDeclarator}} = types;
-
-shim();
 
 /**
  * This transform will discover aliases to namespace paths, bound as vars, and when these aliases are
