@@ -1,3 +1,4 @@
+import {describe, it} from 'mocha';
 import {visit} from 'recast';
 
 import {wrapModuleInIIFEVisitor} from '../src/index';

@@ -23,6 +23,6 @@ export function getServiceTransformer(serviceAlias) {
 		identifier('require'),
 		extractParent(),
 		extractProperties('arguments', 0),
-		literal('service!' + serviceAlias)
+		literal(`service!${serviceAlias}`)
 	);
 }

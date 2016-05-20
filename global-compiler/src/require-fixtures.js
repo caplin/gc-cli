@@ -27,7 +27,7 @@ export const requireFixturesVisitor = {
 
 		const programStatements = programNodePath.get('body').value;
 
-		for (let fixturesCall of fixturesCalls) {
+		for (const fixturesCall of fixturesCalls) {
 			const fixture = fixturesCall.node.arguments[0].value;
 			const moduleSource = fixture.replace(/\./g, '/');
 			const moduleIdentifier = identifier(fixture.split('.').pop());

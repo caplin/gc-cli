@@ -1,7 +1,9 @@
 const fs = require('fs');
 const assert = require('assert');
 
+import {describe, it} from 'mocha';
 const {parse, print, visit} = require('recast');
+
 import {flattenMemberExpression} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
@@ -12,13 +14,13 @@ const givenAST = parse(givenCode);
 
 describe('Flatten member expression', function() {
 	it('should flatten all occurences of a member expression.', function() {
-		//Given.
+		// Given.
 		flattenMemberExpression.initialize(['some', 'call'], 'newcall');
 
-		//When.
+		// When.
 		visit(givenAST, flattenMemberExpression);
 
-		//Then.
+		// Then.
 		assert.equal(print(givenAST).code, expectedCode);
 	});
 });

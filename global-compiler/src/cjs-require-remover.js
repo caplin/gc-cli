@@ -1,4 +1,3 @@
-const builders = require('recast').types.builders;
 const namedTypes = require('recast').types.namedTypes;
 
 /**
@@ -20,6 +19,7 @@ const namedTypes = require('recast').types.namedTypes;
  * Removes all CJS module ids in the provided `moduleIdsToRemove` `Set`.
  */
 export const cjsRequireRemoverVisitor = {
+
 	/**
 	 * @param {Set<string>} moduleIdsToRemove - The module requires to remove.
 	 */
@@ -44,6 +44,7 @@ export const cjsRequireRemoverVisitor = {
  *
  * @param {NodePath} variableDeclarationNodePath - VariableDeclaration NodePath.
  * @param {Set<string>} moduleIdsToRemove - The module require Ids to remove.
+ * @returns {boolean}
  */
 function isARequireThatMustBeRemoved(variableDeclarationNodePath, moduleIdsToRemove) {
 	const varDeclarations = variableDeclarationNodePath.get('declarations');
@@ -52,7 +53,7 @@ function isARequireThatMustBeRemoved(variableDeclarationNodePath, moduleIdsToRem
 
 	if (namedTypes.CallExpression.check(varInit.node)) {
 		const varCallee = varInit.get('callee');
-		const moduleIdNodePath = varInit.get('arguments', 0)
+		const moduleIdNodePath = varInit.get('arguments', 0);
 
 		const isRequireCall = varCallee.node.name === 'require';
 		const hasOnlyOneVarDeclarator = varDeclarations.value.length === 1;

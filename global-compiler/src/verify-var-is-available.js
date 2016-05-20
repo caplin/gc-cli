@@ -50,4 +50,4 @@ export const verifyVarIsAvailableVisitor = {
 
 		this.traverse(variableDeclaratorNodePath);
 	}
-}
+};

@@ -1,7 +1,8 @@
 const fs = require('fs');
 const assert = require('assert');
 
-const {parse, visit} = require('recast');
+import {describe, it} from 'mocha';
+import {parse, visit} from 'recast';
 
 import {nodePathLocatorVisitor} from '../src/index';
 import {
@@ -33,22 +34,23 @@ const libIdentifierMatcher = composeMatchers(
 
 describe('node path locator', function() {
 	let actualMatches;
+
 	function matchedNodesReceiver(matchedNodePaths) {
 		actualMatches = matchedNodePaths;
 	}
 
 	it('should find matching require statements.', function() {
-		//Given.
+		// Given.
 		const matchers = new Map();
 
 		matchers.set('Literal', libLiteralMatcher);
 		matchers.set('Identifier', libIdentifierMatcher);
 		nodePathLocatorVisitor.initialize(matchedNodesReceiver, matchers);
 
-		//When.
+		// When.
 		visit(givenAST, nodePathLocatorVisitor);
 
-		//Then.
+		// Then.
 		assert.equal(actualMatches.size, 2);
 		assert(actualMatches.has('Literal'));
 		assert(actualMatches.has('Identifier'));

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const assert = require('assert');
 
+import {describe, it} from 'mocha';
 const {parse, print, visit} = require('recast');
 import {rootNamespaceVisitor} from '../src/index';
 
@@ -24,35 +25,35 @@ const givenIIFEConstructorAST = parse(givenIIFEConstructorCode);
 
 describe('Global to CJS conversion', function() {
 	it('should replace globals with CJS requires.', function() {
-		//Given.
+		// Given.
 		rootNamespaceVisitor.initialize(['my', 'other'], givenAST.program.body, 'SimpleClass');
 
-		//When.
+		// When.
 		visit(givenAST, rootNamespaceVisitor);
 
-		//Then.
+		// Then.
 		assert.equal(print(givenAST).code, expectedCode);
 	});
 
 	it('should replace globals with CJS requires but not add an export.', function() {
-		//Given.
+		// Given.
 		rootNamespaceVisitor.initialize(['my', 'other'], givenNoExportAST.program.body, 'SimpleClass', false);
 
-		//When.
+		// When.
 		visit(givenNoExportAST, rootNamespaceVisitor);
 
-		//Then.
+		// Then.
 		assert.equal(print(givenNoExportAST).code, expectedNoExportCode);
 	});
 
 	it('should not add an export if one is already present.', function() {
-		//Given.
+		// Given.
 		rootNamespaceVisitor.initialize(['my', 'other'], givenExportAST.program.body, 'SimpleClass');
 
-		//When.
+		// When.
 		visit(givenExportAST, rootNamespaceVisitor);
 
-		//Then.
+		// Then.
 		assert.equal(print(givenExportAST).code, expectedExportCode);
 	});
 

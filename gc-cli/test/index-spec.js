@@ -1,3 +1,5 @@
+/* eslint-disable id-length */
+
 import {
 	equal,
 	deepEqual

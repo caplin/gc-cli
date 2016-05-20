@@ -1,4 +1,4 @@
-import {getServiceTransformer} from '../transformers/service-registry'
+import {getServiceTransformer} from '../transformers/service-registry';
 
 export function getServiceNodesReceiver(matchedNodePaths) {
 	const getServiceExpressions = matchedNodePaths.get('Identifier') || [];

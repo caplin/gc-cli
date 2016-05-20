@@ -2,7 +2,7 @@ import {
 	composeMatchers,
 	identifierMatcher,
 	callExpressionMatcher,
-	memberExpressionMatcher,
+	memberExpressionMatcher
 } from '../../../global-compiler';
 
 // Matches caplin.core.ServiceRegistry.getService('service')

@@ -30,7 +30,7 @@ export function orMatchers(...matchers) {
 		const testNodePath = (matcher) => nodePath && matcher(nodePath);
 
 		if (matchers.some(testNodePath)) {
-			return nodePath.parent
+			return nodePath.parent;
 		}
 	};
 }
@@ -49,7 +49,7 @@ export function literalMatcher(value) {
 		if (Literal.check(node) && node.value === value) {
 			return parent;
 		}
-	}
+	};
 }
 
 /**
@@ -64,7 +64,7 @@ export function identifierMatcher(name) {
 		if (Identifier.check(node) && node.name === name) {
 			return parent;
 		}
-	}
+	};
 }
 
 /**
@@ -81,7 +81,7 @@ export function callExpressionMatcher({callee} = {callee: NOOP}) {
 		if (CallExpression.check(node) && callee(nodePath.get('callee'))) {
 			return parent;
 		}
-	}
+	};
 }
 
 /**
@@ -98,7 +98,7 @@ export function variableDeclaratorMatcher({id}) {
 		if (VariableDeclarator.check(node) && id(nodePath.get('id'))) {
 			return parent;
 		}
-	}
+	};
 }
 
 /**
@@ -115,7 +115,7 @@ export function memberExpressionMatcher({property, object = NOOP}) {
 		if (MemberExpression.check(node) && property(nodePath.get('property')) && object(nodePath.get('object'))) {
 			return parent;
 		}
-	}
+	};
 }
 
 /**
@@ -132,5 +132,5 @@ export function assignmentExpressionMatcher({right}) {
 		if (AssignmentExpression.check(node) && right(nodePath.get('right'))) {
 			return parent;
 		}
-	}
+	};
 }

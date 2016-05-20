@@ -1,7 +1,9 @@
 const fs = require('fs');
 const assert = require('assert');
 
+import {describe, it} from 'mocha';
 const {parse, print, visit} = require('recast');
+
 import {cjsRequireRemoverVisitor} from '../src/index';
 
 const fileOptions = {encoding: 'utf-8'};
@@ -12,14 +14,14 @@ const givenAST = parse(givenCode);
 
 describe('CJS require remover', function() {
 	it('should remove specified module ids.', function() {
-		//Given.
+		// Given.
 		var requiresToRemove = new Set(['my']);
 		cjsRequireRemoverVisitor.initialize(requiresToRemove);
 
-		//When.
+		// When.
 		visit(givenAST, cjsRequireRemoverVisitor);
 
-		//Then.
+		// Then.
 		assert.equal(print(givenAST).code, expectedCode);
 	});
 });
