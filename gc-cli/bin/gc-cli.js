@@ -3,9 +3,10 @@
 /* eslint-disable id-length, strict */
 'use strict';
 
+require('babel-register');
 const parseArgs = require('minimist');
 
-const gcCli = require('../dist/index');
+const gcCli = require('../src/index');
 
 const commandParseOptions = {
 	alias: {
