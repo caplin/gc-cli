@@ -27,10 +27,10 @@
     "winston": "^0.9.0"
   },
   "devDependencies": {
-    "@briandipalma/eslint-config-bdp": "^3.0.0",
+    "@briandipalma/eslint-config-bdp": "^8.3.0",
     "babel": "^4.6.3",
     "del": "^1.1.1",
-    "eslint": "^2.2.0",
+    "eslint": "^2.10.2",
     "mocha": "^2.1.0",
     "rimraf": "^2.3.2"
   },
