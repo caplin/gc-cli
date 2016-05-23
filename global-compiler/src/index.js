@@ -35,3 +35,4 @@ export {replaceLibraryIncludesWithRequiresVisitor} from './replace-library-inclu
 export {removeRedundantRequiresVisitor} from './remove-redundant-requires';
 export {requireFixturesVisitor} from './require-fixtures';
 export {addAliasesRequiresVisitor} from './add-aliases-requires';
+export {addInterfaceArgumentToEventHubVisitor} from './add-interface-argument-to-eventhub';

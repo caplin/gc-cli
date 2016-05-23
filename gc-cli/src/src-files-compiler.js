@@ -12,6 +12,7 @@ import {
 
 import {
 	addAliasRequires,
+	addInterfaceArgumentToEventHub,
 	parseJSFile,
 	transformSLJSUsage,
 	convertASTToBuffer,
@@ -51,6 +52,7 @@ export function compileSourceFiles(options) {
 		.src([options.filesToCompile, '!**/bundle.js'])
 		.pipe(parseJSFile())
 		.pipe(expandVarNamespaceAliases(options.namespaces))
+		.pipe(addInterfaceArgumentToEventHub())
 		.pipe(through2.obj(stripFauxCJSExports))
 		.pipe(through2.obj(flattenIIFEClass))
 		.pipe(through2.obj(flattenClass))

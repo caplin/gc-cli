@@ -12,6 +12,7 @@ import through2 from 'through2';
 
 import {
 	addAliasesRequiresVisitor,
+	addInterfaceArgumentToEventHubVisitor,
 	orMatchers,
 	literalMatcher,
 	composeMatchers,
@@ -128,10 +129,21 @@ export function parseJSFile() {
 }
 
 /**
+ * Add interface arguments to `EventHub` method calls.
+ *
+ * @returns {Function} Stream transform implementation which adds extra arguments to `getProxy\subscribe`.
+ */
+export function addInterfaceArgumentToEventHub() {
+	return through2.obj((fileMetadata, encoding, callback) => {
+		transformASTAndPushToNextStream(fileMetadata, addInterfaceArgumentToEventHubVisitor, callback);
+	});
+}
+
+/**
  * Expand any var namespace aliases used in the module.
  *
  * @param {string[]} rootNamespaces - Array of roots of namespaces.
- * @returns {Function} Stream transform implementation which .
+ * @returns {Function} Stream transform implementation which expands namespace aliases.
  */
 export function expandVarNamespaceAliases(rootNamespaces) {
 	return through2.obj((fileMetadata, encoding, callback) => {
