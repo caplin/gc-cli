@@ -3,7 +3,9 @@
 /* eslint-disable id-length, strict */
 'use strict';
 
-require('babel-register');
+require('babel-register')({
+	ignore: false
+});
 const parseArgs = require('minimist');
 
 const gcCli = require('../src/index');
