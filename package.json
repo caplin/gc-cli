@@ -30,6 +30,9 @@
     "eslint": "^2.10.2",
     "mocha": "^2.1.0"
   },
+  "engines": {
+    "node": ">=6"
+  },
   "preferGlobal": true,
   "bin": "./gc-cli/bin/gc-cli.js"
 }
