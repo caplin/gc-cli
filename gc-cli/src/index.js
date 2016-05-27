@@ -85,7 +85,7 @@ export function processFile(optionsObject) {
 function filesToCompile(cliProvidedFiles, compileTestFiles) {
 	// If the user provided some files via the CLI compile them
 	if (cliProvidedFiles.length > 0) {
-		return cliProvidedFiles;
+		return cliProvidedFiles[0];
 	} else if (compileTestFiles) {
 		return 'tests/**/*.js';
 	}

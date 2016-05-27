@@ -57,6 +57,12 @@ $ gc-cli -t
 
 Will format the `tests` directory.
 
+To convert JS patches cd into `js-patches` and run
+
+```bash
+$ gc-cli --outputDirectory=. "**/*.js"
+```
+
 #### Command line flags
 
 You can modify the default options using these options
