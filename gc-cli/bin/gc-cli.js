@@ -26,11 +26,11 @@ function versionCheckCallback(versionError, result) {
 	}
 }
 
-var options = {
+var versionCheckOptions = {
 	node: packageJson.engines.node
 };
 
-check(options, versionCheckCallback);
+check(versionCheckOptions, versionCheckCallback);
 
 require('babel-register')({
 	ignore: false
