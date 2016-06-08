@@ -8,6 +8,8 @@ my.long.name.space.SimpleClass = function() {
 			'caplin.trading.ticket.TicketLauncher',
 			'caplinx.launch.OrderTicket'
 		);
+
+	caplin.getFileContents();
 }
 
 caplin.extend(my.long.name.space.SimpleClass, my.long.name.space.SuperClass);

@@ -1,5 +1,6 @@
 'use strict';
 
+var caplin = require('caplin/Bootstrap');
 var Interface = require('my/long/Interface');
 var SuperClass = require('my/long/name/space/SuperClass');
 var topiarist = require('topiarist');
@@ -13,6 +14,8 @@ function SimpleClass() {
 
 	var proxy = require('service!caplin.event-service')
 		.getProxy('caplin.trading.ticket.TicketLauncher', 'caplinx.launch.OrderTicket', TicketLauncher);
+
+	caplin.getFileContents();
 }
 
 topiarist.extend(SimpleClass, SuperClass);

@@ -269,7 +269,7 @@ export function addRequiresForLibraries(libraryIdentifiersToRequire) {
  */
 export function addRequiresForCaplinBootstrap() {
 	const caplinBootstrapIdentifier = new Map([
-		[List.of('caplin'), 'caplinBootstrap']
+		[List.of('caplin'), 'caplin/Bootstrap']
 	]);
 
 	return addRequiresForLibraries(caplinBootstrapIdentifier);
