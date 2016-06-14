@@ -100,7 +100,7 @@ function caplinInheritanceMatchedNodesReceiver(matchedNodePaths) {
 	const [caplinRequireVarDeclaration] = matchedNodePaths.get('Literal') || [];
 	const caplinInheritanceExpressions = matchedNodePaths.get('Identifier') || [];
 
-	if (caplinInheritanceExpressions.length > 0) {
+	if (caplinInheritanceExpressions.length > 0 && caplinRequireVarDeclaration) {
 		caplinRequireTransformer(caplinRequireVarDeclaration);
 	} else if (caplinRequireVarDeclaration) {
 		caplinRequireVarDeclaration
