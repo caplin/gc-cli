@@ -1,10 +1,19 @@
-import {types} from 'recast';
+import {
+	types
+} from 'recast';
 
-import {createRequireDeclaration} from './utils/utilities';
+import {
+	createRequireDeclaration
+} from './utils/utilities';
 
 const {
-	builders: {identifier},
-	namedTypes: {MemberExpression, CallExpression}
+	builders: {
+		identifier
+	},
+	namedTypes: {
+		MemberExpression,
+		CallExpression
+	}
 } = types;
 
 /**
@@ -63,6 +72,8 @@ function getNextNodePath({parent: identifierParentNodePath}, identifierSequence)
 
 		return [object, remainingSequence];
 	}
+
+	return [];
 }
 
 /**
