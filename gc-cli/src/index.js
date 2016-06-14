@@ -1,8 +1,16 @@
-import {List} from 'immutable';
+import {
+	List
+} from 'immutable';
 
-import {compileTestAndSrcTestFiles} from './test-files-compiler';
-import {compileSourceFiles} from './src-files-compiler';
-import {findApplicationAliases} from './utils/utilities';
+import {
+	compileTestAndSrcTestFiles
+} from './test-files-compiler';
+import {
+	compileSourceFiles
+} from './src-files-compiler';
+import {
+	findApplicationAliases
+} from './utils/utilities';
 
 /**
  * Options object.
