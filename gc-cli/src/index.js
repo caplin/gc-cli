@@ -60,7 +60,8 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 		[List.of('moment', '()', 'tz'), 'moment-timezone'],
 		[List.of('moment'), 'momentjs'],
 		[List.of('interact'), 'interact'],
-		[List.of('openajax'), 'openajax']
+		[List.of('openajax'), 'openajax'],
+		[List.of('topiarist'), 'topiarist']
 	]);
 
 	optionsObject.libraryIncludesToRequire = new Set([
