@@ -31,7 +31,7 @@ const {
  * Does identifier value match a namespace root and is it at the root of an expression tree.
  *
  * @param {NodePath} identifierNodePath - Identifier node path.
- * @param {string} namespaceRoot - The top level of a namespace, the root label.
+ * @param {List<string>} namespaceRoot - The top level of a namespace, the root label.
  * @returns {boolean} true if this namespaced expression should be flattened.
  */
 function isNodeNamespacedAndTheRootOfANamespace(identifierNodePath, namespaceRoot) {
@@ -70,11 +70,12 @@ function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
 function isAstNodePartOfNamespace(astNode, parentNodePath, namespaceParts) {
 	if (MemberExpression.check(astNode) && Identifier.check(astNode.property)) {
 		const identifierName = astNode.property.name;
+		const isClassProperty = isAssumedToBeAClassProperty(identifierName, namespaceParts);
 		const isPrototype = (identifierName === 'prototype');
 		const isMethodCall = CallExpression.check(parentNodePath.node) &&
 			parentNodePath.get('callee').node === astNode;
 
-		return !(isPrototype || isMethodCall || isAssumedToBeAClassProperty(identifierName, namespaceParts));
+		return !(isPrototype || isMethodCall || isClassProperty);
 	}
 
 	return false;
