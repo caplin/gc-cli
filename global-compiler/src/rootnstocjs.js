@@ -1,5 +1,9 @@
-import {Iterable} from 'immutable';
-import {types} from 'recast';
+import {
+	List
+} from 'immutable';
+import {
+	types
+} from 'recast';
 
 import {
 	createRequireDeclaration,
@@ -8,8 +12,19 @@ import {
 } from './utils/utilities';
 
 const {
-	builders: {assignmentExpression, expressionStatement, identifier, memberExpression},
-	namedTypes: {AssignmentExpression, CallExpression, Identifier, MemberExpression, ReturnStatement}
+	builders: {
+		assignmentExpression,
+		expressionStatement,
+		identifier,
+		memberExpression
+	},
+	namedTypes: {
+		AssignmentExpression,
+		CallExpression,
+		Identifier,
+		MemberExpression,
+		ReturnStatement
+	}
 } = types;
 
 /**
@@ -257,7 +272,7 @@ export const rootNamespaceVisitor = {
 		this._moduleIdentifiers = new Set();
 		this._fullyQualifiedNameData = new Map();
 		this._programStatements = programStatements;
-		this._namespaceRoots = namespaceRoots.map((rootNamespace) => Iterable([rootNamespace]));
+		this._namespaceRoots = namespaceRoots.map((rootNamespace) => List.of(rootNamespace));
 	},
 
 	/**

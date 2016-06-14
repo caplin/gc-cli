@@ -1,11 +1,21 @@
 import capitalize from 'capitalize';
-import {types} from 'recast';
+import {
+	types
+} from 'recast';
 
 const {
 	builders: {
-		callExpression, identifier, literal, memberExpression, variableDeclaration, variableDeclarator
+		callExpression,
+		identifier,
+		literal,
+		memberExpression,
+		variableDeclaration,
+		variableDeclarator
 	},
-	namedTypes: {Identifier, MemberExpression}
+	namedTypes: {
+		Identifier,
+		MemberExpression
+	}
 } = types;
 
 /**
