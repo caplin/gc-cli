@@ -1,5 +1,4 @@
 import {
-	Iterable,
 	List
 } from 'immutable';
 import {
@@ -48,7 +47,12 @@ import {
 	getServiceNodesReceiver
 } from './receivers/service-registry';
 
-const {builders: {literal, identifier}} = types;
+const {
+	builders: {
+		literal,
+		identifier
+	}
+} = types;
 
 const caplinRequireMatcher = composeMatchers(
 	literalMatcher('caplin'),
@@ -184,7 +188,7 @@ export function transformSLJSUsage() {
 
 		// Add a require that requires SLJS into the module.
 		const libraryIdentifiersToRequire = new Map([
-			[Iterable([freeSLJSVariation]), 'sljs']
+			[List.of(freeSLJSVariation), 'sljs']
 		]);
 
 		addRequireForGlobalIdentifierVisitor.initialize(libraryIdentifiersToRequire, fileMetadata.ast.program.body);
