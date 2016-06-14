@@ -1,5 +1,9 @@
-import {types} from 'recast';
-import {List} from 'immutable';
+import {
+	types
+} from 'recast';
+import {
+	List
+} from 'immutable';
 
 import {
 	copyComments,
@@ -28,6 +32,7 @@ const {
  * of the IIFE.
  */
 export const iifeClassFlattenerVisitor = {
+
 	/**
 	 * @param {string} fullyQualifiedName The fully qualified class name
 	 */
@@ -72,8 +77,8 @@ function isRootPartOfIIFE(namespacedNodePath, classNameNodePath) {
 	const namespacedNodeIsInAssignmentExpression = AssignmentExpression.check(grandparent.node);
 	const assignmentGrandparentIsProgram = Program.check(assignmentExpressionGrandparent.node);
 
-	return namespacedNodeIsOnLeft && namespacedNodeIsInAssignmentExpression
-		&& assignmentGrandparentIsProgram && callExpressionIsOnRight && isRootOfIIFE;
+	return namespacedNodeIsOnLeft && namespacedNodeIsInAssignmentExpression &&
+		assignmentGrandparentIsProgram && callExpressionIsOnRight && isRootOfIIFE;
 }
 
 /**

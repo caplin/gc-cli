@@ -1,14 +1,24 @@
-import {types} from 'recast';
+import {
+	types
+} from 'recast';
 
-import {copyComments} from './utils/utilities';
+import {
+	copyComments
+} from './utils/utilities';
 
-const {namedTypes: {Program, FunctionExpression}} = types;
+const {
+	namedTypes: {
+		Program,
+		FunctionExpression
+	}
+} = types;
 
 /**
  * Removes all IIFEs at the Program level.
  * They will have their function lexical scope contents moved to the top module level.
  */
 export const flattenProgramIIFEVisitor = {
+
 	/**
 	 * @param {NodePath} callExpressionNodePath - CallExpression NodePath.
 	 */
@@ -27,4 +37,4 @@ export const flattenProgramIIFEVisitor = {
 
 		this.traverse(callExpressionNodePath);
 	}
-}
+};
