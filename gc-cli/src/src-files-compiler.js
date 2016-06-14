@@ -1,9 +1,15 @@
-import {join} from 'path';
-import {writeFile} from 'fs';
+import {
+	join
+} from 'path';
+import {
+	writeFile
+} from 'fs';
 
 import vinylFs from 'vinyl-fs';
 import through2 from 'through2';
-import {defaultFormatCode} from 'js-formatter';
+import {
+	defaultFormatCode
+} from 'js-formatter';
 import {
 	createRemoveClassNameClassExportVisitor,
 	iifeClassFlattenerVisitor,
