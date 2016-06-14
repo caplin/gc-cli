@@ -31,7 +31,7 @@ describe('Global to CJS conversion', () => {
 		// Given.
 		const givenNoExportAST = getAST('globaltocjs', 'given-no-export');
 
-		rootNamespaceVisitor.initialize(['my', 'other'], givenNoExportAST.program.body, 'SimpleClass');
+		rootNamespaceVisitor.initialize(['my', 'other'], givenNoExportAST.program.body, 'SimpleClass', false);
 
 		// When.
 		visit(givenNoExportAST, rootNamespaceVisitor);
