@@ -17,7 +17,6 @@ import {
 	transformSLJSUsage,
 	convertASTToBuffer,
 	transformI18nUsage,
-	addRequiresForCaplinBootstrap,
 	addRequiresForLibraries,
 	convertGlobalsToRequires,
 	expandVarNamespaceAliases,
@@ -64,7 +63,6 @@ export function compileSourceFiles(options) {
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
-		.pipe(addRequiresForCaplinBootstrap())
 		.pipe(convertASTToBuffer())
 		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))

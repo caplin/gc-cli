@@ -263,19 +263,6 @@ export function addRequiresForLibraries(libraryIdentifiersToRequire) {
 }
 
 /**
- * This transform adds a require for `caplin/Bootstrap` if the `caplin` identifier is present in the module.
- *
- * @returns {Function} Stream transform.
- */
-export function addRequiresForCaplinBootstrap() {
-	const caplinBootstrapIdentifier = new Map([
-		[List.of('caplin'), 'caplin/Bootstrap']
-	]);
-
-	return addRequiresForLibraries(caplinBootstrapIdentifier);
-}
-
-/**
  * This transform is use case specific in that it replaces use of one i18n library with another.
  * The transform is multi-stage as it uses more generic transforms.
  *

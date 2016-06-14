@@ -18,7 +18,6 @@ import {
 	transformSLJSUsage,
 	convertASTToBuffer,
 	transformI18nUsage,
-	addRequiresForCaplinBootstrap,
 	addRequiresForLibraries,
 	removeCJSModuleRequires,
 	convertGlobalsToRequires,
@@ -143,7 +142,6 @@ export function compileTestFiles(options) {
 		.pipe(addRequiresForLibraries(options.libraryIdentifiersToRequire))
 		.pipe(transformI18nUsage())
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
-		.pipe(addRequiresForCaplinBootstrap())
 		.pipe(pruneRedundantRequires())
 		.pipe(through2.obj(requireFixtures))
 		.pipe(through2.obj(wrapModuleInIIFE))

@@ -1,6 +1,5 @@
 'use strict';
 
-var caplin = require('caplin/Bootstrap');
 var Interface = require('my/long/Interface');
 var SuperClass = require('my/long/name/space/SuperClass');
 var topiarist = require('topiarist');
