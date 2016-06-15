@@ -60,6 +60,23 @@ function isAssumedToBeAClassProperty(identifierName, namespaceParts) {
 }
 
 /**
+ * Most functions can't be required because they aren't in their own standalone modules but are attached to an
+ * object and so the object's module must be required. That's not the case for `caplin.*()` functions as they
+ * are now in their own standalone module files.
+ *
+ * @param  {NodePath}  nodePath
+ * @param  {ASTNode}  astNode
+ * @param  {Array<string>}  namespaceParts
+ * @return {boolean}
+ */
+function isProhibitedMethodCall(nodePath, astNode, namespaceParts) {
+	const isCaplinObjectMethodCall = namespaceParts[0] === 'caplin' && namespaceParts.length === 1;
+	const isMethodCall = CallExpression.check(nodePath.node) && nodePath.get('callee').node === astNode;
+
+	return isMethodCall && isCaplinObjectMethodCall === false;
+}
+
+/**
  * Verifies astNode is a namespace node and not a `prototype`, constant or call expression.
  *
  * @param {AstNode} astNode - The ast node to validate.
@@ -72,10 +89,9 @@ function isAstNodePartOfNamespace(astNode, parentNodePath, namespaceParts) {
 		const identifierName = astNode.property.name;
 		const isClassProperty = isAssumedToBeAClassProperty(identifierName, namespaceParts);
 		const isPrototype = (identifierName === 'prototype');
-		const isMethodCall = CallExpression.check(parentNodePath.node) &&
-			parentNodePath.get('callee').node === astNode;
+		const isUnrequireableMethodCall = isProhibitedMethodCall(parentNodePath, astNode, namespaceParts);
 
-		return !(isPrototype || isMethodCall || isClassProperty);
+		return !(isPrototype || isUnrequireableMethodCall || isClassProperty);
 	}
 
 	return false;

@@ -18,7 +18,7 @@ describe('Global to CJS conversion', () => {
 		// Given.
 		const givenAST = getAST('globaltocjs', 'given');
 
-		rootNamespaceVisitor.initialize(['my', 'other'], givenAST.program.body, 'SimpleClass');
+		rootNamespaceVisitor.initialize(['my', 'other', 'caplin'], givenAST.program.body, 'SimpleClass');
 
 		// When.
 		visit(givenAST, rootNamespaceVisitor);
