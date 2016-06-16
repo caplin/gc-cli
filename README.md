@@ -4,11 +4,9 @@
 
 ### Purpose
 
-This repository hosts a command line tool that converts package/folder namespaced JavaScript code
-to CommonJS modules. So scripts with classes defined in a namespaced manner will be flattened and
-references to namespaced dependencies will be replaced with bindings to required modules.
+Converts namespaced JavaScript code to CommonJS modules.
 
-Code in this style:
+This:
 
 ```javascript
 caplin.grid.GridView = function() {
@@ -16,7 +14,7 @@ caplin.grid.GridView = function() {
 }
 ```
 
-will be converted to code in this style:
+will be converted to:
 
 ```javascript
 'use strict';
@@ -26,38 +24,47 @@ var ScrollPane = require('caplin/grid/ScrollPane');
 function GridView() {
 	this._scrollView = new ScrollPane();
 }
+
+module.exports = GridView;
 ```
 
-It also formats the code using the [js-formatter](https://github.com/briandipalma/js-formatter)
-tool and adds requires for specified globals i.e. `jQuery.on(...)` will add
-`var jQuery = require('jQuery')` if they are present in the source code. To minimize changes you
-can format your code first and then run this tool.
+Also formats code using the [js-formatter](https://github.com/briandipalma/js-formatter)
+tool and adds requires for **specified** globals i.e. `jQuery.on(...)` will add
+`var jQuery = require('jQuery')` if they are present in the source code. To minimize changes you can format your code first and then run this tool.
 
-### Mechanics
+### Requirements
 
-This package makes use of the global-compiler package for source code transformations and the [js-formatter](https://github.com/briandipalma/js-formatter) tool for code formatting.
+node v6 or higher.
 
-To use as a command line tool install it globally with the command.
+### Installation
+
+Either install it globally:
 
 ```bash
 $ npm i -g caplin/gc-cli
 ```
 
-Once installed `cd` into a directory with a `src` subdirectory and run.
+or clone this repository, `cd` into it and run
+
+```bash
+$ npm link
+```
+
+### Usage
+
+Once installed `cd` into a directory with a `src` subdirectory (a blade, bladeset, lib or aspect) and run.
 
 ```bash
 $ gc-cli
 ```
 
-This will format all `*.js` files in the `src` directory using the default options.
+This will format all `*.js` files in the `src` directory.
 
-```bash
-$ gc-cli -t
-```
+### Suggested approach
 
-Will format the `tests` directory.
+Convert one blade, bladeset, lib, aspect `src` at a time, then run tests, verify the application is working and perform smoke tests. `git checkout .` will revert the changes. Don't get bogged down on one conversion too long, move to another one if the conversion is not straightforward. Do not work on converted code without commiting the code locally or it will be difficult to keep track of your own changes versus the automated ones. The tests do not need to be converted namespaced tests can still test converted CJS source code.
 
-To convert JS patches cd into `js-patches` and run
+To convert JS patches `cd` into `js-patches` and run
 
 ```bash
 $ gc-cli --outputDirectory=. "**/*.js"
@@ -65,12 +72,12 @@ $ gc-cli --outputDirectory=. "**/*.js"
 
 #### Command line flags
 
-You can modify the default options using these options
+You can modify the default options using these options:
 
-* `--namespaces` or `-n` a comma separated list of root namespaces to convert to CJS.
+* `--namespaces` or `-n` a comma separated list of namespace roots to convert to CJS.
 
 ```bash
-$ gc-cli --namespaces caplin,caplinx,otherroot,someroot
+$ gc-cli --namespaces caplin,caplinx,br,yournamespaceroot
 ```
 
 * `--compileTestFiles` or `-t` convert `tests`, use a transform pipeline configured for tests.
@@ -79,7 +86,11 @@ $ gc-cli --namespaces caplin,caplinx,otherroot,someroot
 $ gc-cli --compileTestFiles
 ```
 
-### Testing
+### Contributing
+
+Raise any issues, feature requests in this repository or create a PR for them.
+
+#### Testing
 
 Inside this repo
 
