@@ -89,11 +89,13 @@ export function processFile(optionsObject) {
  *
  * @param   {Array}                cliProvidedFiles Array of files provided via the CLI
  * @param   {Boolean}              compileTestFiles Are the test files to be compiled
- * @returns {String|Array<String>} The files to compile
+ * @returns {String} The files to compile
  */
 function filesToCompile(cliProvidedFiles, compileTestFiles) {
 	// If the user provided some files via the CLI compile them
 	if (cliProvidedFiles.length > 0) {
+		// We only compile the first file glob the user provides and if we want to allow the user
+		// to compile multiple globs the return type of this function should be changed.
 		return cliProvidedFiles[0];
 	} else if (compileTestFiles) {
 		return 'tests/**/*.js';
