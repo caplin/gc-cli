@@ -28,9 +28,9 @@ function GridView() {
 module.exports = GridView;
 ```
 
-Also formats code using the [js-formatter](https://github.com/briandipalma/js-formatter)
-tool and adds requires for **specified** globals i.e. `jQuery.on(...)` will add
-`var jQuery = require('jQuery')` if they are present in the source code. To minimize changes you can format your code first and then run this tool.
+Also formats code using the [js-formatter](https://github.com/briandipalma/js-formatter) tool and adds requires for
+**specified** globals i.e. `jQuery.on(...)` will add `var jQuery = require('jQuery')` if they are present in the
+source code. To minimize changes you can format your code first and then run this tool.
 
 ### Requirements
 
@@ -62,7 +62,12 @@ This will format all `*.js` files in the `src` directory.
 
 ### Suggested approach
 
-Convert one blade, bladeset, lib, aspect `src` at a time, then run tests, verify the application is working and perform smoke tests. `git checkout .` will revert the changes. Don't get bogged down on one conversion too long, move to another one if the conversion is not straightforward. Do not work on converted code without commiting the code locally or it will be difficult to keep track of your own changes versus the automated ones. The tests do not need to be converted namespaced tests can still test converted CJS source code.
+Convert one blade, bladeset, lib, aspect `src` at a time, then run tests, verify the application is working and
+perform smoke tests. `git checkout .` will revert the changes. Don't get bogged down on one conversion too long,
+move to another one if the conversion is not straightforward. Do not work on converted code without commiting the
+code locally or it will be difficult to keep track of your own changes versus the automated ones. The tests do not
+need to be converted namespaced tests can still test converted CJS source code. Perform a code diff to verify the
+conversion looks reasonable.
 
 To convert JS patches `cd` into `js-patches` and run
 
