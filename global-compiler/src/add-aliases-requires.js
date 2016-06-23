@@ -2,7 +2,10 @@ import {
 	types
 } from 'recast';
 
-import {createRequireDeclaration} from './utils/utilities';
+import {
+	createRequireDeclaration,
+	storeRequireCalls
+} from './utils/utilities';
 
 const {
 	builders: {
@@ -18,6 +21,16 @@ export const addAliasesRequiresVisitor = {
 	initialize(availableAliases) {
 		this._aliasesInModule = new Set();
 		this._availableAliases = availableAliases;
+		this._preexistingRequiredModules = new Map();
+	},
+
+	/**
+	 * @param {NodePath} callExpressionNodePath CallExpression NodePath
+	 */
+	visitCallExpression(callExpressionNodePath) {
+		storeRequireCalls(callExpressionNodePath, this._preexistingRequiredModules);
+
+		this.traverse(callExpressionNodePath);
 	},
 
 	/**
@@ -47,10 +60,17 @@ export const addAliasesRequiresVisitor = {
 
 		for (const aliasInModule of this._aliasesInModule) {
 			const moduleSource = `alias!${aliasInModule}`;
-			const requireCall = createRequireDeclaration(undefined, moduleSource);
-			const requireExpressionStatement = expressionStatement(requireCall);
+			const serviceRequire = `service!${aliasInModule}`;
+			// The alias can already be required via an existing `alias!` or a `service!` require.
+			const aliasAlreadyRequired = this._preexistingRequiredModules.has(moduleSource) ||
+				this._preexistingRequiredModules.has(serviceRequire);
 
-			programStatements.unshift(requireExpressionStatement);
+			if (aliasAlreadyRequired === false) {
+				const requireCall = createRequireDeclaration(undefined, moduleSource);
+				const requireExpressionStatement = expressionStatement(requireCall);
+
+				programStatements.unshift(requireExpressionStatement);
+			}
 		}
 	}
 };

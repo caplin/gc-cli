@@ -2,12 +2,14 @@ import {
 	types
 } from 'recast';
 
+import {
+	storeRequireCalls
+} from './utils/utilities';
+
 const {
 	namedTypes: {
 		CallExpression,
 		ExpressionStatement,
-		Identifier,
-		Literal,
 		MemberExpression,
 		VariableDeclarator
 	}
@@ -40,49 +42,6 @@ export const removeRedundantRequiresVisitor = {
 		sortRequiresAndPruneRedundantRequires(this._moduleRequires);
 	}
 };
-
-/**
- * Checks if the given Node Path is a require statement.
- *
- * @param {NodePath} callExpressionNodePath - CallExpressionNodePath NodePath.
- * @returns {boolean}
- */
-function isARequire(callExpressionNodePath) {
-	const args = callExpressionNodePath.get('arguments').value;
-	const argumentsAreOK = args.length === 1 && Literal.check(args[0]);
-	const callee = callExpressionNodePath.get('callee');
-	const calleeIsOK = callee.node.name === 'require' && Identifier.check(callee.node);
-
-	return argumentsAreOK && calleeIsOK;
-}
-
-/**
- * Gets a module's source
- *
- * @param  {NodePath} callExpressionNodePath
- * @return {string}
- */
-function getModuleSource(callExpressionNodePath) {
-	const args = callExpressionNodePath.get('arguments').value;
-
-	return args[0].value;
-}
-
-/**
- * If the call expression is a `require` expression store the NodePath.
- *
- * @param  {NodePath} callExpressionNodePath
- * @param  {Map<string, Array<NodePath>>} moduleRequires
- */
-function storeRequireCalls(callExpressionNodePath, moduleRequires) {
-	if (isARequire(callExpressionNodePath)) {
-		const moduleSource = getModuleSource(callExpressionNodePath);
-		const moduleSourceRequires = moduleRequires.get(moduleSource) || [];
-
-		moduleSourceRequires.push(callExpressionNodePath);
-		moduleRequires.set(moduleSource, moduleSourceRequires);
-	}
-}
 
 /**
  * Get a require call's import specifier (what the require imports).

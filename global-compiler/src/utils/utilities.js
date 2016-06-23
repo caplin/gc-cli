@@ -14,6 +14,7 @@ const {
 	},
 	namedTypes: {
 		Identifier,
+		Literal,
 		MemberExpression
 	}
 } = types;
@@ -162,4 +163,35 @@ export function isNamespaceAlias(varNameNodePath, varValueNodePath, namespaceRoo
 	const isVarValueNamespaced = varValueNodePath && isNamespacedExpression(varValueNodePath, namespaceRoots);
 
 	return isVariableNameIdentifier && isVarValueNamespaced;
+}
+
+/**
+ * Checks if the given Node Path is a require statement.
+ *
+ * @param {NodePath} callExpressionNodePath - CallExpressionNodePath NodePath.
+ * @returns {boolean}
+ */
+function isARequire(callExpressionNodePath) {
+	const args = callExpressionNodePath.get('arguments').value;
+	const argumentsAreOK = args.length === 1 && Literal.check(args[0]);
+	const callee = callExpressionNodePath.get('callee');
+	const calleeIsOK = callee.node.name === 'require' && Identifier.check(callee.node);
+
+	return argumentsAreOK && calleeIsOK;
+}
+
+/**
+ * If the call expression is a `require` expression store the NodePath.
+ *
+ * @param  {NodePath} callExpressionNodePath
+ * @param  {Map<string, Array<NodePath>>} moduleRequires
+ */
+export function storeRequireCalls(callExpressionNodePath, moduleRequires) {
+	if (isARequire(callExpressionNodePath)) {
+		const moduleSource = callExpressionNodePath.get('arguments').value[0].value;
+		const moduleSourceRequires = moduleRequires.get(moduleSource) || [];
+
+		moduleSourceRequires.push(callExpressionNodePath);
+		moduleRequires.set(moduleSource, moduleSourceRequires);
+	}
 }

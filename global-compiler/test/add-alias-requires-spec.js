@@ -9,7 +9,8 @@ describe('Add aliases requires', () => {
 		// Given.
 		const availableAliases = new Set([
 			'caplinps.collapsible-menu-model',
-			'caplin.grid-component'
+			'caplin.grid-component',
+			'caplin.layout-service'
 		]);
 		const givenAST = getAST('add-aliases-requires', 'given');
 
