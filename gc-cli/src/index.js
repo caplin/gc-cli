@@ -52,6 +52,7 @@ export function createOptionsObject({namespaces, compileTestFiles, removeRequire
 	optionsObject.libraryIdentifiersToRequire = new Map([
 		[List.of('emitr'), 'emitr'],
 		[List.of('jQuery'), 'jquery'],
+		[List.of('$'), 'jquery'],
 		[List.of('sinon'), 'sinonjs'],
 		[List.of('queryString'), 'query-string'],
 		[List.of('JsMockito'), 'jsmockito'],
