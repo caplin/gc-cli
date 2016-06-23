@@ -1,4 +1,6 @@
-import {Iterable} from 'immutable';
+import {
+	List
+} from 'immutable';
 import {describe, it} from 'mocha';
 import {visit} from 'recast';
 
@@ -12,11 +14,11 @@ describe('Add require for global identifier', () => {
 	it('adds require for specified identifiers.', () => {
 		// Given
 		const identifiersToRequire = new Map([
-			[Iterable(['otherGlobal']), 'otherglobal'],
-			[Iterable(['emitr']), 'emitr'],
-			[Iterable(['globalLibrary']), 'globallibrary'],
-			[Iterable(['aLibrary', '()', 'plugin']), 'a-library'],
-			[Iterable(['SL4B_Accessor']), 'sl4bdummy->SL4B_Accessor']
+			[List.of('otherGlobal'), 'otherglobal'],
+			[List.of('emitr'), 'emitr'],
+			[List.of('globalLibrary'), 'globallibrary'],
+			[List.of('aLibrary', '()', 'plugin'), 'a-library'],
+			[List.of('SL4B_Accessor'), 'sl4bdummy->SL4B_Accessor']
 		]);
 		const givenAST = getAST('add-require-for-global-identifier', 'given');
 
