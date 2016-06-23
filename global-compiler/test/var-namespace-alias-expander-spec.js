@@ -1,8 +1,18 @@
-import {describe, it} from 'mocha';
-import {visit} from 'recast';
+import {
+	describe,
+	it
+} from 'mocha';
+import {
+	visit
+} from 'recast';
 
-import {varNamespaceAliasExpanderVisitor} from '../src/index';
-import {getAST, verifyASTIsAsExpected} from './test-utilities';
+import {
+	varNamespaceAliasExpanderVisitor
+} from '../src/index';
+import {
+	getAST,
+	verifyASTIsAsExpected
+} from './test-utilities';
 
 describe('var namespace alias expander', () => {
 	it('should expand var namespace aliases to namespaces.', () => {

@@ -2,14 +2,21 @@ import {
 	types,
 	visit
 } from 'recast';
-import {info} from 'winston';
+import {
+	info
+} from 'winston';
 
 import {
 	getNamespacePath,
 	isNamespaceAlias
 } from './utils/utilities';
 
-const {namedTypes: {MemberExpression, VariableDeclarator}} = types;
+const {
+	namedTypes: {
+		MemberExpression,
+		VariableDeclarator
+	}
+} = types;
 
 /**
  * This transform will discover aliases to namespace paths, bound as vars, and when these aliases are
@@ -115,7 +122,7 @@ function getIdentifierBindings(identifierNodePath) {
  *
  * @param {NodePath[]} identifierBindings - Identifier bindings.
  * @param {string[]} namespaceRoots - The namespace roots, the top level parts.
- * @returns {(NodePath|undefined)} the namespace value NodePath or undefined if not using alias.
+ * @returns {(NodePath|boolean)} the namespace value NodePath or false if not using alias.
  */
 function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 	if (identifierBindings.length === 1) {
@@ -130,6 +137,8 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 			}
 		}
 	}
+
+	return false;
 }
 
 /**
