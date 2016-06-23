@@ -1,8 +1,14 @@
-import {types} from 'recast';
+import {
+	types
+} from 'recast';
 
 import {createRequireDeclaration} from './utils/utilities';
 
-const {builders: {expressionStatement}} = types;
+const {
+	builders: {
+		expressionStatement
+	}
+} = types;
 
 /**
  * Add requires for any aliases found in the module strings. The requires are in the

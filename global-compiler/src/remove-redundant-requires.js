@@ -1,7 +1,16 @@
-import {types} from 'recast';
+import {
+	types
+} from 'recast';
 
 const {
-	namedTypes: {CallExpression, ExpressionStatement, Identifier, Literal, MemberExpression, VariableDeclarator}
+	namedTypes: {
+		CallExpression,
+		ExpressionStatement,
+		Identifier,
+		Literal,
+		MemberExpression,
+		VariableDeclarator
+	}
 } = types;
 
 /**
@@ -136,7 +145,7 @@ function pruneRedundantRequires(requireMetadataToRequireNodePaths) {
 	const moduleRequiresWithNoBindings = requireMetadataToRequireNodePaths.get('default');
 
 	if (requireMetadataToRequireNodePaths.size > 1 && moduleRequiresWithNoBindings) {
-		for (let unboundRequire of moduleRequiresWithNoBindings) {
+		for (const unboundRequire of moduleRequiresWithNoBindings) {
 			unboundRequire.prune();
 		}
 	}
@@ -185,11 +194,11 @@ function filterInlineCalls(requireCallExpressionNodePath) {
  */
 function sortRequiresAndPruneRedundantRequires(moduleRequires) {
 	// For all the requires for a specific module source.
-	for (let callExpressionNodePaths of moduleRequires.values()) {
+	for (const callExpressionNodePaths of moduleRequires.values()) {
 		const requireMetadataToRequireNodePaths = new Map();
 
 		// Group the requires by their metadata.
-		for (let callExpressionNodePath of callExpressionNodePaths) {
+		for (const callExpressionNodePath of callExpressionNodePaths) {
 			if (filterInlineCalls(callExpressionNodePath)) {
 				groupModuleSourceRequires(callExpressionNodePath, requireMetadataToRequireNodePaths);
 			}
