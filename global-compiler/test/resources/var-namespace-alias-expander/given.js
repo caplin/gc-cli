@@ -67,6 +67,7 @@ my.name.space.feature.SomeClass.prototype.newMethod = function(sAmount) {
 
 	SuperClass.prototype.newMethod.apply(this, arguments);
 
+	// Comment before alias node.
 	var MY_CONSTANTS = my.name.space.feature.SomeClass.MY_CONSTANTS;
 
 	var ThousandFormatter = my.name.space.AClass;

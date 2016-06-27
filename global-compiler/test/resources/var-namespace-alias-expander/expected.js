@@ -56,6 +56,7 @@ my.name.space.feature.SomeClass.prototype.otherMethod = function() {
 my.name.space.feature.SomeClass.prototype.newMethod = function(sAmount) {
     my.name.event.SuperClass.prototype.newMethod.apply(this, arguments);
 
+    // Comment before alias node.
     sAmount = my.name.space.AClass.format(sAmount + my.name.space.feature.SomeClass.MY_CONSTANTS.A_VALUE, {});
     sAmount = my.name.space.AnotherClass.format(sAmount, {
 		padDecimals: 'true'

@@ -7,6 +7,7 @@ import {
 } from 'winston';
 
 import {
+	copyComments,
 	getNamespacePath,
 	isNamespaceAlias
 } from './utils/utilities';
@@ -142,6 +143,20 @@ function getNamespaceAliasValue(identifierBindings, namespaceRoots) {
 }
 
 /**
+ * Move comments attached to namespace alias down to node below it.
+ *
+ * @param  {NodePath} namespaceAliasVarDecl
+ */
+function preserveNamespaceAliasComments(namespaceAliasVarDecl) {
+	// Find where the alias `VariableDeclaration` is within its containing `BlockStatement`
+	const aliasIndex = namespaceAliasVarDecl.parent.node.body.indexOf(namespaceAliasVarDecl.node);
+
+	if (namespaceAliasVarDecl.parent.node.body[aliasIndex + 1]) {
+		copyComments(namespaceAliasVarDecl.node, namespaceAliasVarDecl.parent.node.body[aliasIndex + 1]);
+	}
+}
+
+/**
  * Once namespace aliases have been expanded to a namespace we can remove the alias bindings.
  *
  * @param {Set<NodePath>} namespaceAliasBindingsToRemove - Set containing namespace alias bindings to
@@ -154,6 +169,8 @@ function removeNamespaceAliases(namespaceAliasBindingsToRemove) {
 		const namespace = getNamespacePath(namespaceAlias.get('init').node, [])
 			.reverse()
 			.join('.');
+
+		preserveNamespaceAliasComments(parent);
 
 		namespaceAlias.replace();
 
