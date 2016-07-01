@@ -1,6 +1,7 @@
 (function() {
-    var sinon = require("sinonjs");
     var i18n = require("br/I18n");
+    var sinon = require("sinonjs");
+    var jQuery = require("jquery");
     my.lib("sinonjs");
 
     var ERROR_MESSAGE = {
@@ -12,6 +13,7 @@
     var testCase = {
 		setUp: function() {
 			createStubs();
+			jQuery(someElement);
 		},
 
 		tearDown: function() {

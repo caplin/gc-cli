@@ -24,11 +24,11 @@ const testCommandOptions = {
 	_: [],
 	r: 'my',
 	t: true,
-	n: 'my,other',
+	n: 'my,ct,other,caplin,br',
 	o: './test-output',
 	removeRequires: 'my',
 	compileTestFiles: true,
-	namespaces: 'my,ct,other',
+	namespaces: 'my,ct,other,caplin,br',
 	outputDirectory: './test-output'
 };
 

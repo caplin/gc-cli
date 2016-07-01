@@ -1,3 +1,4 @@
+caplin.thirdparty('jquery');
 my.lib("sinonjs");
 
 (function() {
@@ -10,6 +11,7 @@ my.lib("sinonjs");
 	var testCase = {
 		setUp: function() {
 			createStubs();
+			jQuery(someElement);
 		},
 
 		tearDown: function() {
