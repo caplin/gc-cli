@@ -1,8 +1,8 @@
 'use strict';
 
 var Class = require('caplin/other/Class');
-var sljs = require('sljs');
 require('alias!other.alias');
+var sljs = require('sljs');
 
 function SimpleIIFEClass() {
 }

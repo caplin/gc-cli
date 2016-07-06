@@ -6,7 +6,6 @@ var getFileContents = require('caplin/getFileContents');
 var TicketLauncher = require('caplin/trading/ticket/TicketLauncher');
 var PropertyHelper = require('caplin/presenter/property/PropertyHelper');
 var topiarist = require('topiarist');
-require('alias!test.alias');
 
 function SimpleClass() {
 	this._service = require('service!test.alias');
