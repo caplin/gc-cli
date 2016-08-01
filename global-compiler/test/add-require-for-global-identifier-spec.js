@@ -15,6 +15,7 @@ describe('Add require for global identifier', () => {
 		// Given
 		const identifiersToRequire = new Map([
 			[List.of('otherGlobal'), 'otherglobal'],
+			[List.of('ContructThis'), 'construct-this'],
 			[List.of('emitr'), 'emitr'],
 			[List.of('globalLibrary'), 'globallibrary'],
 			[List.of('aLibrary', '()', 'plugin'), 'a-library'],

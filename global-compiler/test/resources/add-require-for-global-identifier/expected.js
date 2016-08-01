@@ -1,3 +1,4 @@
+var ContructThis = require("construct-this");
 var SL4B_Accessor = require("sl4bdummy").SL4B_Accessor;
 var globalLibrary = require("globallibrary");
 var otherGlobal = require("otherglobal");
@@ -13,6 +14,8 @@ function SimpleClass() {
 
 	globalLibrary.makeOfTypeGL(this);
 	SL4B_Accessor();
+
+	this._test = new ContructThis();
 }
 
 my.extend(SimpleClass, SuperClass);

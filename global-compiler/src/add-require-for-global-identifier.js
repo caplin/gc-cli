@@ -12,6 +12,7 @@ const {
 	},
 	namedTypes: {
 		MemberExpression,
+		NewExpression,
 		CallExpression
 	}
 } = types;
@@ -41,7 +42,7 @@ function storePreexistingImportSpecifier(callExpressionNodePath, preexistingImpo
 function isStandaloneIdentifier(identifierNodePath) {
 	const identifierParentNodePath = identifierNodePath.parent;
 
-	if (CallExpression.check(identifierParentNodePath.node)) {
+	if (CallExpression.check(identifierParentNodePath.node) || NewExpression.check(identifierParentNodePath.node)) {
 		return true;
 	} else if (MemberExpression.check(identifierParentNodePath.node)) {
 		return identifierParentNodePath.get('object') === identifierNodePath;
