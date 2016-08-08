@@ -15,6 +15,9 @@ import {
 	sync
 } from 'glob';
 import {
+	safeLoad
+} from 'js-yaml';
+import {
 	visit
 } from 'recast';
 import {
@@ -45,12 +48,29 @@ export function transformASTAndPushToNextStream(fileMetadata, visitor, callback)
 	return callback(null, fileMetadata);
 }
 
+// if a `br-lib.conf` YAML file exists read it and extract its `requirePrefix`.
+function getNamespacePrefixParts() {
+	const brLibFileName = join(process.cwd(), 'br-lib.conf');
+
+	try {
+		const brLibYAML = safeLoad(readFileSync(brLibFileName, 'utf8'));
+
+		return brLibYAML.requirePrefix.split('/');
+	} catch (noBRLibConfFileError) {
+		// Ignore.
+	}
+
+	return [];
+}
+
 /**
  * @param {FileMetadata} fileMetadata - File metadata for file being visited.
  * @returns {string} File namespace, namespace parts separated by '.'.
  */
 export function getFileNamespace(fileMetadata) {
-	return getFileNamespaceParts(fileMetadata).join('.');
+	const namespacePrefixParts = getNamespacePrefixParts();
+
+	return namespacePrefixParts.concat(getFileNamespaceParts(fileMetadata)).join('.');
 }
 
 /**

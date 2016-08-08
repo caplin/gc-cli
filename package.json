@@ -19,6 +19,7 @@
     "glob": "^7.0.3",
     "immutable": "^3.0.3",
     "js-formatter": "git://github.com/briandipalma/js-formatter",
+    "js-yaml": "^3.6.1",
     "minimist": "^1.1.0",
     "recast": "^0.11.5",
     "through2": "^2.0.1",
