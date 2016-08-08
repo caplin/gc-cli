@@ -1,10 +1,25 @@
-import {readdirSync, readFileSync} from 'fs';
-import {dirname, join, sep} from 'path';
+import {
+	readdirSync,
+	readFileSync
+} from 'fs';
+import {
+	dirname,
+	join,
+	sep
+} from 'path';
 
-import {parse} from 'elementtree';
-import {sync} from 'glob';
-import {visit} from 'recast';
-import {error} from 'winston';
+import {
+	parse
+} from 'elementtree';
+import {
+	sync
+} from 'glob';
+import {
+	visit
+} from 'recast';
+import {
+	error
+} from 'winston';
 
 export function NO_OP() {
 	// Ignored callback.
