@@ -8,9 +8,6 @@ import {
 import vinylFs from 'vinyl-fs';
 import through2 from 'through2';
 import {
-	defaultFormatCode
-} from 'js-formatter';
-import {
 	createRemoveClassNameClassExportVisitor,
 	iifeClassFlattenerVisitor,
 	namespacedClassFlattenerVisitor
@@ -70,7 +67,6 @@ export function compileSourceFiles(options) {
 		.pipe(replaceLibraryIncludesWithRequires(options.libraryIncludesToRequire, options.libraryIncludeIterable))
 		.pipe(convertGlobalsToRequires(options.namespaces))
 		.pipe(convertASTToBuffer())
-		.pipe(formatCode(options.formatterOptions))
 		.pipe(vinylFs.dest(options.outputDirectory))
 		.on('end', () => {
 			writeFile(join(outputDirectory, '.js-style'), 'common-js', NO_OP);
@@ -120,17 +116,4 @@ function flattenClass(fileMetadata, encoding, callback) {
 
 	namespacedClassFlattenerVisitor.initialize(classNamespace);
 	transformASTAndPushToNextStream(fileMetadata, namespacedClassFlattenerVisitor, callback);
-}
-
-/**
- * Formats code.
- *
- * @returns {Function} Stream transform implementation which formats JS files.
- */
-function formatCode() {
-	return through2.obj((fileMetadata, encoding, callback) => {
-		// Format the transformed code, vinyl-fs needs file contents to be a Buffer
-		fileMetadata.contents = new Buffer(defaultFormatCode(fileMetadata.contents.toString()));
-		callback(null, fileMetadata);
-	});
 }
