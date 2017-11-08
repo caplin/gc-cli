@@ -28,9 +28,8 @@ function GridView() {
 module.exports = GridView;
 ```
 
-Also formats code using the [js-formatter](https://github.com/briandipalma/js-formatter) tool and adds requires for
-**specified** globals i.e. `jQuery.on(...)` will add `var jQuery = require('jQuery')` if they are present in the
-source code. To minimize changes you can format your code first and then run this tool.
+Also adds requires for **specified** globals i.e. `jQuery.on(...)` will add a
+`var jQuery = require('jQuery')` statement if not already present in the code.
 
 ### Requirements
 
@@ -52,7 +51,8 @@ $ npm link
 
 ### Usage
 
-Once installed `cd` into a directory with a `src` subdirectory (a blade, bladeset, lib or aspect) and run.
+Once installed `cd` into a directory with a `src` subdirectory (a blade,
+bladeset, lib or aspect) and run.
 
 ```bash
 $ gc-cli
@@ -62,12 +62,14 @@ This will format all `*.js` files in the `src` directory.
 
 ### Suggested approach
 
-Convert one blade, bladeset, lib, aspect `src` at a time, then run tests, verify the application is working and
-perform smoke tests. `git checkout .` will revert the changes. Don't get bogged down on one conversion too long,
-move to another one if the conversion is not straightforward. Do not work on converted code without commiting the
-code locally or it will be difficult to keep track of your own changes versus the automated ones. The tests do not
-need to be converted namespaced tests can still test converted CJS source code. Perform a code diff to verify the
-conversion looks reasonable.
+Convert one blade, bladeset, lib, aspect `src` at a time, then run tests, verify
+the application is working and perform smoke tests. `git checkout .` will revert
+the changes. Don't get bogged down on one conversion too long, move to another
+one if the conversion is not straightforward. Do not work on converted code
+without commiting the code locally or it will be difficult to keep track of your
+own changes versus the automated ones. The tests do not need to be converted
+namespaced tests can still test converted CJS code. Perform a code diff to
+verify the conversion looks reasonable.
 
 To convert JS patches `cd` into `js-patches` and run
 
@@ -79,13 +81,15 @@ $ gc-cli --outputDirectory=. "**/*.js"
 
 You can modify the default options using these options:
 
-* `--namespaces` or `-n` a comma separated list of namespace roots to convert to CJS.
+* `--namespaces` or `-n` comma separated list of namespace roots to convert to
+CJS.
 
 ```bash
 $ gc-cli --namespaces caplin,caplinx,br,yournamespaceroot
 ```
 
-* `--compileTestFiles` or `-t` convert `tests`, use a transform pipeline configured for tests.
+* `--compileTestFiles` or `-t` convert `tests`, use a transform pipeline
+configured for tests.
 
 ```bash
 $ gc-cli --compileTestFiles
